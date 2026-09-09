@@ -44,11 +44,15 @@ Finally: "Default reviewers, or name them?" (record as a lens list or nothing) a
 
 ## 3. Resume check
 
-Read the latest `.ck/runs/*/run.json` with `command: "prd"` for this project, if any.
+Read the latest `.ck/runs/*/run.json` with `command: "prd"` for this project, if any. `run.json` can be stale: a workflow cannot write it, and a session can end before the notification arrives. So decide the stage from what is on disk, in this order:
 
-- If `docs/PRD.md` exists and `status` names a stopped stage, offer: "Your PRD stopped at [stage]. Everything before it is saved in `docs/PRD.md`. Continue from there, or start over?" Continue means `startAt` = that stage.
-- If `status` is `review`, go to step 7: the author has reviewed.
-- If `status` is `final`, ask: "The PRD is finished. Re-run the reviewers on some sections, or start over?"
+- `status` is `final`: ask "The PRD is finished. Re-run the reviewers on some sections, or start over?"
+- `status` is `review`: go to step 7; the author has reviewed.
+- The run directory holds `panel/*.json` and `docs/decisions/<timestamp>-prd-review.md` exists, but `docs/PRD.md` still has placeholder rows in Appendix A: the panel finished and the rewrite did not. `startAt` is `synthesize`.
+- `docs/PRD.md` exists and no panel files do: the draft finished. `startAt` is `validate`.
+- Otherwise `startAt` is `draft`.
+
+When `startAt` is later than `draft`, say: "Your PRD stopped after the [stage] step. Everything so far is saved in `docs/PRD.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp, and go to step 5. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
 
 ## 4. Mint the run
 
