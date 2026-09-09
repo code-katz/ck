@@ -41,3 +41,4 @@ Every claim not taken directly from the PRD or the roadmap carries an inline tag
 7. Every claim not from the PRD or roadmap carries a `[C<n>]` tag, and every tag appears in Appendix A or is marked unchallenged.
 8. Assumptions exposed by the premortem appear in Risks or Context and constraints.
 9. No em-dashes in prose.
+10. The document is under 3,000 words unless the author asked for more.

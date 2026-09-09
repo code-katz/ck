@@ -90,6 +90,8 @@ Immediately write the returned run id into `run.json` as `harnessRunId`, with `w
 
 If the notification reports a stop or a failure: record the failed stage in `run.json` and say: "I couldn't finish the [stage] step. Everything up to it is saved in `docs/PRD.md`. Run `/ck:prd` again to continue from there." Within the same session you may instead offer to relaunch with `resumeFromRunId`.
 
+If the notification reports success but says the panel did not run, relaunch with `startAt: "panel"` and wait again. Never edit `docs/PRD.md` yourself in this step or the next: the workflow and the finalize agent write it, and the main session only launches, waits, reads, and reports.
+
 ## 6. The review
 
 Set `status` to `review`. Read `docs/PRD.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, with the premortem question from Appendix B at the top of the page. That skill publishes, waits for "done", applies every comment to `docs/PRD.md` (recording each in `<runDir>/review.md`), republishes, and resolves; or, when publishing is unavailable, prints the file-edit message and stops until the next run.

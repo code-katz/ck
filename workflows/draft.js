@@ -20,6 +20,7 @@ const ARTIFACTS = {
     question: "Is this PRD ready for the author's review, and what would you change before it ships?",
     premortem: 'this shipped on time and did not move the success metric',
     memoSlug: 'prd-review',
+    maxWords: 3000,
     lenses: [
       { persona: 'river', lens: 'product', model: 'claude-fable-5-1', reads: ['docs/brief.md', 'docs/opportunity.md', 'ROADMAP.md'] },
       { persona: 'toni', lens: 'marketing', model: 'claude-opus-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
@@ -35,6 +36,7 @@ const ARTIFACTS = {
     question: 'Would you build it this way, and what would you change before the first line of code?',
     premortem: 'this shipped and fell over in production in its first month',
     memoSlug: 'architecture-review',
+    maxWords: 3000,
     lenses: [
       { persona: 'morgan', lens: 'security', model: 'claude-fable-5-1', reads: ['docs/PRD.md', 'SECURITY.md'] },
       { persona: 'alex', lens: 'platform', model: 'claude-sonnet-5', reads: ['infra/', 'Dockerfile', '.github/workflows/'] },
@@ -154,7 +156,7 @@ if (runs('draft')) {
     `panel, and say so under its heading.\n` +
     `Tag every claim that is not taken directly from the inputs with an inline marker [C1], [C2], ... so the ` +
     `panel can address it, and list those claims with their section. Put anything you would have asked the ` +
-    `author under Open questions, with your assumption.\n` +
+    `author under Open questions, with your assumption. Keep the document under ${A.maxWords} words.\n` +
     `Return the draft object; path must be '${outPath}'.`,
     { label: `${A.author}:draft`, phase: 'Draft', agentType: author, schema: DRAFT_SCHEMA },
   )
@@ -223,11 +225,15 @@ if (runs('panel')) {
 
 // ---- Synthesize ----
 phase('Synthesize')
+// A resumed run starts here with the panel's files already on disk from the earlier run.
+const earlierMemo = projectRoot + '/docs/decisions/' + stamp + '-' + A.memoSlug + '.md'
 const panelInputs = panel && panel.memoPath
   ? `${panel.memoPath} and every file under ${runDir}/panel/`
   : (panel
     ? `every file under ${runDir}/panel/ (the memo was not written)`
-    : 'nothing else: the panel did not run, and the document header must say so')
+    : (startAt === 'synthesize'
+      ? `${earlierMemo} and every file under ${runDir}/panel/, written by the earlier run of this workflow (if neither exists, say in the document header that the panel did not run)`
+      : 'nothing else: the panel did not run, and the document header must say so'))
 const final = await agent(
   `${contractStep} Read the inputs (${inputs.join(', ')}), ${outPath}, and ${panelInputs}.\n` +
   `Rewrite ${outPath}: the same sections, in contract order, revised where the panel showed a claim wrong or ` +
@@ -240,8 +246,8 @@ const final = await agent(
   `Appendix B, Premortem: write the 2-3 sentence scenario in which ${A.premortem}; name the hidden assumption ` +
   `it exposes; add that assumption to the Assumptions section; leave the question "What went wrong?" ` +
   `verbatim for the author. The review asks it.\n` +
-  `Check your own output against the contract's checklist before returning. List every decision you left ` +
-  `open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
+  `Keep the document under ${A.maxWords} words. Check your own output against the contract's checklist before ` +
+  `returning. List every decision you left open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
   { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, schema: FINAL_SCHEMA },
 )
 if (!final) throw new Error(`draft: ${A.author} returned nothing for the synthesis; the draft is at ` + outPath)
@@ -251,7 +257,7 @@ return {
   artifact: a.artifact,
   startedAt: startAt,
   path: final.path,
-  memoPath: panel ? panel.memoPath : null,
+  memoPath: panel ? panel.memoPath : (startAt === 'synthesize' ? earlierMemo : null),
   lenses: panel ? panel.lenses : [],
   validation,
   challengedClaims: final.challengedClaims,

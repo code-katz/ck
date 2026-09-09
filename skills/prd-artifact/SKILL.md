@@ -38,6 +38,7 @@ Every claim not taken directly from the brief carries an inline tag `[C1]`, `[C2
 8. Assumptions includes the assumption the premortem exposed (or, before the premortem exists, says the premortem is pending).
 9. Open questions lists every decision left to the author.
 10. No em-dashes in prose. Em-dashes are acceptable only as separators in structured lists.
+11. The PRD is under 3,000 words unless the author asked for more. Requirements are numbered statements with acceptance criteria, not essays.
 
 ## File paths
 
