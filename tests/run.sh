@@ -63,6 +63,7 @@ for n in "${personas[@]}"; do
   diff -q "skills/$n/SKILL.md" "$TMP/gen/skills/$n/SKILL.md" >/dev/null 2>&1 || stale+=("skills/$n/SKILL.md")
 done
 diff -q profiles/ROSTER.md "$TMP/gen/profiles/ROSTER.md" >/dev/null 2>&1 || stale+=("profiles/ROSTER.md")
+diff -q skills/roster/SKILL.md "$TMP/gen/skills/roster/SKILL.md" >/dev/null 2>&1 || stale+=("skills/roster/SKILL.md")
 if (( ${#stale[@]} == 0 )); then ok "no drift between profiles/ and the committed generated files"; else fail "stale generated files: ${stale[*]} (run bash scripts/generate.sh)"; fi
 
 # ─── 3. Counts ───────────────────────────────────────────────────────────────
@@ -187,6 +188,9 @@ EOF
   done
   for c in $(grep -oE 'skills/[a-z-]+-artifact/SKILL\.md' "$f" | sort -u); do
     [[ -f "$c" ]] && ok "$f reads $c, which exists" || fail "$f reads $c, which is missing"
+  done
+  for c in $(grep -oE 'skill ck:[a-z-]+' "$f" | sed 's/skill ck://' | sort -u); do
+    [[ -f "skills/$c/SKILL.md" ]] && ok "$f loads the skill ck:$c, which exists" || fail "$f loads the skill ck:$c, which is missing"
   done
 done
 

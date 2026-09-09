@@ -5,6 +5,7 @@
 #                             "Required Interactive Behaviors" rewritten for output
 #   skills/<name>/SKILL.md    the persona as the /ck:<name> session switch, verbatim
 #   profiles/ROSTER.md        one row per persona: name, role, tier model, domain
+#   skills/roster/SKILL.md    the same roster as a skill, so a workflow agent can load it by name
 #
 # profiles/ is the only place persona text is edited. Re-run after editing any
 # profile or tiers.conf:
@@ -45,7 +46,7 @@ done
 # Refuse to overwrite uncommitted hand edits to generated files: the fix for a
 # generated file is an edit to its profile, never to the file itself.
 if [[ "$OUT_DIR" == "$REPO_DIR" && $FORCE -eq 0 ]] && git -C "$REPO_DIR" rev-parse --verify HEAD >/dev/null 2>&1; then
-  generated=(agents profiles/ROSTER.md)
+  generated=(agents profiles/ROSTER.md skills/roster)
   for n in "${names[@]}"; do generated+=("skills/$n"); done
   if [[ -n "$(git -C "$REPO_DIR" status --porcelain -- "${generated[@]}" 2>/dev/null)" ]]; then
     echo "error: generated files have uncommitted changes. Edit the profile, not the generated file; commit or discard, or pass --force." >&2
@@ -131,15 +132,29 @@ for name in "${names[@]}"; do
   count=$((count + 1))
 done
 
+roster_table() {
+  printf '| Persona | Role | Tier model | Domain |\n|---|---|---|---|\n'
+  printf '%s\n' "${roster_rows[@]}"
+}
 {
   printf '# ck roster\n\n'
   printf '<!-- GENERATED from profiles/*.md and tiers.conf by scripts/generate.sh; edit those, not this file. -->\n\n'
   printf 'One row per persona. Workflows read this file when choosing a cast.\n\n'
-  printf '| Persona | Role | Tier model | Domain |\n|---|---|---|---|\n'
-  printf '%s\n' "${roster_rows[@]}"
+  roster_table
 } > "$OUT_DIR/profiles/ROSTER.md"
+mkdir -p "$OUT_DIR/skills/roster"
+{
+  printf -- '---\n'
+  printf 'name: roster\n'
+  printf 'description: The ck roster, one line per persona with name, role, tier model, and domain. Loaded by workflow agents when choosing a cast. Not for typing.\n'
+  printf 'user-invocable: false\n'
+  printf -- '---\n\n'
+  printf '<!-- GENERATED from profiles/*.md and tiers.conf by scripts/generate.sh; edit those, not this file. -->\n\n'
+  printf '# ck roster\n\n'
+  roster_table
+} > "$OUT_DIR/skills/roster/SKILL.md"
 
-echo "Generated $count agents, $count switch skills, and profiles/ROSTER.md in $OUT_DIR"
+echo "Generated $count agents, $count switch skills, profiles/ROSTER.md, and skills/roster/SKILL.md in $OUT_DIR"
 if [[ "$OUT_DIR" == "$REPO_DIR" ]] && git -C "$REPO_DIR" rev-parse --verify HEAD >/dev/null 2>&1; then
   git -C "$REPO_DIR" --no-pager diff --stat -- agents profiles/ROSTER.md skills || true
 fi

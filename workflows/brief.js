@@ -1,6 +1,6 @@
 export const meta = {
   name: 'brief',
-  description: 'Toni runs a basic market pass (three to five comparable products, sourced), River writes docs/brief.md from one line of idea text to the brief contract, and a checker validates the shape. Args: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, idea (text; may be empty when opportunityPath is given), opportunityPath (optional; absolute), marketResearchPath (optional; absolute), briefPath (optional; default <projectRoot>/docs/brief.md).',
+  description: 'Toni runs a basic market pass (three to five comparable products, sourced), River writes docs/brief.md from one line of idea text to the brief contract, and a checker validates the shape. Type /ck:brief followed by the idea in a sentence; the text is the only argument needed. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, idea, opportunityPath (optional; absolute), marketResearchPath (optional; absolute), briefPath (optional; default <projectRoot>/docs/brief.md).',
   phases: [
     { title: 'Market pass', detail: 'ck:toni finds three to five comparable products with a source each, reading market research and the opportunity first when they exist' },
     { title: 'Draft', detail: 'ck:river writes the brief: problem and root-cause chain, user, success metric, comparable products, scope with a smaller first version, non-goals, open questions' },
@@ -9,19 +9,24 @@ export const meta = {
   personas: ['toni', 'river'],
 }
 
-if (!args || !args.runId || !args.runDir || !args.projectRoot || !args.pluginRoot || !args.timestamp) {
-  throw new Error('brief: args.runId, args.runDir, args.projectRoot, args.pluginRoot, and args.timestamp are required')
+// Direct invocation (/ck:brief <idea>) hands the typed text to the script as a string; a skill
+// launch passes an object. Both are accepted. Paths default to the project the session is in,
+// and without a plugin root the contract is loaded by skill name instead of by path.
+const a = (args && typeof args === 'object') ? args : { idea: typeof args === 'string' ? args.trim() : '' }
+if (!a.idea && !a.opportunityPath) {
+  throw new Error('brief: type the idea after the command, for example /ck:brief An app that reminds you to water each plant on its own schedule. Or run /ck:opportunity first so the brief can start from docs/opportunity.md.')
 }
-if (!args.idea && !args.opportunityPath) {
-  throw new Error('brief: give an idea in a sentence, or run /ck:opportunity first so the brief can start from docs/opportunity.md')
-}
-const projectRoot = args.projectRoot
-const briefPath = args.briefPath || (projectRoot + '/docs/brief.md')
-const contract = args.pluginRoot + '/skills/brief-artifact/SKILL.md'
-const stamp = args.timestamp
-const runDir = args.runDir
-const existing = [args.opportunityPath, args.marketResearchPath].filter(Boolean)
-const ideaText = args.idea || 'Take the idea from the concept statement in ' + args.opportunityPath
+const projectRoot = a.projectRoot || '.'
+const runDir = a.runDir || (projectRoot + '/.ck/runs/brief-latest')
+const runId = a.runId || 'brief-direct'
+const stamp = a.timestamp || 'today (write the date from `date -u`)'
+const briefPath = a.briefPath || (projectRoot + '/docs/brief.md')
+const contractStep = a.pluginRoot
+  ? 'Read ' + a.pluginRoot + '/skills/brief-artifact/SKILL.md (the brief contract).'
+  : 'Load the skill ck:brief-artifact with the Skill tool (the brief contract).'
+const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
+const existing = [a.opportunityPath, a.marketResearchPath].filter(Boolean)
+const ideaText = a.idea || 'Take the idea from the concept statement in ' + a.opportunityPath
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const SECTIONS = ['Idea', 'Problem and root-cause chain', 'User', 'Success metric and leading indicator', 'Comparable products', 'Scope', 'Non-goals', 'Open questions for the author']
 
@@ -46,29 +51,19 @@ const MARKET_SCHEMA = {
   required: ['comparables', 'crowding', 'readFirst', 'searchesRun'],
 }
 
+// The brief is on disk; the return value carries only what the closing message needs, so the
+// author is not paid twice for the same words.
 const BRIEF_SCHEMA = {
   type: 'object',
   properties: {
     briefPath: { type: 'string' },
     title: { type: 'string' },
-    rootCauseChain: { type: 'array', items: { type: 'string' } },
-    user: { type: 'string' },
-    successMetric: { type: 'string' },
-    leadingIndicator: { type: 'string' },
+    chainSteps: { type: 'number' },
     comparables: { type: 'number' },
-    v0: {
-      type: 'object',
-      properties: {
-        scope: { type: 'string' },
-        cuts: { type: 'array', items: { type: 'string' } },
-        recommendation: { type: 'string' },
-      },
-      required: ['scope', 'cuts', 'recommendation'],
-    },
-    nonGoals: { type: 'array', items: { type: 'string' } },
+    nonGoals: { type: 'number' },
     openQuestions: { type: 'array', items: { type: 'string' } },
   },
-  required: ['briefPath', 'title', 'rootCauseChain', 'user', 'successMetric', 'leadingIndicator', 'comparables', 'v0', 'nonGoals', 'openQuestions'],
+  required: ['briefPath', 'title', 'chainSteps', 'comparables', 'nonGoals', 'openQuestions'],
 }
 
 const VALIDATION_SCHEMA = {
@@ -85,13 +80,14 @@ const VALIDATION_SCHEMA = {
 phase('Market pass')
 const market = await agent(
   `The idea, in the author's words: ${ideaText}\n` +
+  housekeeping +
   (existing.length
     ? `Read these first and search only for what they lack: ${existing.join(', ')}. List what you read in readFirst.\n`
     : `There is no market research or opportunity analysis yet; readFirst is empty.\n`) +
   `Find three to five comparable products: for each, in one paragraph of at most sixty words, what it does, ` +
   `who it is for, its price or business model, the gap this idea would fill, and one source URL. Add one ` +
   `paragraph on how crowded the space is. ` +
-  `Use web search; record how many searches you ran. Write the object as JSON to ${runDir}/market.json and return it.`,
+  `Use web search; record how many searches you ran. Write the object as JSON to ${runDir}/market.json (create the directory if needed) and return it.`,
   { label: 'toni:market', phase: 'Market pass', agentType: 'ck:toni', schema: MARKET_SCHEMA },
 )
 if (!market) log('market pass: Toni returned nothing; the brief will say the comparable-products section is pending')
@@ -102,7 +98,7 @@ phase('Draft')
 let brief = await agent(
   `The author's idea, in their own words: ${ideaText}\n` +
   (existing.length ? `Also read: ${existing.join(', ')}.\n` : '') +
-  `Read ${contract}. It is the brief contract: section order, required fields, and the checklist your brief ` +
+  `${contractStep} It gives the section order, required fields, and the checklist your brief ` +
   `will be validated against. The sections, in order: ` + SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
   (market
     ? `Comparable products, from Toni's market pass (attribute the section to it and cite its sources):\n` +
@@ -115,18 +111,20 @@ let brief = await agent(
   `your recommendation with the decision marked open for the author. Premortem: not yet; it belongs to the PRD.\n` +
   `One primary user. One success number with a target and a date, plus one leading indicator. At least two ` +
   `non-goals. Anything you would have asked the author goes under Open questions for the author, each with ` +
-  `the assumption you proceeded on; the list is present even when empty.\n` +
+  `the assumption you proceeded on; the list is present even when empty. Date the document ${stamp}.\n` +
   `Plain words, under 1,200 words in all: this is the short document that governs the long one. ` +
-  `Return the brief object; briefPath must be '${briefPath}'; comparables is the count you wrote.`,
+  `Return only the brief object: briefPath must be '${briefPath}'; chainSteps, comparables, and nonGoals are ` +
+  `counts of what you wrote; openQuestions is the list of open questions, one line each. Do not repeat the ` +
+  `document in the return value.`,
   { label: 'river:draft', phase: 'Draft', agentType: 'ck:river', schema: BRIEF_SCHEMA },
 )
 if (!brief) throw new Error('brief: River returned nothing')
-log(`brief: ${brief.rootCauseChain.length} step(s) in the root-cause chain, ${brief.comparables} comparable(s), ${brief.openQuestions.length} open question(s)`)
+log(`brief: ${brief.chainSteps} step(s) in the root-cause chain, ${brief.comparables} comparable(s), ${brief.openQuestions.length} open question(s)`)
 
 // ---- Validate ----
 phase('Validate')
 const validation = await agent(
-  `Read ${contract} and ${briefPath}. Check the brief against every numbered item in the contract's ` +
+  `${contractStep} Read ${briefPath}. Check the brief against every numbered item in the contract's ` +
   `checklist and against the section order. Return valid=true only if every item holds. For each unmet item, ` +
   `one line in missing that quotes the checklist item and says what is absent or wrong. Judge the shape, not ` +
   `the idea.`,
@@ -135,9 +133,9 @@ const validation = await agent(
 if (validation && !validation.valid) {
   log(`validate: ${validation.missing.length} unmet item(s); River revises once`)
   const revised = await agent(
-    `Read ${contract} and ${briefPath}. A checker found these unmet checklist items:\n` +
+    `${contractStep} Read ${briefPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `Revise ${briefPath} in place so each item holds. Return the updated brief object; briefPath must be '${briefPath}'.`,
+    `Revise ${briefPath} in place so each item holds. Return only the updated brief object (counts and open questions); briefPath must be '${briefPath}'.`,
     { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', schema: BRIEF_SCHEMA },
   )
   if (revised) brief = revised
@@ -149,7 +147,7 @@ if (validation && !validation.valid) {
 }
 
 return {
-  runId: args.runId,
+  runId,
   briefPath: brief.briefPath,
   title: brief.title,
   comparables: brief.comparables,

@@ -1,6 +1,6 @@
 export const meta = {
   name: 'draft',
-  description: "One author drafts a document to its contract, a checker validates it, the three-lens panel challenges it (forming its view before reading the rationale), and the author rewrites it with a Challenged claims appendix and a premortem. Serves the PRD (river; lenses river, toni, kai) and the architecture document (akira; lenses morgan, alex, jordan). Args: artifact ('prd' | 'architecture'), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents to read; the skill lists the ones that exist), outputPath (optional; default from the artifact table), startAt (optional: draft | validate | panel | synthesize; earlier stages are skipped and the document on disk is used), lenses (optional). Normally launched by /ck:prd or /ck:architecture, which own the review before and after.",
+  description: "One author drafts a document to its contract, a checker validates it, the three-lens panel challenges it (forming its view before reading the rationale), and the author rewrites it with a Challenged claims appendix and a premortem. Serves the PRD (river; lenses river, toni, kai) and the architecture document (akira; lenses morgan, alex, jordan). Normally launched by /ck:prd or /ck:architecture with an object: artifact ('prd' | 'architecture'), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents to read; the skill lists the ones that exist), outputPath (optional; default from the artifact table), startAt (optional: draft | validate | panel | synthesize; earlier stages are skipped and the document on disk is used), lenses (optional). A direct /ck:draft prd works too, with everything defaulted to the current project.",
   phases: [
     { title: 'Draft', detail: 'the author writes the document from its inputs to the contract; every claim not from the inputs tagged [C<n>]' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the contract checklist; the author revises at most twice' },
@@ -43,27 +43,30 @@ const ARTIFACTS = {
   },
 }
 
-if (!args || !args.artifact || !ARTIFACTS[args.artifact]) {
-  throw new Error("draft: args.artifact must be one of " + Object.keys(ARTIFACTS).join(', '))
+// Launched by /ck:prd and /ck:architecture with an object. A direct /ck:draft prd or
+// /ck:draft architecture also works: the text names the artifact and everything else defaults.
+const a = (args && typeof args === 'object') ? args : { artifact: (typeof args === 'string' && args.trim()) ? args.trim().split(/\s+/)[0] : 'prd' }
+if (!a.artifact || !ARTIFACTS[a.artifact]) {
+  throw new Error('draft: the artifact must be one of ' + Object.keys(ARTIFACTS).join(', '))
 }
-if (!args.runId || !args.runDir || !args.projectRoot || !args.pluginRoot || !args.timestamp) {
-  throw new Error('draft: args.runId, args.runDir, args.projectRoot, args.pluginRoot, and args.timestamp are required')
-}
-const A = ARTIFACTS[args.artifact]
-const runDir = args.runDir
-const projectRoot = args.projectRoot
-const stamp = args.timestamp
+const A = ARTIFACTS[a.artifact]
+const projectRoot = a.projectRoot || '.'
+const runDir = a.runDir || (projectRoot + '/.ck/runs/draft-' + a.artifact + '-latest')
+const runId = a.runId || 'draft-' + a.artifact + '-direct'
+const stamp = a.timestamp || 'today (write the date from `date -u`)'
 const author = 'ck:' + A.author
-const outPath = args.outputPath || (projectRoot + '/' + A.path)
+const outPath = a.outputPath || (projectRoot + '/' + A.path)
 const rationalePath = projectRoot + '/' + A.rationale
-const contract = args.pluginRoot + '/' + A.contract
-const inputs = Array.isArray(args.inputs) && args.inputs.length ? args.inputs : [rationalePath]
+const contractStep = a.pluginRoot
+  ? 'Read ' + a.pluginRoot + '/' + A.contract + ' (the contract).'
+  : 'Load the skill ck:' + A.contract.split('/')[1] + ' with the Skill tool (the contract).'
+const inputs = Array.isArray(a.inputs) && a.inputs.length ? a.inputs : [rationalePath]
 const SECTIONS = A.sections
 const MAX_REVISIONS = 2
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 
 const ORDER = ['draft', 'validate', 'panel', 'synthesize']
-const startAt = ORDER.includes(args.startAt) ? args.startAt : 'draft'
+const startAt = ORDER.includes(a.startAt) ? a.startAt : 'draft'
 const runs = stage => ORDER.indexOf(stage) >= ORDER.indexOf(startAt)
 if (startAt !== 'draft') log(`draft: starting at ${startAt}; ${outPath} on disk is the draft`)
 
@@ -143,8 +146,8 @@ if (runs('draft')) {
   draft = await agent(
     `The project repository is ${projectRoot}. Read these inputs: ${inputs.join(', ')}. They record what the ` +
     `author already decided; do not re-ask any of it.\n` +
-    `Read ${contract}. It is the contract for this document: section order, required fields, and the ` +
-    `checklist your draft will be validated against.\n` +
+    `${contractStep} It gives the section order, required fields, and the checklist your draft will be ` +
+    `validated against.\n` +
     `Write ${outPath} to that contract, all sections in this order (create the directory if needed): ` +
     SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
     `Apply your Required Behaviors in subagent form. Leave Appendix B (the premortem) for the pass after the ` +
@@ -165,7 +168,7 @@ if (runs('validate')) {
   phase('Validate')
   for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     validation = await agent(
-      `Read ${contract} and ${outPath}. Check the document against every numbered item in the contract's ` +
+      `${contractStep} Read ${outPath}. Check the document against every numbered item in the contract's ` +
       `checklist and against the section order. Return valid=true only if every item holds. For each unmet ` +
       `item, one line in missing that quotes the checklist item and says what is absent or wrong. Judge the ` +
       `shape, not the product.`,
@@ -179,7 +182,7 @@ if (runs('validate')) {
     }
     log(`validate: ${validation.missing.length} unmet item(s); ${A.author} revises (revision ${round} of ${MAX_REVISIONS})`)
     const revised = await agent(
-      `Read ${contract}, the inputs (${inputs.join(', ')}), and ${outPath}. A checker found these unmet ` +
+      `${contractStep} Read the inputs (${inputs.join(', ')}) and ${outPath}. A checker found these unmet ` +
       `checklist items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
       `Revise ${outPath} in place so each item holds. Keep every existing [C<n>] tag and add tags for any new ` +
       `claim not from the inputs. Return the updated draft object; path must be '${outPath}'.`,
@@ -194,13 +197,13 @@ if (runs('validate')) {
 let panel = null
 if (runs('panel')) {
   phase('Panel')
-  const lenses = Array.isArray(args.lenses) && args.lenses.length ? args.lenses : A.lenses
+  const lenses = Array.isArray(a.lenses) && a.lenses.length ? a.lenses : A.lenses
   try {
     panel = await workflow('ck:panel', {
-      runId: args.runId,
+      runId,
       runDir,
       projectRoot,
-      pluginRoot: args.pluginRoot,
+      pluginRoot: a.pluginRoot,
       timestamp: stamp,
       question: A.question,
       contextPath: outPath,
@@ -226,7 +229,7 @@ const panelInputs = panel && panel.memoPath
     ? `every file under ${runDir}/panel/ (the memo was not written)`
     : 'nothing else: the panel did not run, and the document header must say so')
 const final = await agent(
-  `Read the inputs (${inputs.join(', ')}), ${outPath}, ${contract}, and ${panelInputs}.\n` +
+  `${contractStep} Read the inputs (${inputs.join(', ')}), ${outPath}, and ${panelInputs}.\n` +
   `Rewrite ${outPath}: the same sections, in contract order, revised where the panel showed a claim wrong or ` +
   `unsupported, followed by two appendices.\n` +
   `Appendix A, Challenged claims: one row per point a lens raised against a [C<n>] claim or against something ` +
@@ -238,14 +241,14 @@ const final = await agent(
   `it exposes; add that assumption to the Assumptions section; leave the question "What went wrong?" ` +
   `verbatim for the author. The review asks it.\n` +
   `Check your own output against the contract's checklist before returning. List every decision you left ` +
-  `open under openDecisions. Generated ${stamp}, run ${args.runId}. Return the object; path must be '${outPath}'.`,
+  `open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
   { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, schema: FINAL_SCHEMA },
 )
 if (!final) throw new Error(`draft: ${A.author} returned nothing for the synthesis; the draft is at ` + outPath)
 
 return {
-  runId: args.runId,
-  artifact: args.artifact,
+  runId,
+  artifact: a.artifact,
   startedAt: startAt,
   path: final.path,
   memoPath: panel ? panel.memoPath : null,

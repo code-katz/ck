@@ -1,6 +1,6 @@
 export const meta = {
   name: 'team',
-  description: 'Team selection and roles and responsibilities. River reads the product documents and the roster and nominates a cast with an owner per document and stage; each nominee confirms or declines on its own tier and names what it needs and one missing seat; River writes docs/TEAM.md; a checker validates it. Args: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents that exist: opportunity, brief, PRD, market research; at least one of the first two), teamPath (optional; default <projectRoot>/docs/TEAM.md), maxCast (optional; default 8).',
+  description: 'Team selection and roles and responsibilities. River reads the product documents and the roster and nominates a cast with an owner per document and stage; each nominee confirms or declines on its own tier and names what it needs and one missing seat; River writes docs/TEAM.md; a checker validates it. Type /ck:team with nothing after it. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents that exist: opportunity, brief, PRD, market research; at least one of the first two), teamPath (optional; default <projectRoot>/docs/TEAM.md), maxCast (optional; default 8).',
   phases: [
     { title: 'Nominate', detail: 'ck:river proposes the cast: an owner and reviewers per pipeline document and stage, and the missing seats' },
     { title: 'Confirm', detail: 'every nominee, in parallel on its own tier at low effort, accepts or declines each responsibility, names its needs, one risk, and one missing seat' },
@@ -10,20 +10,26 @@ export const meta = {
   personas: ['river', 'akira', 'alex', 'casey', 'cornelius', 'ernie', 'iris', 'jordan', 'kai', 'morgan', 'noon', 'piper', 'quinn', 'reiner', 'rez', 'robin', 'sage', 'sasha', 'toni', 'tracy', 'travolta'],
 }
 
-if (!args || !args.runId || !args.runDir || !args.projectRoot || !args.pluginRoot || !args.timestamp) {
-  throw new Error('team: args.runId, args.runDir, args.projectRoot, args.pluginRoot, and args.timestamp are required')
-}
-if (!Array.isArray(args.inputs) || !args.inputs.length) {
-  throw new Error('team: args.inputs must list at least one of docs/opportunity.md or docs/brief.md')
-}
-const projectRoot = args.projectRoot
-const runDir = args.runDir
-const stamp = args.timestamp
-const inputs = args.inputs
-const teamPath = args.teamPath || (projectRoot + '/docs/TEAM.md')
-const roster = args.pluginRoot + '/profiles/ROSTER.md'
-const contract = args.pluginRoot + '/skills/team-artifact/SKILL.md'
-const MAX_CAST = Number.isInteger(args.maxCast) && args.maxCast > 0 ? Math.min(args.maxCast, 12) : 8
+// Direct invocation (/ck:team) needs no arguments: the documents that exist in the project are
+// read. A skill may pass an object. Without a plugin root the roster and the contract are loaded
+// by skill name instead of by path.
+const a = (args && typeof args === 'object') ? args : {}
+const projectRoot = a.projectRoot || '.'
+const runDir = a.runDir || (projectRoot + '/.ck/runs/team-latest')
+const runId = a.runId || 'team-direct'
+const stamp = a.timestamp || 'today (write the date from `date -u`)'
+const inputs = Array.isArray(a.inputs) && a.inputs.length
+  ? a.inputs
+  : ['whichever of ' + projectRoot + '/docs/opportunity.md, ' + projectRoot + '/docs/brief.md, ' + projectRoot + '/docs/PRD.md, and ' + projectRoot + '/docs/market-research.md exist (stop and say so if neither of the first two does)']
+const teamPath = a.teamPath || (projectRoot + '/docs/TEAM.md')
+const rosterStep = a.pluginRoot
+  ? 'Read the roster: ' + a.pluginRoot + '/profiles/ROSTER.md (one line per persona: name, role, tier, domain).'
+  : 'Load the skill ck:roster with the Skill tool (the roster: one line per persona with name, role, tier, domain).'
+const contractStep = a.pluginRoot
+  ? 'Read ' + a.pluginRoot + '/skills/team-artifact/SKILL.md (the team contract).'
+  : 'Load the skill ck:team-artifact with the Skill tool (the team contract).'
+const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
+const MAX_CAST = Number.isInteger(a.maxCast) && a.maxCast > 0 ? Math.min(a.maxCast, 12) : 8
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const SECTIONS = ['Cast', 'Roles and responsibilities', 'Hand-off order', 'Needs', 'Missing seats', 'Declined nominations']
 
@@ -117,8 +123,8 @@ const VALIDATION_SCHEMA = {
 // ---- Nominate ----
 phase('Nominate')
 const nominations = await agent(
-  `The project repository is ${projectRoot}. Read the product documents: ${inputs.join(', ')}. Read the ` +
-  `roster: ${roster} (one line per persona: name, role, tier, domain).\n` +
+  `The project repository is ${projectRoot}. ` + housekeeping + `Read the product documents: ${inputs.join(', ')}. ` +
+  `${rosterStep}\n` +
   `Say what kind of product this is in one line (productKind). Then propose the cast, at most ${MAX_CAST} ` +
   `personas, choosing by what the product needs, not by seniority: for each pipeline document and stage ` +
   `(opportunity, market research, brief, PRD, roadmap, architecture, brand guide, design, and any build ` +
@@ -137,8 +143,8 @@ log(`nominate: ${nominations.productKind}; ${cast.length} nominated; ${nominatio
 // ---- Confirm ----
 phase('Confirm')
 const confirmations = (await parallel(cast.map(n => () => agent(
-  `You are ${n.persona}. You have been nominated to this product's team. Read ${inputs.join(', ')} and ` +
-  `${roster}.\n` +
+  `You are ${n.persona}. You have been nominated to this product's team. Read ${inputs.join(', ')}. ` +
+  `${rosterStep}\n` +
   `Your nomination: ${n.why}. Responsibilities proposed for you:\n` +
   n.responsibilities.map(r => `- ${r.role} of ${r.item}`).join('\n') + '\n' +
   `For each responsibility: accept or decline, with a reason from your domain; when you decline, name the ` +
@@ -157,18 +163,18 @@ log(`confirm: ${confirmations.length} confirmation(s), ${declined} declined resp
 // ---- Assemble ----
 phase('Assemble')
 let team = await agent(
-  `Read ${contract}. It is the team contract: section order, required fields, and the checklist. The ` +
+  `${contractStep} It gives the section order, required fields, and the checklist. The ` +
   `sections, in order: ` + SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
   `Your nominations: ${runDir}/nominations.json. The confirmations: every file under ${runDir}/confirmations/ ` +
   (silent.length ? `(${silent.join(', ')} did not answer; treat their nominations as accepted and say so). ` : '') +
-  `The product documents: ${inputs.join(', ')}. The roster: ${roster}.\n` +
+  `The product documents: ${inputs.join(', ')}. ${rosterStep}\n` +
   `Write ${teamPath} (create the directory if needed): the Cast table (persona, role, tier, why on this ` +
   `product); the Roles and responsibilities matrix (one row per pipeline document and stage, and per PRD ` +
   `requirement area when a PRD exists; columns owner, contributors, reviewers; exactly one owner per row); ` +
   `the Hand-off order (who hands to whom, in pipeline order, and what each hand-off carries); Needs (per ` +
   `persona, from the confirmations); Missing seats (yours and the nominees', merged, with a recommendation ` +
   `each); Declined nominations (persona, responsibility, reason, replacement). Where a nominee declined and ` +
-  `named a replacement, take it or say why not. Generated ${stamp}, run ${args.runId}.\n` +
+  `named a replacement, take it or say why not. Generated ${stamp}, run ${runId}.\n` +
   `Return the object; teamPath must be '${teamPath}'; declined is the number of declined responsibilities.`,
   { label: 'river:assemble', phase: 'Assemble', agentType: 'ck:river', schema: TEAM_SCHEMA },
 )
@@ -177,7 +183,7 @@ if (!team) throw new Error('team: River returned nothing for the assembly; nomin
 // ---- Validate ----
 phase('Validate')
 const validation = await agent(
-  `Read ${contract} and ${teamPath}. Check the document against every numbered item in the contract's ` +
+  `${contractStep} Read ${teamPath}. Check the document against every numbered item in the contract's ` +
   `checklist and against the section order, including "every pipeline document has exactly one owner". ` +
   `Return valid=true only if every item holds; for each unmet item, one line in missing that quotes the ` +
   `checklist item and says what is absent or wrong.`,
@@ -186,7 +192,7 @@ const validation = await agent(
 if (validation && !validation.valid) {
   log(`validate: ${validation.missing.length} unmet item(s); River revises once`)
   const revised = await agent(
-    `Read ${contract} and ${teamPath}. A checker found these unmet checklist items:\n` +
+    `${contractStep} Read ${teamPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
     `Revise ${teamPath} in place so each item holds. Return the updated object; teamPath must be '${teamPath}'.`,
     { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', schema: TEAM_SCHEMA },
@@ -200,7 +206,7 @@ if (validation && !validation.valid) {
 }
 
 return {
-  runId: args.runId,
+  runId,
   teamPath: team.teamPath,
   productKind: nominations.productKind,
   cast: team.cast,
