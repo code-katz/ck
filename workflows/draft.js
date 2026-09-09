@@ -156,7 +156,7 @@ if (runs('draft')) {
     `panel, and say so under its heading.\n` +
     `Tag every claim that is not taken directly from the inputs with an inline marker [C1], [C2], ... so the ` +
     `panel can address it, and list those claims with their section. Put anything you would have asked the ` +
-    `author under Open questions, with your assumption. Keep the document under ${A.maxWords} words.\n` +
+    `author under Open questions, with your assumption. Keep the document under ${A.maxWords} words before the appendices.\n` +
     `Return the draft object; path must be '${outPath}'.`,
     { label: `${A.author}:draft`, phase: 'Draft', agentType: author, effort: 'medium', schema: DRAFT_SCHEMA },
   )
@@ -246,7 +246,7 @@ const final = await agent(
   `Appendix B, Premortem: write the 2-3 sentence scenario in which ${A.premortem}; name the hidden assumption ` +
   `it exposes; add that assumption to the Assumptions section; leave the question "What went wrong?" ` +
   `verbatim for the author. The review asks it.\n` +
-  `Keep the document under ${A.maxWords} words. Check your own output against the contract's checklist before ` +
+  `Keep the document under ${A.maxWords} words before the appendices. Check your own output against the contract's checklist before ` +
   `returning. List every decision you left open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
   { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
 )

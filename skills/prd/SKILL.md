@@ -110,7 +110,7 @@ One agent, inline:
 Agent({
   subagent_type: "ck:river",
   description: "Finalize PRD",
-  prompt: "Read <projectRoot>/docs/PRD.md and <runDir>/review.md (the review comments and how each was applied, or the note that the file was edited directly). Fold the premortem answer into Assumptions and Risks, resolve each open decision as answered, keep Appendix A intact, and check the result against ${CLAUDE_PLUGIN_ROOT}/skills/prd-artifact/SKILL.md. Write docs/PRD.md. Set status 'final' in <runDir>/run.json. Return the path and a five-line summary."
+  prompt: "Read <projectRoot>/docs/PRD.md and <runDir>/review.md (the review comments and how each was applied, or the note that the file was edited directly). Fold the premortem answer into Assumptions and Risks, resolve each open decision as answered, keep Appendix A intact, and check the result against ${CLAUDE_PLUGIN_ROOT}/skills/prd-artifact/SKILL.md. If there is no review.md and the author left no answer to the premortem question, do not invent one: leave the question open under Appendix B and say so in the summary. Write docs/PRD.md with one Write call. Set status 'final' in <runDir>/run.json. Return the path and a five-line summary."
 })
 ```
 
