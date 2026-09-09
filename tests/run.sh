@@ -232,6 +232,19 @@ for f in skills/*-artifact/SKILL.md; do
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
 done
 
+# ─── 12. Review page renderer ────────────────────────────────────────────────
+section "12. Review page renderer"
+if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "$TMP/review.html" --title "Fixture PRD" --question "What went wrong?" >/dev/null 2>"$TMP/rr.err"; then
+  ok "render-review.py renders the fixture PRD"
+  h_src=$(grep -cE '^##+ ' tests/fixtures/game/docs/PRD.md); h_out=$(grep -o '<h[234] id=' "$TMP/review.html" | wc -l | tr -d ' ')
+  [[ "$h_src" == "$h_out" ]] && ok "every heading is on the page ($h_out)" || fail "headings: $h_src in the source, $h_out on the page"
+  grep -q 'comment mode' "$TMP/review.html" && grep -q '@claude' "$TMP/review.html" && ok "the banner carries the five comment steps" || fail "banner steps missing"
+  grep -q 'What went wrong?' "$TMP/review.html" && ok "the gate's question is in the banner" || fail "question missing"
+  grep -q '<div class="table-wrap"><table>' "$TMP/review.html" && ok "tables scroll in their own container" || fail "table wrapper missing"
+else
+  fail "render-review.py failed: $(cat "$TMP/rr.err")"
+fi
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then

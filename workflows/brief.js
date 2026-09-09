@@ -104,7 +104,7 @@ let brief = await agent(
     ? `Comparable products, from Toni's market pass (attribute the section to it and cite its sources):\n` +
       JSON.stringify(market, null, 1) + '\n'
     : `The market pass returned nothing; write the Comparable products section as "pending" and say why.\n`) +
-  `Write ${briefPath} to that contract (create the directory if needed). Apply your Required Behaviors in ` +
+  `Write ${briefPath} to that contract (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. Apply your Required Behaviors in ` +
   `subagent form. Three Whys: do not accept the idea as the problem; write the chain (idea, why, why, why), ` +
   `each step more specific, until the user pain is exposed or the idea is shown to address a symptom, and say ` +
   `which. V0 Challenge: propose a first version that cuts at least half the scope, say what it cuts, and give ` +
@@ -116,7 +116,7 @@ let brief = await agent(
   `Return only the brief object: briefPath must be '${briefPath}'; chainSteps, comparables, and nonGoals are ` +
   `counts of what you wrote; openQuestions is the list of open questions, one line each. Do not repeat the ` +
   `document in the return value.`,
-  { label: 'river:draft', phase: 'Draft', agentType: 'ck:river', schema: BRIEF_SCHEMA },
+  { label: 'river:draft', phase: 'Draft', agentType: 'ck:river', effort: 'medium', schema: BRIEF_SCHEMA },
 )
 if (!brief) throw new Error('brief: River returned nothing')
 log(`brief: ${brief.chainSteps} step(s) in the root-cause chain, ${brief.comparables} comparable(s), ${brief.openQuestions.length} open question(s)`)

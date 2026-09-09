@@ -139,8 +139,8 @@ const results = (await parallel(lenses.map(l => () => agent(
   `state your assumption, and proceed.\n` +
   `handoffBrief: decisions you want recorded, open risks in your domain, one direct question to a named lens.\n` +
   `Length: reasoning at most 200 words; every other text field at most 100 words. Findings, not prose.\n` +
-  `Write the same object as JSON to ${runDir}/panel/${l.persona}.json (create the directory if needed) and ` +
-  `return it with persona '${l.persona}' and lens '${l.lens}'.`,
+  `Write the same object as JSON to ${runDir}/panel/${l.persona}.json (create the directory if needed), with one ` +
+  `Write call, and return it with persona '${l.persona}' and lens '${l.lens}'.`,
   { label: `${l.lens}:${l.persona}`, phase: 'Lenses', agentType: 'ck:' + l.persona, model: l.model, schema: LENS_SCHEMA },
 )))).filter(Boolean)
 
@@ -178,8 +178,8 @@ const memo = await agent(
   `quote verbatim only what the sections require and summarize the rest; do not restate a lens's reasoning ` +
   `in your own words. Then return only the memo object: memoPath must be '${memoPath}'; disagreementCount ` +
   `and disagreementTopics (one line each) and killConditionsMet are counts of what you wrote; summary is at ` +
-  `most 80 words. Do not repeat the memo in the return value.`,
-  { label: 'synthesis', phase: 'Synthesis', schema: MEMO_SCHEMA },
+  `most 80 words. Do not repeat the memo in the return value. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. `,
+  { label: 'synthesis', phase: 'Synthesis', effort: 'medium', schema: MEMO_SCHEMA },
 )
 
 if (!memo) {

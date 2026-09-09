@@ -116,7 +116,7 @@ skills/prd, next, review-page
 skills/*-artifact/           the document contracts
 workflows/                   panel, brief, draft (PRD and architecture), team
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
-scripts/                     generate.sh, usage-log.sh, check-prereqs.sh
+scripts/                     generate.sh, render-review.py, usage-log.sh, check-prereqs.sh
 tests/                       run.sh and two fixture projects
 ```
 

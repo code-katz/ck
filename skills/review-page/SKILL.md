@@ -10,8 +10,8 @@ Every document or gallery that needs a decision is reviewed on a page in Claude'
 
 ## 1. Publish
 
-1. Build one self-contained HTML page from the file on disk. For a document: render the markdown with a sticky table of contents so a comment can point at a section; tables and code blocks scroll inside their own container; light and dark themes. For a gallery: the labeled variants side by side, each with its rendering, rationale, trade-off, what it satisfies, and states where applicable, per the gallery contract.
-2. The banner at the top carries, in this order: the product name and what is being reviewed; the round or revision; the one question the gate asks, when it has one (the PRD's premortem question, for example); and these five steps, verbatim:
+1. Build the page with one command, never by writing HTML yourself: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/render-review.py" --in <the document> --out <runDir>/review.html --title "<product>: <document>" --question "<the gate's question, if any>" --meta "<revision and date>"`. It renders the markdown with the banner below, a sticky table of contents so a comment can point at a section, tables and code that scroll inside their own container, and light and dark themes. For a gallery, the workflow has already written the page to the gallery contract; publish that file.
+2. The banner carries, in this order: the product name and what is being reviewed; the round or revision; the one question the gate asks, when it has one (the PRD's premortem question, for example); and these five steps, verbatim (the renderer writes them; a gallery page must carry them too):
    1. Open this link signed in to your Claude account.
    2. Switch the page to comment mode from the bar at the top.
    3. Click the passage or the variant you want to comment on and type.

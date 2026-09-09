@@ -168,7 +168,7 @@ let team = await agent(
   `Your nominations: ${runDir}/nominations.json. The confirmations: every file under ${runDir}/confirmations/ ` +
   (silent.length ? `(${silent.join(', ')} did not answer; treat their nominations as accepted and say so). ` : '') +
   `The product documents: ${inputs.join(', ')}. ${rosterStep}\n` +
-  `Write ${teamPath} (create the directory if needed): the Cast table (persona, role, tier, why on this ` +
+  `Write ${teamPath} (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. The Cast table (persona, role, tier, why on this ` +
   `product); the Roles and responsibilities matrix (one row per pipeline document and stage, and per PRD ` +
   `requirement area when a PRD exists; columns owner, contributors, reviewers; exactly one owner per row); ` +
   `the Hand-off order (who hands to whom, in pipeline order, and what each hand-off carries); Needs (per ` +

@@ -150,7 +150,7 @@ if (runs('draft')) {
     `author already decided; do not re-ask any of it.\n` +
     `${contractStep} It gives the section order, required fields, and the checklist your draft will be ` +
     `validated against.\n` +
-    `Write ${outPath} to that contract, all sections in this order (create the directory if needed): ` +
+    `Write ${outPath} to that contract, all sections in this order (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. ` +
     SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
     `Apply your Required Behaviors in subagent form. Leave Appendix B (the premortem) for the pass after the ` +
     `panel, and say so under its heading.\n` +
@@ -158,7 +158,7 @@ if (runs('draft')) {
     `panel can address it, and list those claims with their section. Put anything you would have asked the ` +
     `author under Open questions, with your assumption. Keep the document under ${A.maxWords} words.\n` +
     `Return the draft object; path must be '${outPath}'.`,
-    { label: `${A.author}:draft`, phase: 'Draft', agentType: author, schema: DRAFT_SCHEMA },
+    { label: `${A.author}:draft`, phase: 'Draft', agentType: author, effort: 'medium', schema: DRAFT_SCHEMA },
   )
   if (!draft) throw new Error(`draft: ${A.author} returned nothing for the draft`)
   log(`draft: ${draft.claims.length} tagged claim(s), ${draft.assumptions.length} assumption(s), ${draft.questions.length} open question(s)`)
@@ -237,7 +237,7 @@ const panelInputs = panel && panel.memoPath
 const final = await agent(
   `${contractStep} Read the inputs (${inputs.join(', ')}), ${outPath}, and ${panelInputs}.\n` +
   `Rewrite ${outPath}: the same sections, in contract order, revised where the panel showed a claim wrong or ` +
-  `unsupported, followed by two appendices.\n` +
+  `unsupported, followed by two appendices. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. \n` +
   `Appendix A, Challenged claims: one row per point a lens raised against a [C<n>] claim or against something ` +
   `untagged: claim | challenged by (persona and lens) | severity (blocking, major, minor: your call from the ` +
   `memo) | status | resolution. Status is upheld (you kept it; say why), revised (you changed it; quote the ` +
@@ -248,7 +248,7 @@ const final = await agent(
   `verbatim for the author. The review asks it.\n` +
   `Keep the document under ${A.maxWords} words. Check your own output against the contract's checklist before ` +
   `returning. List every decision you left open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
-  { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, schema: FINAL_SCHEMA },
+  { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
 )
 if (!final) throw new Error(`draft: ${A.author} returned nothing for the synthesis; the draft is at ` + outPath)
 
