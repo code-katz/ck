@@ -1,0 +1,1 @@
+A weekly email that tells a small shop owner which three products to reorder, from their existing point-of-sale export, with no dashboard.

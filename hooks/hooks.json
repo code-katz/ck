@@ -1,0 +1,20 @@
+{
+  "description": "ck: persona usage log, and a check that the old team tool is gone",
+  "hooks": {
+    "SubagentStart": [
+      {
+        "matcher": "^ck:",
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/usage-log.sh\"" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/check-prereqs.sh\"" }
+        ]
+      }
+    ]
+  }
+}
