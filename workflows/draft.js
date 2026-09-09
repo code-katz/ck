@@ -215,7 +215,7 @@ if (runs('panel')) {
     log('panel: failed (' + (e && e.message ? e.message : String(e)) + '); synthesizing without it')
   }
   if (panel) {
-    log(`panel: ${panel.lenses.join(', ')}; agreement ${panel.agreementRate}; ${(panel.disagreements || []).length} disagreement(s)` +
+    log(`panel: ${panel.lenses.join(', ')}; agreement ${panel.agreementRate}; ${panel.disagreementCount || 0} disagreement(s)` +
       (panel.panelFailedToDisagree ? '; the panel failed to disagree' : '') +
       (panel.missing && panel.missing.length ? `; missing: ${panel.missing.join(', ')}` : ''))
   }

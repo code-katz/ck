@@ -20,7 +20,8 @@ const projectRoot = a.projectRoot || '.'
 const runDir = a.runDir || (projectRoot + '/.ck/runs/panel-latest')
 const runId = a.runId || 'panel-direct'
 const stamp = a.timestamp || 'today (write the date from `date -u`)'
-const slug = question.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'panel'
+const slugFull = question.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const slug = (slugFull.length > 48 ? slugFull.slice(0, 48).replace(/-[^-]*$/, '') : slugFull) || 'panel'
 const contextPath = a.contextPath || null
 const rationalePath = a.rationalePath || null
 const memoPath = a.memoPath || (projectRoot + '/docs/decisions/' + (a.timestamp ? a.timestamp + '-' : '') + slug + '.md')
@@ -98,56 +99,19 @@ const MEMO_SCHEMA = {
       },
     },
     agreementRate: { type: 'number' },
-    agreement: { type: 'string' },
     agreementIsLowInformationBecause: { type: 'string', enum: ['obviously-true', 'shared-blind-spot', 'mixed', 'no-agreement'] },
-    disagreements: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          topic: { type: 'string' },
-          positions: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: { persona: { type: 'string' }, position: { type: 'string' } },
-              required: ['persona', 'position'],
-            },
-          },
-          decisionForAuthor: { type: 'string' },
-        },
-        required: ['topic', 'positions', 'decisionForAuthor'],
-      },
-    },
-    killConditions: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          persona: { type: 'string' }, condition: { type: 'string' },
-          met: YES_NO_UNKNOWN, evidence: { type: 'string' },
-        },
-        required: ['persona', 'condition', 'met', 'evidence'],
-      },
-    },
-    uniqueFindings: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: { persona: { type: 'string' }, finding: { type: 'string' } },
-        required: ['persona', 'finding'],
-      },
-    },
-    nobodyChecked: { type: 'array', items: { type: 'string' } },
+    disagreementCount: { type: 'number' },
+    disagreementTopics: { type: 'array', items: { type: 'string' } },
+    killConditionsMet: { type: 'number' },
     panelFailedToDisagree: { type: 'boolean' },
     summary: { type: 'string' },
   },
   required: [
-    'memoPath', 'question', 'recommendations', 'agreementRate', 'agreement',
-    'agreementIsLowInformationBecause', 'disagreements', 'killConditions',
-    'uniqueFindings', 'nobodyChecked', 'panelFailedToDisagree', 'summary',
+    'memoPath', 'question', 'recommendations', 'agreementRate', 'agreementIsLowInformationBecause',
+    'disagreementCount', 'disagreementTopics', 'killConditionsMet', 'panelFailedToDisagree', 'summary',
   ],
 }
+// The memo is on disk; the return value carries counts and one-line topics, not the memo again.
 
 // ---- Lenses ----
 phase('Lenses')
@@ -174,6 +138,7 @@ const results = (await parallel(lenses.map(l => () => agent(
   `to ask the user, put the question in questionsForOtherLenses addressed to 'author' or to a lens persona, ` +
   `state your assumption, and proceed.\n` +
   `handoffBrief: decisions you want recorded, open risks in your domain, one direct question to a named lens.\n` +
+  `Length: reasoning at most 200 words; every other text field at most 100 words. Findings, not prose.\n` +
   `Write the same object as JSON to ${runDir}/panel/${l.persona}.json (create the directory if needed) and ` +
   `return it with persona '${l.persona}' and lens '${l.lens}'.`,
   { label: `${l.lens}:${l.persona}`, phase: 'Lenses', agentType: 'ck:' + l.persona, model: l.model, schema: LENS_SCHEMA },
@@ -209,8 +174,11 @@ const memo = await agent(
   `both positions at full strength, the decision the author must make); 5 Kill conditions, verbatim, each with ` +
   `the lens's own answer to whether the material already shows it met; 6 Each lens against itself, verbatim; ` +
   `7 Unique findings (anything only one lens saw); 8 What nobody checked; 9 Questions between lenses ` +
-  `(to -> question, verbatim); 10 Handoff briefs (verbatim, one per lens). Then return the memo object; ` +
-  `memoPath must be '${memoPath}'.`,
+  `(to -> question, verbatim); 10 Handoff briefs (verbatim, one per lens). Keep the memo under 1,500 words: ` +
+  `quote verbatim only what the sections require and summarize the rest; do not restate a lens's reasoning ` +
+  `in your own words. Then return only the memo object: memoPath must be '${memoPath}'; disagreementCount ` +
+  `and disagreementTopics (one line each) and killConditionsMet are counts of what you wrote; summary is at ` +
+  `most 80 words. Do not repeat the memo in the return value.`,
   { label: 'synthesis', phase: 'Synthesis', schema: MEMO_SCHEMA },
 )
 
@@ -222,12 +190,11 @@ if (!memo) {
     runId, question, memoPath: null, lenses: lenses.map(l => l.persona), missing,
     recommendations: results.map(r => ({ persona: r.persona, lens: r.lens, model: modelOf(r.persona), recommendation: r.recommendation })),
     agreementRate: recs.filter(x => x === top).length / recs.length,
-    agreement: '', agreementIsLowInformationBecause: 'no-agreement', disagreements: [],
-    killConditions: results.map(r => ({ persona: r.persona, condition: r.killCondition, met: r.killConditionMet, evidence: r.killConditionEvidence })),
-    uniqueFindings: [], nobodyChecked: [], panelFailedToDisagree: false,
+    agreementIsLowInformationBecause: 'no-agreement', disagreementCount: 0, disagreementTopics: [],
+    killConditionsMet: results.filter(r => r.killConditionMet === 'yes').length, panelFailedToDisagree: false,
     summary: 'synthesis agent returned nothing; see panel/*.json',
   }
 }
 if (memo.panelFailedToDisagree) log('panel: the panel failed to disagree; re-run with a different question or lens set')
-log(`panel: agreement rate ${memo.agreementRate}; ${memo.disagreements.length} disagreement(s); ${memo.killConditions.filter(k => k.met === 'yes').length} kill condition(s) already met`)
+log(`panel: agreement rate ${memo.agreementRate}; ${memo.disagreementCount} disagreement(s); ${memo.killConditionsMet} kill condition(s) already met`)
 return { runId, ...memo, lenses: lenses.map(l => l.persona), missing }

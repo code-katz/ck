@@ -30,4 +30,5 @@ Use these headings verbatim, in this order.
 3. Every kill condition is quoted verbatim with a met, not met, or unknown answer and evidence.
 4. The Disagreement section takes no side and names the decision the author must make.
 5. `agreementRate` and whether the panel failed to disagree are stated in the header.
-6. No em-dashes in prose.
+6. The memo is under 1,500 words. Only what a section requires verbatim is quoted; everything else is summarized, and no lens's reasoning is restated in the writer's own words.
+7. No em-dashes in prose.
