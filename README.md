@@ -15,7 +15,7 @@ Phase one, first release in progress. What runs today:
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd` | River drafts `docs/PRD.md` from the brief, a checker validates, the panel challenges, River rewrites; you review on a page you can comment on | Built |
 | `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md` | Built |
-| `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan | Script built; the gate skill is next |
+| `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan; you review on a page you can comment on | Built; not yet drilled |
 | `/ck:opportunity`, `/ck:market-research`, `/ck:roadmap`, `/ck:brand-guide`, `/ck:design` | The rest of the pipeline | Specified in the PRD; next on the roadmap |
 | `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, all 21 |
 | `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, all 21 |
@@ -112,7 +112,7 @@ profiles/                    persona source of truth, plus the generated ROSTER.
 tiers.conf                   persona -> model
 agents/                      generated subagents, ck:<name>
 skills/<persona>/            generated switch commands, /ck:<name>
-skills/prd, next, review-page
+skills/prd, architecture, next, review-page
 skills/*-artifact/           the document contracts
 workflows/                   panel, brief, draft (PRD and architecture), team
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
