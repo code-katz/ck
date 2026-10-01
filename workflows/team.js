@@ -194,8 +194,8 @@ if (validation && !validation.valid) {
   const revised = await agent(
     `${contractStep} Read ${teamPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `Revise ${teamPath} in place so each item holds. Return the updated object; teamPath must be '${teamPath}'.`,
-    { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', schema: TEAM_SCHEMA },
+    `Revise ${teamPath} so each item holds. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. Return the updated object; teamPath must be '${teamPath}'.`,
+    { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: TEAM_SCHEMA },
   )
   if (revised) team = revised
   else log('validate: revision returned nothing; keeping the first assembly')

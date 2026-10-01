@@ -135,8 +135,8 @@ if (validation && !validation.valid) {
   const revised = await agent(
     `${contractStep} Read ${briefPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `Revise ${briefPath} in place so each item holds. Return only the updated brief object (counts and open questions); briefPath must be '${briefPath}'.`,
-    { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', schema: BRIEF_SCHEMA },
+    `Revise ${briefPath} so each item holds. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. Return only the updated brief object (counts and open questions); briefPath must be '${briefPath}'.`,
+    { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: BRIEF_SCHEMA },
   )
   if (revised) brief = revised
   else log('validate: revision returned nothing; keeping the first draft')
