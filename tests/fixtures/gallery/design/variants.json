@@ -1,0 +1,6 @@
+{"product": "Ardennes Hour", "round": "Turn tracker: variants", "kind": "design",
+ "skin": "Neutral skin: no brand guide yet; run /ck:brand-guide to add one.",
+ "variants": [
+  {"label": "A", "name": "List first", "rationale": "The turn is a checklist; the player reads down.", "tradeoff": "Less room for the card art.", "satisfies": "Requirement 1: every rule a player needs during a turn is printed on a card in play.", "screens": [{"name": "Turn", "frame": "phone"}]},
+  {"label": "B", "name": "Card first", "rationale": "The active card fills the screen; the checklist is a strip.", "tradeoff": "The strip hides steps on small screens.", "satisfies": "Requirement 1: every rule a player needs during a turn is printed on a card in play.", "screens": [{"name": "Turn", "frame": "desktop"}]}
+ ]}

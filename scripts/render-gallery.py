@@ -4,13 +4,14 @@
 Usage:
   render-gallery.py --in <variants.json> --out <gallery.html>
   render-gallery.py --dir <round directory> --out <gallery.html>
+  render-gallery.py --dir <round directory> --chosen B --out <chosen.html>   (one design variant, with its success states)
 
 The JSON: {"product": str, "round": str, "kind": "brand" | "design", "skin": str (optional note), "variants": [ {
     "label": "A", "name": str, "rationale": str, "tradeoff": str, "satisfies": str,
     "mood": [str], "swatches": [{"name": str, "hex": "#rrggbb", "role": str}],
     "typePair": {"heading": str, "body": str}, "typeScale": [{"role": str, "family": str, "size": str, "weight": str}],
     "markSvg": "<svg ...>", "surfaceHtml": "<div ...>", "assets": [{"name": str, "svg": "<svg ...>"}],
-    "screens": [{"name": str, "html": str, "states": {"empty": str, "loading": str, "error": str}}]
+    "screens": [{"name": str, "frame": "phone" | "desktop", "html": str, "states": {"empty": str, "loading": str, "error": str}}]
 } ] }
 Brand variants use mood, swatches, typePair, typeScale, markSvg, surfaceHtml, assets. Design variants use screens.
 
@@ -20,7 +21,7 @@ author writes files once and nobody pastes SVG into JSON:
     <dir>/<label>/surface.html      surfaceHtml (an HTML fragment with inline styles)
     <dir>/<label>/*.svg             every other SVG becomes an asset tile, captioned with its file name
     <dir>/<label>/<screen>.html     a design screen's html, <screen> being the screen name slugified
-    <dir>/<label>/<screen>.<state>.html   its empty, loading, and error states
+    <dir>/<label>/<screen>.<state>.html   its empty, loading, and error states (and success, with --chosen)
 A brand variant without a mark or a surface, or a design screen without its file, is an error that names the file.
 
 Standard library only. Every asset is inline; the page loads nothing but Google Fonts. Fails if the output
@@ -57,7 +58,7 @@ CSS = """
 .specimen{background:#fff;color:#141413;border:1px solid var(--rule);border-radius:8px;padding:14px}.specimen .h{font-size:26px;line-height:1.15;margin:0 0 6px}.specimen .b{font-size:15px;line-height:1.5;margin:0}.specimen table{border-collapse:collapse;font-size:13px;margin-top:8px}.specimen td{padding:4px 10px 4px 0;color:#5f5d55;vertical-align:baseline}
 .frame{background:#fff;color:#141413;border:1px solid var(--rule);border-radius:8px;overflow:auto;max-width:100%}.frame>*{max-width:100%}
 .assets{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.asset{margin:0;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:10px;display:grid;gap:6px}.asset div{min-height:90px;display:flex;align-items:center;justify-content:center}.asset svg{max-width:100%;max-height:120px}.asset figcaption{font-size:12px;color:var(--muted);text-align:center;word-break:break-all}
-.screens{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.device{border:10px solid #222;border-radius:28px;background:#fff;color:#141413;overflow:hidden;width:100%;max-width:360px;aspect-ratio:9/19}.device>*{width:100%;height:100%;overflow:auto}
+.screens{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.device{border:10px solid #222;border-radius:28px;background:#fff;color:#141413;overflow:hidden;width:100%;max-width:360px;aspect-ratio:9/19}.device>*{width:100%;height:100%;overflow:auto}.device.desktop{border-width:8px;border-radius:10px;max-width:100%;aspect-ratio:16/10}.screens:has(.desktop){grid-template-columns:1fr}
 .states{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.state{border:1px dashed var(--rule-strong);border-radius:8px;overflow:auto;background:#fff;color:#141413;max-height:360px}.state .inner{width:100%}.state .cap{font:600 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;background:var(--surface)}
 .mood{display:flex;gap:6px;flex-wrap:wrap}.mood span{border:1px solid var(--rule-strong);border-radius:999px;padding:2px 10px;font-size:13px}
 @media (max-width:700px){.page{padding:18px 14px 70px}.variant{padding:16px}}
@@ -73,7 +74,7 @@ def read_fragment(path):
     text = re.sub(r'<!DOCTYPE[^>]*>\s*', '', text, flags=re.I)
     return text.strip()
 
-def fill_from_dir(d, dirpath):
+def fill_from_dir(d, dirpath, states=('empty', 'loading', 'error')):
     """Fill each variant's inline parts from the author files under <dir>/<label>/."""
     missing = []
     for v in d.get('variants') or []:
@@ -96,7 +97,7 @@ def fill_from_dir(d, dirpath):
                     if base.with_suffix('.html').exists(): s['html'] = read_fragment(base.with_suffix('.html'))
                     else: missing.append(str(base.with_suffix('.html')))
                 st = s.setdefault('states', {})
-                for k in ('empty', 'loading', 'error'):
+                for k in states:
                     f = ld / (base.name + '.' + k + '.html')
                     if not st.get(k):
                         if f.exists(): st[k] = read_fragment(f)
@@ -147,21 +148,23 @@ def brand_render(v):
 def design_render(v):
     out = []
     for s in v.get('screens') or []:
-        out.append(f'<div><h3>{esc(s.get("name",""))}</h3><div class="device"><div>{s.get("html","")}</div></div></div>')
+        frame = 'device desktop' if s.get('frame') == 'desktop' else 'device'
+        out.append(f'<div><h3>{esc(s.get("name",""))}</h3><div class="{frame}"><div>{s.get("html","")}</div></div></div>')
     return '<div class="screens">' + ''.join(out) + '</div>'
 
-def design_states(v):
+def design_states(v, states=('empty', 'loading', 'error')):
     rows = []
     for s in v.get('screens') or []:
         st = s.get('states') or {}
         zoom = '.42' if s.get('frame') == 'desktop' else '.72'
-        cells = ''.join(f'<div class="state"><div class="cap">{esc(s.get("name",""))} · {k}</div><div class="inner" style="zoom:{zoom}">{st.get(k,"")}</div></div>' for k in ('empty', 'loading', 'error') if st.get(k))
+        cells = ''.join(f'<div class="state"><div class="cap">{esc(s.get("name",""))} · {k}</div><div class="inner" style="zoom:{zoom}">{st.get(k,"")}</div></div>' for k in states if st.get(k))
         if cells: rows.append(cells)
     return ('<h3>States</h3><div class="states">' + ''.join(rows) + '</div>') if rows else ''
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--in', dest='src'); ap.add_argument('--dir'); ap.add_argument('--out', required=True)
+    ap.add_argument('--chosen', help='render only this label as the chosen design, with its success states, no strip, no comment steps')
     a = ap.parse_args()
     if not a.src and not a.dir: sys.exit('give --in <variants.json> or --dir <round directory>')
     src = pathlib.Path(a.src) if a.src else pathlib.Path(a.dir) / 'variants.json'
@@ -174,8 +177,15 @@ def main():
     expected = [chr(ord('A') + i) for i in range(len(variants))]
     if labels != expected:
         sys.exit(f'labels must be consecutive capital letters from A: got {labels}')
-    if a.dir: fill_from_dir(d, pathlib.Path(a.dir))
+    chosen = (a.chosen or '').strip().upper()
+    states = ('empty', 'loading', 'error', 'success') if chosen else ('empty', 'loading', 'error')
+    if chosen:
+        if chosen not in labels: sys.exit(f'--chosen {chosen} is not one of {labels}')
+        variants = [v for v in variants if v['label'] == chosen]; d['variants'] = variants
+        if kind != 'design': sys.exit('--chosen is for design galleries')
+    if a.dir: fill_from_dir(d, pathlib.Path(a.dir), states)
     title = f'{product}: {rnd}' if rnd else product
+    if chosen: title = f'{product}: {rnd.split(":")[0]}, chosen variant {chosen}' if rnd else f'{product}: chosen variant {chosen}'
     strip = ''.join(f'<a href="#variant-{esc(l)}">{esc(l)} · {esc(v.get("name",""))}</a>' for l, v in zip(labels, variants))
     skin = f' {esc(d["skin"])}' if d.get('skin') else ''
     body = []
@@ -184,12 +194,17 @@ def main():
         render = brand_render(v) if kind == 'brand' else design_render(v)
         body.append(f'<section class="variant" id="variant-{esc(l)}"><h2><span class="label">{esc(l)}</span>{esc(v.get("name",""))}</h2>'
                     f'{render}<h3>Rationale</h3><p>{esc(v.get("rationale",""))}</p><h3>Trade-off</h3><p>{esc(v.get("tradeoff",""))}</p>'
-                    f'<h3>Satisfies</h3><p>{esc(v.get("satisfies",""))}</p>{design_states(v) if kind == "design" else ""}</section>')
-    page = (f'<title>{esc(title)}</title>\n{fonts_link(variants)}\n<style>{CSS}</style>\n'
-            f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · gallery review</p><h1>{esc(title)}</h1>'
-            f'<p class="meta">{len(variants)} labeled variants. Comment on the one you want, and on what to change.{skin}</p></div>'
-            f'<div class="howto"><h2>How to comment</h2>{STEPS}</div></div></header>\n'
-            f'<nav class="strip" aria-label="Variants">{strip}</nav>\n<main class="page">\n' + '\n'.join(body) + '\n</main>\n')
+                    f'<h3>Satisfies</h3><p>{esc(v.get("satisfies",""))}</p>{design_states(v, states) if kind == "design" else ""}</section>')
+    if chosen:
+        head = (f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · chosen design</p><h1>{esc(title)}</h1>'
+                f'<p class="meta">{esc(variants[0].get("name",""))}: every screen with its default, empty, loading, error, and success states.{skin}</p></div></div></header>\n')
+    else:
+        head = (f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · gallery review</p><h1>{esc(title)}</h1>'
+                f'<p class="meta">{len(variants)} labeled variants. Comment on the one you want, and on what to change.{skin}</p></div>'
+                f'<div class="howto"><h2>How to comment</h2>{STEPS}</div></div></header>\n'
+                f'<nav class="strip" aria-label="Variants">{strip}</nav>\n')
+    page = (f'<title>{esc(title)}</title>\n{fonts_link(variants)}\n<style>{CSS}</style>\n' + head +
+            '<main class="page">\n' + '\n'.join(body) + '\n</main>\n')
     if len(page.encode()) > 16 * 1024 * 1024: sys.exit('the page would exceed 16 MB')
     if re.search(r'<script\b', page, re.I): sys.exit('scripts are not allowed in a gallery')
     ext = re.findall(r'(?:src|href)=["\'](https?://[^"\']+)', page) + re.findall(r'url\(["\']?(https?://[^)"\']+)', page)
