@@ -113,7 +113,7 @@ tiers.conf                   persona -> model
 agents/                      generated subagents, ck:<name>
 skills/<persona>/            generated switch commands, /ck:<name>
 skills/prd, next, review-page
-skills/*-artifact/           the document contracts
+skills/*-artifact/           the ten document contracts
 workflows/                   panel, brief, draft (PRD and architecture), team
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
 scripts/                     generate.sh, render-review.py, usage-log.sh, check-prereqs.sh

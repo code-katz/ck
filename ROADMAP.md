@@ -14,7 +14,7 @@ The skeleton is committed: 21 personas as subagents and switch commands on three
 |---|---|---|---|
 | 1 | End-to-end drill of `/ck:next`, `/ck:brief`, `/ck:panel` on the fixtures, then on a real project | These three exercise every mechanism Phase 0 proved; nothing else is trusted until they run | PRD §9 test 13 log committed under `tests/drill/` |
 | 2 | `/ck:prd` drill, including the review page and a `startAt` resume | The flagship document | Test 13's `/ck:prd` rows pass; a review page with two applied comments |
-| 3 | The remaining contracts: `opportunity`, `market-research`, `roadmap`, `brand`, `design`, `gallery` | Every script needs its contract before it is written | Test 7 passes for every workflow |
+| 3 | The remaining contracts: `opportunity`, `market-research`, `roadmap`, `brand`, `design`, `gallery` (written 2026-10-01) | Every script needs its contract before it is written | Test 7 passes for every workflow once its script exists |
 | 4 | The remaining scripts: `opportunity-draft`, `market-research`, `roadmap`, `brand`, `design-round`, and the gate-owning skills `opportunity`, `architecture`, `brand-guide`, `design` | Phase one is the whole pipeline | Test 9 passes for nine scripts; J1 and J2 drills complete |
 | 5 | Marketplace entry in `code-katz/claude-plugins` and the install drill on Clare's machine | Distribution | `/plugin install ck@code-katz` then `/ck:next` on a second machine |
 
