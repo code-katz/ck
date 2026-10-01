@@ -28,7 +28,7 @@ const memoPath = a.memoPath || (projectRoot + '/docs/decisions/' + (a.timestamp 
 const memoContract = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/memo-artifact/SKILL.md (the memo contract).'
   : 'Load the skill ck:memo-artifact with the Skill tool (the memo contract).'
-const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
+const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
 
 // Three lenses, three models, three bodies of evidence. The same model in three
 // costumes is one opinion; the same evidence read three times is one reading.
