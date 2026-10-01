@@ -127,8 +127,9 @@ done
 section "7. Contracts and scripts agree on section order"
 if python3 - <<'EOF'
 import re, sys, pathlib
-def contract_sections(path):
+def contract_sections(path, part=None):
     text = pathlib.Path(path).read_text()
+    if part: text = text.split('# Part ' + part, 1)[1]
     body = text.split('## Section order', 1)[1].split('## Checklist', 1)[0] if '## Section order' in text else ''
     return re.findall(r'^\d+\. `## (.+?)`', body, re.M)
 def js_list(text):
@@ -148,14 +149,21 @@ for art, contract in (('prd', 'skills/prd-artifact/SKILL.md'), ('architecture', 
     got = js_list(m.group(1)) if m else []
     want = contract_sections(contract)
     if got != want: problems.append(f'draft.js[{art}] vs {contract}: script {got} contract {want}')
+# brand.js declares the record's and the guide's sections
+js = pathlib.Path('workflows/brand.js').read_text()
+for const, part in (('RECORD_SECTIONS', 'A'), ('GUIDE_SECTIONS', 'B')):
+    m = re.search(r'const ' + const + r' = \[(.*?)\]', js, re.S)
+    got = js_list(m.group(1)) if m else []
+    want = contract_sections('skills/brand-artifact/SKILL.md', part)
+    if got != want: problems.append(f'brand.js[{const}] vs brand-artifact Part {part}: script {got} contract {want}')
 for p in problems: print(p, file=sys.stderr)
 sys.exit(1 if problems else 0)
 EOF
-then ok "brief, team, prd, and architecture section lists match their contracts"; else fail "contract and script section lists differ (see above)"; fi
+then ok "brief, team, opportunity, market-research, prd, architecture, and brand section lists match their contracts"; else fail "contract and script section lists differ (see above)"; fi
 
 # ─── 8. Gate-owning skills reference review-page ─────────────────────────────
 section "8. Gate mechanics live in one place"
-for f in skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md; do
+for f in skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md; do
   if grep -q 'review-page/SKILL.md' "$f"; then ok "$f references skills/review-page/SKILL.md"; else fail "$f does not reference review-page"; fi
   if grep -qi 'comment mode' "$f"; then fail "$f restates the comment steps"; else ok "$f does not restate the comment steps"; fi
 done
@@ -222,7 +230,7 @@ out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/review-page/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
@@ -244,6 +252,34 @@ if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "
 else
   fail "render-review.py failed: $(cat "$TMP/rr.err")"
 fi
+
+# ─── 13. Gallery renderer ────────────────────────────────────────────────────
+section "13. Gallery renderer"
+if python3 scripts/render-gallery.py --in tests/fixtures/gallery/brand.json --out "$TMP/gallery.html" >/dev/null 2>"$TMP/rg.err"; then
+  ok "render-gallery.py renders the brand fixture from one JSON file"
+  [[ $(grep -c 'class="variant"' "$TMP/gallery.html") -eq 2 ]] && grep -q 'id="variant-A"' "$TMP/gallery.html" && grep -q 'id="variant-B"' "$TMP/gallery.html" && ok "two variants, labeled A and B, with matching ids" || fail "variant sections or ids missing"
+  grep -q 'comment mode' "$TMP/gallery.html" && grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries the five comment steps" || fail "banner steps missing"
+  parts_ok=1
+  for part in 'class="mark"' 'class="swatches"' 'class="specimen"' 'class="frame"' '<h3>Rationale</h3>' '<h3>Trade-off</h3>' '<h3>Satisfies</h3>'; do
+    [[ $(grep -o "$part" "$TMP/gallery.html" | wc -l | tr -d ' ') -eq 2 ]] || { fail "each variant should have $part once"; parts_ok=0; }
+  done
+  [[ $parts_ok -eq 1 ]] && ok "every variant has the mark, palette, type, surface, rationale, trade-off, and satisfies parts"
+  [[ -z "$(grep -oE '(src|href)="https?://[^"]+' "$TMP/gallery.html" | grep -v fonts.g)" ]] && ok "no external references other than Google Fonts" || fail "external reference found"
+else
+  fail "render-gallery.py --in failed: $(cat "$TMP/rg.err")"
+fi
+if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/dir --out "$TMP/gallery2.html" >/dev/null 2>"$TMP/rg2.err"; then
+  ok "render-gallery.py renders a round directory (variants.json plus the authors' files)"
+  grep -q 'icon.svg' "$TMP/gallery2.html" && ok "an extra SVG in a variant's folder becomes an asset tile" || fail "asset tile missing"
+  grep -q '<?xml' "$TMP/gallery2.html" && fail "an XML prolog leaked into the page" || ok "XML prologs are stripped from inlined SVG"
+  [[ $(grep -o '<span>quiet</span>' "$TMP/gallery2.html" | wc -l | tr -d ' ') -eq 1 && -z "$(grep -o '<span>q</span>' "$TMP/gallery2.html")" ]] && ok "a mood written as one string is split on commas, not letters" || fail "string mood not split on commas"
+else
+  fail "render-gallery.py --dir failed: $(cat "$TMP/rg2.err")"
+fi
+mkdir -p "$TMP/badround/A" && cp tests/fixtures/gallery/dir/variants.json "$TMP/badround/"
+if python3 scripts/render-gallery.py --dir "$TMP/badround" --out "$TMP/gallery3.html" >/dev/null 2>"$TMP/rg3.err"; then fail "render-gallery.py should refuse a round with missing author files"; else grep -q 'mark.svg' "$TMP/rg3.err" && ok "a missing author file is refused and named" || fail "the refusal does not name the file"; fi
+printf '{"product":"x","kind":"brand","variants":[{"label":"B","name":"n"}]}' > "$TMP/badlabels.json"
+python3 scripts/render-gallery.py --in "$TMP/badlabels.json" --out "$TMP/gallery4.html" >/dev/null 2>&1 && fail "render-gallery.py should refuse labels that do not start at A" || ok "labels that do not run from A are refused"
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
