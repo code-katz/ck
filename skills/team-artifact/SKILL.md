@@ -27,3 +27,4 @@ Use these headings verbatim, in this order.
 4. Missing seats and Declined nominations are present even when empty.
 5. Every declined nomination has a replacement or an explicit gap.
 6. No em-dashes in prose.
+7. The document is under 2,500 words. The matrix carries assignments, not reasons; the reasons stay in the Cast table.

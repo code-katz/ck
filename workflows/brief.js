@@ -24,7 +24,7 @@ const briefPath = a.briefPath || (projectRoot + '/docs/brief.md')
 const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/brief-artifact/SKILL.md (the brief contract).'
   : 'Load the skill ck:brief-artifact with the Skill tool (the brief contract).'
-const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
+const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
 const existing = [a.opportunityPath, a.marketResearchPath].filter(Boolean)
 const ideaText = a.idea || 'Take the idea from the concept statement in ' + a.opportunityPath
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'

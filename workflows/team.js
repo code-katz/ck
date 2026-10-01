@@ -5,7 +5,7 @@ export const meta = {
     { title: 'Nominate', detail: 'ck:river proposes the cast: an owner and reviewers per pipeline document and stage, and the missing seats' },
     { title: 'Confirm', detail: 'every nominee, in parallel on its own tier at low effort, accepts or declines each responsibility, names its needs, one risk, and one missing seat' },
     { title: 'Assemble', detail: 'ck:river writes docs/TEAM.md: cast, roles and responsibilities matrix, hand-off order, needs, missing seats, declined nominations' },
-    { title: 'Validate', detail: 'one neutral Haiku agent checks the team contract; ck:river revises at most once' },
+    { title: 'Validate', detail: 'one neutral Haiku agent checks the team contract; ck:river revises at most twice' },
   ],
   personas: ['river', 'akira', 'alex', 'casey', 'cornelius', 'ernie', 'iris', 'jordan', 'kai', 'morgan', 'noon', 'piper', 'quinn', 'reiner', 'rez', 'robin', 'sage', 'sasha', 'toni', 'tracy', 'travolta'],
 }
@@ -28,8 +28,10 @@ const rosterStep = a.pluginRoot
 const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/team-artifact/SKILL.md (the team contract).'
   : 'Load the skill ck:team-artifact with the Skill tool (the team contract).'
-const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
+const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
 const MAX_CAST = Number.isInteger(a.maxCast) && a.maxCast > 0 ? Math.min(a.maxCast, 12) : 8
+const MAX_REVISIONS = 2
+const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const SECTIONS = ['Cast', 'Roles and responsibilities', 'Hand-off order', 'Needs', 'Missing seats', 'Declined nominations']
 
@@ -174,35 +176,36 @@ let team = await agent(
   `the Hand-off order (who hands to whom, in pipeline order, and what each hand-off carries); Needs (per ` +
   `persona, from the confirmations); Missing seats (yours and the nominees', merged, with a recommendation ` +
   `each); Declined nominations (persona, responsibility, reason, replacement). Where a nominee declined and ` +
-  `named a replacement, take it or say why not. Generated ${stamp}, run ${runId}.\n` +
+  `named a replacement, take it or say why not. Under 2,500 words: the matrix carries assignments, not reasons, ` +
+  `which stay in the Cast table. Generated ${stamp}, run ${runId}.\n` +
   `Return the object; teamPath must be '${teamPath}'; declined is the number of declined responsibilities.`,
-  { label: 'river:assemble', phase: 'Assemble', agentType: 'ck:river', schema: TEAM_SCHEMA },
+  { label: 'river:assemble', phase: 'Assemble', agentType: 'ck:river', effort: 'medium', schema: TEAM_SCHEMA },
 )
 if (!team) throw new Error('team: River returned nothing for the assembly; nominations and confirmations are under ' + runDir)
 
 // ---- Validate ----
 phase('Validate')
-const validation = await agent(
-  `${contractStep} Read ${teamPath}. Check the document against every numbered item in the contract's ` +
-  `checklist and against the section order, including "every pipeline document has exactly one owner". ` +
-  `Return valid=true only if every item holds; for each unmet item, one line in missing that quotes the ` +
-  `checklist item and says what is absent or wrong.`,
-  { label: 'validate', phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
-)
-if (validation && !validation.valid) {
-  log(`validate: ${validation.missing.length} unmet item(s); River revises once`)
+let validation = null
+for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
+  validation = await agent(
+    `${contractStep} Read ${teamPath}. Check the document against every numbered item in the contract's ` +
+    `checklist and against the section order, including "every pipeline document has exactly one owner". ` +
+    `Return valid=true only if every item holds; for each unmet item, one line in missing that quotes the ` +
+    `checklist item and says what is absent or wrong.`,
+    { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
+  )
+  if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }
+  if (validation.valid) { log(`validate: TEAM.md passes the contract checklist (round ${round})`); break }
+  if (round > MAX_REVISIONS) { log(`validate: still unmet after ${MAX_REVISIONS} revision(s): ${validation.missing.join(' | ')}`); break }
+  log(`validate: ${validation.missing.length} unmet item(s); River revises (revision ${round} of ${MAX_REVISIONS})`)
   const revised = await agent(
     `${contractStep} Read ${teamPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `Revise ${teamPath} so each item holds. Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. Return the updated object; teamPath must be '${teamPath}'.`,
-    { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: TEAM_SCHEMA },
+    `Revise ${teamPath} so each item holds. ` + SMALLEST_EDITS + `Return the updated object; teamPath must be '${teamPath}'.`,
+    { label: `river:revise:${round}`, phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: TEAM_SCHEMA },
   )
-  if (revised) team = revised
-  else log('validate: revision returned nothing; keeping the first assembly')
-} else if (!validation) {
-  log('validate: validator returned nothing; proceeding unvalidated')
-} else {
-  log('validate: TEAM.md passes the contract checklist')
+  if (!revised) { log('validate: revision returned nothing; keeping the previous document'); break }
+  team = revised
 }
 
 return {
