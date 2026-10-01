@@ -186,9 +186,9 @@ if (runs('validate')) {
     const revised = await agent(
       `${contractStep} Read the inputs (${inputs.join(', ')}) and ${outPath}. A checker found these unmet ` +
       `checklist items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-      `Revise ${outPath} in place so each item holds. Keep every existing [C<n>] tag and add tags for any new ` +
+      `Revise ${outPath} so each item holds. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. Keep every existing [C<n>] tag and add tags for any new ` +
       `claim not from the inputs. Return the updated draft object; path must be '${outPath}'.`,
-      { label: `${A.author}:revise:${round}`, phase: 'Validate', agentType: author, schema: DRAFT_SCHEMA },
+      { label: `${A.author}:revise:${round}`, phase: 'Validate', agentType: author, effort: 'medium', schema: DRAFT_SCHEMA },
     )
     if (!revised) { log('validate: revision returned nothing; keeping the previous draft'); break }
     draft = revised
