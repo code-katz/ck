@@ -31,6 +31,7 @@ const rosterStep = a.pluginRoot
   : 'Load the skill ck:roster with the Skill tool (the roster: one line per persona with name, role, tier, domain).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. '
+const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const MAX_CONTRIBUTORS = 4
 const MAX_REVISIONS = 2
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
@@ -204,9 +205,9 @@ if (runs('validate')) {
     if (round > MAX_REVISIONS) { log(`validate: still unmet after ${MAX_REVISIONS} revision(s): ${validation.missing.join(' | ')}`); break }
     log(`validate: ${validation.missing.length} unmet item(s); River revises (revision ${round} of ${MAX_REVISIONS})`)
     const revised = await agent(
-      `${contractStep} Read ${outPath} and the files under ${runDir}/sections/. A checker found these unmet ` +
+      `${contractStep} Read ${outPath}. A checker found these unmet ` +
       `checklist items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-      `Revise ${outPath} so each item holds. ` + ONE_WRITE + `Return only the updated object; path must be '${outPath}'.`,
+      `Revise ${outPath} so each item holds. ` + SMALLEST_EDITS + `Return only the updated object; path must be '${outPath}'.`,
       { label: `river:revise:${round}`, phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: DOC_SCHEMA },
     )
     if (!revised) { log('validate: revision returned nothing; keeping the previous document'); break }

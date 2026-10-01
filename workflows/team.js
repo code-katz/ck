@@ -194,7 +194,7 @@ if (validation && !validation.valid) {
   const revised = await agent(
     `${contractStep} Read ${teamPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `Revise ${teamPath} so each item holds. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. Return the updated object; teamPath must be '${teamPath}'.`,
+    `Revise ${teamPath} so each item holds. Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. Return the updated object; teamPath must be '${teamPath}'.`,
     { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: TEAM_SCHEMA },
   )
   if (revised) team = revised
