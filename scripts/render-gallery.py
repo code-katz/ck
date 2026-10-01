@@ -58,7 +58,7 @@ CSS = """
 .frame{background:#fff;color:#141413;border:1px solid var(--rule);border-radius:8px;overflow:auto;max-width:100%}.frame>*{max-width:100%}
 .assets{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.asset{margin:0;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:10px;display:grid;gap:6px}.asset div{min-height:90px;display:flex;align-items:center;justify-content:center}.asset svg{max-width:100%;max-height:120px}.asset figcaption{font-size:12px;color:var(--muted);text-align:center;word-break:break-all}
 .screens{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.device{border:10px solid #222;border-radius:28px;background:#fff;color:#141413;overflow:hidden;width:100%;max-width:360px;aspect-ratio:9/19}.device>*{width:100%;height:100%;overflow:auto}
-.states{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.state{border:1px dashed var(--rule-strong);border-radius:8px;overflow:auto;background:#fff;color:#141413;max-height:280px}.state .cap{font:600 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;background:var(--surface)}
+.states{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.state{border:1px dashed var(--rule-strong);border-radius:8px;overflow:auto;background:#fff;color:#141413;max-height:360px}.state .inner{width:100%}.state .cap{font:600 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;background:var(--surface)}
 .mood{display:flex;gap:6px;flex-wrap:wrap}.mood span{border:1px solid var(--rule-strong);border-radius:999px;padding:2px 10px;font-size:13px}
 @media (max-width:700px){.page{padding:18px 14px 70px}.variant{padding:16px}}
 """
@@ -154,7 +154,8 @@ def design_states(v):
     rows = []
     for s in v.get('screens') or []:
         st = s.get('states') or {}
-        cells = ''.join(f'<div class="state"><div class="cap">{esc(s.get("name",""))} · {k}</div>{st.get(k,"")}</div>' for k in ('empty', 'loading', 'error') if st.get(k))
+        zoom = '.42' if s.get('frame') == 'desktop' else '.72'
+        cells = ''.join(f'<div class="state"><div class="cap">{esc(s.get("name",""))} · {k}</div><div class="inner" style="zoom:{zoom}">{st.get(k,"")}</div></div>' for k in ('empty', 'loading', 'error') if st.get(k))
         if cells: rows.append(cells)
     return ('<h3>States</h3><div class="states">' + ''.join(rows) + '</div>') if rows else ''
 
