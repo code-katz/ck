@@ -135,7 +135,7 @@ def js_list(text):
     return re.findall(r"'((?:[^'\\]|\\.)*)'", text)
 problems = []
 # brief.js and team.js declare SECTIONS
-for script, contract in (('workflows/brief.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team.js', 'skills/team-artifact/SKILL.md')):
+for script, contract in (('workflows/brief.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md')):
     js = pathlib.Path(script).read_text()
     m = re.search(r'const SECTIONS = \[(.*?)\]', js, re.S)
     got = js_list(m.group(1)) if m else []
@@ -155,7 +155,7 @@ then ok "brief, team, prd, and architecture section lists match their contracts"
 
 # ─── 8. Gate-owning skills reference review-page ─────────────────────────────
 section "8. Gate mechanics live in one place"
-for f in skills/prd/SKILL.md skills/architecture/SKILL.md; do
+for f in skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md; do
   if grep -q 'review-page/SKILL.md' "$f"; then ok "$f references skills/review-page/SKILL.md"; else fail "$f does not reference review-page"; fi
   if grep -qi 'comment mode' "$f"; then fail "$f restates the comment steps"; else ok "$f does not restate the comment steps"; fi
 done
@@ -222,7 +222,7 @@ out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/review-page/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
