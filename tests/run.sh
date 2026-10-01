@@ -272,6 +272,7 @@ if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/dir --out "$TM
   ok "render-gallery.py renders a round directory (variants.json plus the authors' files)"
   grep -q 'icon.svg' "$TMP/gallery2.html" && ok "an extra SVG in a variant's folder becomes an asset tile" || fail "asset tile missing"
   grep -q '<?xml' "$TMP/gallery2.html" && fail "an XML prolog leaked into the page" || ok "XML prologs are stripped from inlined SVG"
+  [[ $(grep -o '<span>quiet</span>' "$TMP/gallery2.html" | wc -l | tr -d ' ') -eq 1 && -z "$(grep -o '<span>q</span>' "$TMP/gallery2.html")" ]] && ok "a mood written as one string is split on commas, not letters" || fail "string mood not split on commas"
 else
   fail "render-gallery.py --dir failed: $(cat "$TMP/rg2.err")"
 fi

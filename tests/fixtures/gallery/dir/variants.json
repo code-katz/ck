@@ -56,11 +56,7 @@
    "rationale": "Cold blues and white space; the winter is the brand.",
    "tradeoff": "Softer than the genre expects; may read as a puzzle game.",
    "satisfies": "Positioning line: the hour-long Ardennes skirmish with no rulebook.",
-   "mood": [
-    "cold",
-    "quiet",
-    "modern"
-   ],
+   "mood": "cold, quiet, precise",
    "swatches": [
     {
      "name": "Snow",

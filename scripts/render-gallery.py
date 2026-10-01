@@ -51,10 +51,10 @@ CSS = """
 .variant{border:1px solid var(--rule-strong);border-radius:10px;padding:22px 24px;margin:0 0 32px;background:var(--surface)}
 .variant h2{font:600 24px/1.2 system-ui,sans-serif;margin:0 0 14px}.variant h2 .label{display:inline-block;min-width:36px;text-align:center;background:var(--accent);color:#fff;border-radius:6px;padding:2px 8px;margin-right:10px}
 .variant h3{font:600 12px/1 system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
-.variant p{margin:0 0 8px}.render{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start}
+.variant p{margin:0 0 8px}.render{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start}
 .mark{background:#fff;border:1px solid var(--rule);border-radius:8px;padding:16px;min-height:160px;display:flex;align-items:center;justify-content:center}.mark svg{max-width:100%;max-height:220px}
 .swatches{display:flex;flex-wrap:wrap;gap:8px}.swatch{width:112px;border:1px solid var(--rule);border-radius:6px;overflow:hidden;font-size:12px}.swatch i{display:block;height:48px}.swatch b{display:block;padding:4px 6px 0}.swatch span{display:block;padding:0 6px 6px;color:var(--muted)}
-.specimen{background:#fff;color:#141413;border:1px solid var(--rule);border-radius:8px;padding:14px}.specimen .h{font-size:26px;line-height:1.15;margin:0 0 6px}.specimen .b{font-size:15px;line-height:1.5;margin:0}.specimen table{border-collapse:collapse;font-size:13px;margin-top:8px}.specimen td{padding:2px 8px 2px 0;color:#5f5d55}
+.specimen{background:#fff;color:#141413;border:1px solid var(--rule);border-radius:8px;padding:14px}.specimen .h{font-size:26px;line-height:1.15;margin:0 0 6px}.specimen .b{font-size:15px;line-height:1.5;margin:0}.specimen table{border-collapse:collapse;font-size:13px;margin-top:8px}.specimen td{padding:4px 10px 4px 0;color:#5f5d55;vertical-align:baseline}
 .frame{background:#fff;color:#141413;border:1px solid var(--rule);border-radius:8px;overflow:auto;max-width:100%}.frame>*{max-width:100%}
 .assets{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.asset{margin:0;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:10px;display:grid;gap:6px}.asset div{min-height:90px;display:flex;align-items:center;justify-content:center}.asset svg{max-width:100%;max-height:120px}.asset figcaption{font-size:12px;color:var(--muted);text-align:center;word-break:break-all}
 .screens{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.device{border:10px solid #222;border-radius:28px;background:#fff;color:#141413;overflow:hidden;width:100%;max-width:360px;aspect-ratio:9/19}.device>*{width:100%;height:100%;overflow:auto}
@@ -130,16 +130,19 @@ def brand_render(v):
         h = esc(tp.get('heading', 'serif')); b = esc(tp.get('body', 'sans-serif'))
         scale = ''
         if v.get('typeScale'):
-            scale = '<table>' + ''.join(f'<tr><td>{esc(r.get("role",""))}</td><td style="font-family:\'{esc(r.get("family",""))}\';font-size:{esc(r.get("size",""))};font-weight:{esc(r.get("weight",""))}">{esc(r.get("family",""))} {esc(r.get("size",""))} {esc(r.get("weight",""))}</td></tr>' for r in v['typeScale']) + '</table>'
+            scale = '<table>' + ''.join(f'<tr><td style="font-family:\'{esc(r.get("family",""))}\';font-size:{esc(r.get("size",""))};font-weight:{esc(r.get("weight",""))};line-height:1.1;color:#141413">{esc(r.get("role",""))}</td><td>{esc(r.get("family",""))} {esc(r.get("size",""))} {esc(r.get("weight",""))}</td></tr>' for r in v['typeScale']) + '</table>'
         parts.append(f'<div><h3>Type</h3><div class="specimen"><p class="h" style="font-family:\'{h}\',serif">{esc(v.get("name",""))}: the quick brown fox</p><p class="b" style="font-family:\'{b}\',sans-serif">Body in {b}. Heading in {h}. Jumps over the lazy dog, 0123456789.</p>{scale}</div></div>')
+    wide = []
     if v.get('surfaceHtml'):
-        parts.append('<div><h3>UI surface</h3><div class="frame">' + v['surfaceHtml'] + '</div></div>')
+        wide.append('<h3>UI surface</h3><div class="frame">' + v['surfaceHtml'] + '</div>')
     if v.get('assets'):
         tiles = ''.join(f'<figure class="asset"><div>{a.get("svg","")}</div><figcaption>{esc(a.get("name",""))}</figcaption></figure>' for a in v['assets'])
-        parts.append('<div><h3>Logo system and assets</h3><div class="assets">' + tiles + '</div></div>')
-    if v.get('mood'):
-        parts.append('<div><h3>Mood</h3><div class="mood">' + ''.join(f'<span>{esc(m)}</span>' for m in v['mood']) + '</div></div>')
-    return '<div class="render">' + ''.join(parts) + '</div>'
+        wide.append('<h3>Logo system and assets</h3><div class="assets">' + tiles + '</div>')
+    mood = v.get('mood')
+    if isinstance(mood, str): mood = [m.strip() for m in mood.replace(';', ',').split(',') if m.strip()]
+    if mood:
+        wide.append('<h3>Mood</h3><div class="mood">' + ''.join(f'<span>{esc(m)}</span>' for m in mood) + '</div>')
+    return '<div class="render">' + ''.join(parts) + '</div>' + ''.join(wide)
 
 def design_render(v):
     out = []
