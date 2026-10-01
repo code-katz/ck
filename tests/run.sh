@@ -287,6 +287,11 @@ if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/design --out "
   [[ $(grep -o 'class="device' "$TMP/gallery5.html" | wc -l | tr -d ' ') -eq 2 && $(grep -c '<h3>States</h3>' "$TMP/gallery5.html") -eq 2 ]] && ok "every design variant has its device frame and its states row" || fail "device frames or states rows missing"
   grep -q 'device desktop' "$TMP/gallery5.html" && ok "a screen can ask for a desktop frame" || fail "desktop frame missing"
   grep -q 'Neutral skin' "$TMP/gallery5.html" && grep -q '/ck:brand-guide' "$TMP/gallery5.html" && ok "the banner carries the skin note and names /ck:brand-guide" || fail "skin note missing"
+  if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/design --chosen B --out "$TMP/chosen.html" >/dev/null 2>"$TMP/rg6.err"; then
+    [[ $(grep -c 'class="variant"' "$TMP/chosen.html") -eq 1 && $(grep -c '· success' "$TMP/chosen.html") -eq 1 ]] && ! grep -q 'comment mode' "$TMP/chosen.html" && ok "--chosen renders one variant with its success state and no comment steps" || fail "--chosen output is wrong"
+  else
+    fail "render-gallery.py --chosen failed: $(cat "$TMP/rg6.err")"
+  fi
 else
   fail "render-gallery.py --dir (design) failed: $(cat "$TMP/rg5.err")"
 fi

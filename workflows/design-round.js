@@ -6,7 +6,7 @@ export const meta = {
     { title: 'Concepts', detail: 'ck:kai: three labeled variants, each a different answer to the feature, with the screens each needs' },
     { title: 'Screens', detail: 'three ck:kai agents in parallel, one per variant: every screen with its empty, loading, and error states, in the brand skin or a neutral one' },
     { title: 'Gallery', detail: 'the page rendered by scripts/render-gallery.py and checked against the gallery contract; ck:kai fixes at most twice' },
-    { title: 'Refine', detail: 'ck:kai: the chosen variant at full fidelity with every state, and the design spec' },
+    { title: 'Refine', detail: 'ck:kai applies the review changes to the chosen variant\'s files, adds the success states, renders chosen.html with scripts/render-gallery.py, and writes the design spec' },
     { title: 'Acceptance', detail: 'ck:robin: one check per screen a tester could verify, appended to the spec' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the design spec contract; ck:kai revises at most twice' },
   ],
@@ -245,11 +245,14 @@ if (runs('refine')) {
   spec = await agent(
     `Read ${featurePath}, ${designDir}/variants.json, and every file under ${designDir}/${chosen}/ (the variant ` +
     `the author chose, label ${chosen}). ${skinStep}${archStep}` + changesLine +
-    `Write two files. First, ${chosenPath}: the chosen variant at full fidelity as one complete standalone HTML ` +
-    `page (a title, a style element with the skin's tokens as custom properties, no scripts, no external ` +
-    `references other than Google Fonts), showing every screen in its device frame with its default, empty, ` +
-    `loading, error, and success states side by side, each labeled. ` +
-    `Second, ${specPath} to the design spec contract (${contractStep.replace('Read ', 'read ')}), sections in ` +
+    `Three steps, in order. First, the files: apply the author's changes to the chosen variant's screens under ` +
+    `${designDir}/${chosen}/ with the smallest edits, and write one more state per screen, <screen>.success.html ` +
+    `(the screen after its action succeeded). ` + HTML_RULES +
+    `Second, run this command with the Bash tool, exactly: ${renderer} --dir "${designDir}" --chosen ${chosen} ` +
+    `--out "${chosenPath}" . It builds ${chosenPath}, the chosen variant at full fidelity with every state, from ` +
+    `those files; if it fails, fix the file it names and run it again. Do not write ${chosenPath} yourself, do ` +
+    `not install anything, and do not take screenshots: the renderer and the files are the check. ` +
+    `Third, write ${specPath} to the design spec contract (${contractStep.replace('Read ', 'read ')}), sections in ` +
     `this order: ` + SPEC_SECTIONS.map(s => '"' + s + '"').join(', ') + `. Feature names the PRD requirement ` +
     `numbers, the user, and the success metric from ${featurePath}. Chosen variant gives the label and one ` +
     `paragraph on why, from the author's review. Requirement traceability has one row per acceptance criterion ` +

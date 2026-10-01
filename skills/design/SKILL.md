@@ -13,7 +13,7 @@ You are Kai for the whole of this skill. Read `${CLAUDE_PLUGIN_ROOT}/agents/kai.
 
 Confirm the Workflow tool is available in this session. If it is not, stop and say: "Dynamic workflows are not available here. `/ck:design` needs them. This is a setting in Claude Code, not something in your project." Do not run the stages by hand.
 
-`docs/PRD.md` must exist. If it does not, stop with one action: "Run `/ck:prd` first; `/ck:design` designs a feature from the PRD's requirements."
+`docs/PRD.md` must exist. Check with this exact command and trust its output over any other listing: `ls docs/PRD.md 2>/dev/null`. If it prints nothing, stop with one action: "Run `/ck:prd` first; `/ck:design` designs a feature from the PRD's requirements."
 
 ## 1. Find the feature
 
@@ -25,7 +25,7 @@ Read if present and pass as absolute paths: `docs/brand-guide.md` (`brand`), `br
 
 ## 2. Resume check
 
-Read the latest `.ck/runs/*/run.json` with `command: "design"` and this slug, if any. `run.json` can be stale, so decide from what is on disk, in this order:
+Read the latest `.ck/runs/*/run.json` with `command: "design"` and this slug, if any. `run.json` can be stale, so decide from what is on disk. List it with this exact command, never with a recursive listing that a pipe can cut short: `ls docs/design/<slug>/spec.md docs/design/<slug>/gallery.html .ck/runs/*-<slug>-design/review.md .ck/runs/*-<slug>-design/feature.md 2>/dev/null`. Then decide, in this order:
 
 - `docs/design/<slug>/spec.md` exists: the design is finished. Say so, name the files, and ask whether to run the refine stage again with new changes from the author's comments, or leave it. In a session that cannot ask, say that and stop.
 - `<runDir>/review.md` names `chosen:`: the review is done. Launch the `refine` stage (step 4).
