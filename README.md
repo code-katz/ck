@@ -17,7 +17,8 @@ Phase one, first release in progress. What runs today:
 | `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md` | Built |
 | `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan; you review on a page you can comment on | Built; not yet drilled |
 | `/ck:opportunity <idea>` | River frames the idea, Toni, Akira, and a domain seat write sourced sections, River assembles `docs/opportunity.md`; you review on a page you can comment on | Built; not yet drilled |
-| `/ck:market-research`, `/ck:roadmap`, `/ck:brand-guide`, `/ck:design` | The rest of the pipeline | Specified in the PRD; next on the roadmap |
+| `/ck:market-research [focus]` | Toni plans the questions, researchers answer them from the web in parallel, a cross-check marks what is unsourced or contradictory, Toni writes `docs/market-research.md` | Built; not yet drilled |
+| `/ck:roadmap`, `/ck:brand-guide`, `/ck:design` | The rest of the pipeline | Specified in the PRD; next on the roadmap |
 | `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, all 21 |
 | `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, all 21 |
 
@@ -115,7 +116,7 @@ agents/                      generated subagents, ck:<name>
 skills/<persona>/            generated switch commands, /ck:<name>
 skills/opportunity, prd, architecture, next, review-page
 skills/*-artifact/           the ten document contracts
-workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft
+workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft, market-research
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
 scripts/                     generate.sh, render-review.py, usage-log.sh, check-prereqs.sh
 tests/                       run.sh and two fixture projects

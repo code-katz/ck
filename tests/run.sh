@@ -135,7 +135,7 @@ def js_list(text):
     return re.findall(r"'((?:[^'\\]|\\.)*)'", text)
 problems = []
 # brief.js and team.js declare SECTIONS
-for script, contract in (('workflows/brief.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md')):
+for script, contract in (('workflows/brief.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md'), ('workflows/market-research.js', 'skills/market-research-artifact/SKILL.md')):
     js = pathlib.Path(script).read_text()
     m = re.search(r'const SECTIONS = \[(.*?)\]', js, re.S)
     got = js_list(m.group(1)) if m else []
