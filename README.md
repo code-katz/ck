@@ -14,13 +14,13 @@ Phase one, first release in progress. What runs today:
 | `/ck:brief <idea>` | Toni runs a short market pass, River writes `docs/brief.md`, a checker validates it | Built |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd` | River drafts `docs/PRD.md` from the brief, a checker validates, the panel challenges, River rewrites; you review on a page you can comment on | Built |
-| `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md` | Built |
-| `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan; you review on a page you can comment on | Built; not yet drilled |
+| `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md` | Built; drilled 2026-10-01 |
+| `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan; you review on a page you can comment on | Built; drilled 2026-10-01 |
 | `/ck:opportunity <idea>` | River frames the idea, Toni, Akira, and a domain seat write sourced sections, River assembles `docs/opportunity.md`; you review on a page you can comment on | Built; drilled 2026-10-01 |
-| `/ck:market-research [focus]` | Toni plans the questions, researchers answer them from the web in parallel, a cross-check marks what is unsourced or contradictory, Toni writes `docs/market-research.md` | Built; not yet drilled |
-| `/ck:roadmap` | River prioritizes the PRD's requirements into three tiers, Quinn sequences them and writes `ROADMAP.md` in the roadmap skill's format, with a dated revision entry | Built; not yet drilled |
-| `/ck:brand-guide` | Three rounds: Toni positions, Iris designs four to six brand directions, Kai skins a screen in each, you pick from a gallery; the picks are worked up in full as a second gallery; then the brand direction record, `docs/brand-guide.md`, and the assets under `brand/final/` | Built; not yet drilled |
-| `/ck:design <feature>` | One feature from the PRD to three labeled mockups, a review, and a design spec | Specified in the PRD; next on the roadmap |
+| `/ck:market-research [focus]` | Toni plans the questions, researchers answer them from the web in parallel, a cross-check marks what is unsourced or contradictory, Toni writes `docs/market-research.md` | Built; drilled 2026-10-01 |
+| `/ck:roadmap` | River prioritizes the PRD's requirements into three tiers, Quinn sequences them and writes `ROADMAP.md` in the roadmap skill's format, with a dated revision entry | Built; drilled 2026-10-01 |
+| `/ck:brand-guide` | Three rounds: Toni positions, Iris designs four to six brand directions, Kai skins a screen in each, you pick from a gallery; the picks are worked up in full as a second gallery; then the brand direction record, `docs/brand-guide.md`, and the assets under `brand/final/` | Built; drilled 2026-10-01 |
+| `/ck:design <feature>` | One feature from the PRD to three labeled mockups, a review, and a design spec | Built on the `design` branch (PR #12); drilled 2026-10-01 |
 | `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, all 21 |
 | `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, all 21 |
 
