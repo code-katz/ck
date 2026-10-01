@@ -25,6 +25,7 @@ const contractStep = a.pluginRoot
   : 'Load the skill ck:roadmap-artifact with the Skill tool (the roadmap contract).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. '
+const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 
 const ORDER = ['prioritize', 'sequence', 'validate']
@@ -140,7 +141,7 @@ if (runs('validate')) {
     const revised = await agent(
       `${contractStep} Read ${outPath} and ${runDir}/priorities.json. A checker found these unmet checklist ` +
       `items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-      `Revise ${outPath} so each item holds, keeping the existing revision-history entries. ` + ONE_WRITE +
+      `Revise ${outPath} so each item holds, keeping the existing revision-history entries. ` + SMALLEST_EDITS +
       `Return only the updated object; path must be '${outPath}'.`,
       { label: 'quinn:revise', phase: 'Validate', agentType: 'ck:quinn', effort: 'medium', schema: DOC_SCHEMA },
     )

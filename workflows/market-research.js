@@ -29,6 +29,7 @@ const contractStep = a.pluginRoot
   : 'Load the skill ck:market-research-artifact with the Skill tool (the market research contract).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, make sure the line ".ck/" is in ' + projectRoot + '/.git/info/exclude (append it if missing). '
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. '
+const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const RESEARCH_MODEL = 'claude-sonnet-5'
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const MIN_QUESTIONS = 4
@@ -229,9 +230,9 @@ if (runs('validate')) {
   if (validation && !validation.valid) {
     log(`validate: ${validation.missing.length} unmet item(s); Toni revises once`)
     const revised = await agent(
-      `${contractStep} Read ${outPath} and the files under ${runDir}/research/. A checker found these unmet ` +
+      `${contractStep} Read ${outPath}. A checker found these unmet ` +
       `checklist items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-      `Revise ${outPath} so each item holds. ` + ONE_WRITE + `Return only the updated object; path must be '${outPath}'.`,
+      `Revise ${outPath} so each item holds. ` + SMALLEST_EDITS + `Return only the updated object; path must be '${outPath}'.`,
       { label: 'toni:revise', phase: 'Validate', agentType: 'ck:toni', effort: 'medium', schema: DOC_SCHEMA },
     )
     if (revised) doc = revised
