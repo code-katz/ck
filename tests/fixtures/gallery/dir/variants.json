@@ -1,0 +1,101 @@
+{
+ "product": "Ardennes Hour",
+ "round": "Finalists",
+ "kind": "brand",
+ "variants": [
+  {
+   "label": "A",
+   "name": "Field Manual",
+   "rationale": "Reads like a 1944 field manual: stencil type, drab paper, one red accent.",
+   "tradeoff": "Can look like every other WW2 game on the shelf.",
+   "satisfies": "Positioning line: the hour-long Ardennes skirmish with no rulebook.",
+   "mood": [
+    "utilitarian",
+    "stencil",
+    "drab"
+   ],
+   "swatches": [
+    {
+     "name": "Paper",
+     "hex": "#e8e0c8",
+     "role": "background"
+    },
+    {
+     "name": "Ink",
+     "hex": "#2a2a24",
+     "role": "ink"
+    },
+    {
+     "name": "Signal",
+     "hex": "#b8322a",
+     "role": "accent"
+    }
+   ],
+   "typePair": {
+    "heading": "Oswald",
+    "body": "Source Serif 4"
+   },
+   "typeScale": [
+    {
+     "role": "h1",
+     "family": "Oswald",
+     "size": "32px",
+     "weight": "600"
+    },
+    {
+     "role": "body",
+     "family": "Source Serif 4",
+     "size": "16px",
+     "weight": "400"
+    }
+   ]
+  },
+  {
+   "label": "B",
+   "name": "Snow Line",
+   "rationale": "Cold blues and white space; the winter is the brand.",
+   "tradeoff": "Softer than the genre expects; may read as a puzzle game.",
+   "satisfies": "Positioning line: the hour-long Ardennes skirmish with no rulebook.",
+   "mood": [
+    "cold",
+    "quiet",
+    "modern"
+   ],
+   "swatches": [
+    {
+     "name": "Snow",
+     "hex": "#f4f6f8",
+     "role": "background"
+    },
+    {
+     "name": "Pine",
+     "hex": "#1f3a2e",
+     "role": "ink"
+    },
+    {
+     "name": "Flare",
+     "hex": "#d97757",
+     "role": "accent"
+    }
+   ],
+   "typePair": {
+    "heading": "Poppins",
+    "body": "Lora"
+   },
+   "typeScale": [
+    {
+     "role": "h1",
+     "family": "Poppins",
+     "size": "32px",
+     "weight": "600"
+    },
+    {
+     "role": "body",
+     "family": "Lora",
+     "size": "16px",
+     "weight": "400"
+    }
+   ]
+  }
+ ]
+}

@@ -19,7 +19,8 @@ Phase one, first release in progress. What runs today:
 | `/ck:opportunity <idea>` | River frames the idea, Toni, Akira, and a domain seat write sourced sections, River assembles `docs/opportunity.md`; you review on a page you can comment on | Built; drilled 2026-10-01 |
 | `/ck:market-research [focus]` | Toni plans the questions, researchers answer them from the web in parallel, a cross-check marks what is unsourced or contradictory, Toni writes `docs/market-research.md` | Built; not yet drilled |
 | `/ck:roadmap` | River prioritizes the PRD's requirements into three tiers, Quinn sequences them and writes `ROADMAP.md` in the roadmap skill's format, with a dated revision entry | Built; not yet drilled |
-| `/ck:brand-guide`, `/ck:design` | The rest of the pipeline | Specified in the PRD; next on the roadmap |
+| `/ck:brand-guide` | Three rounds: Toni positions, Iris designs four to six brand directions, Kai skins a screen in each, you pick from a gallery; the picks are worked up in full as a second gallery; then the brand direction record, `docs/brand-guide.md`, and the assets under `brand/final/` | Built; not yet drilled |
+| `/ck:design <feature>` | One feature from the PRD to three labeled mockups, a review, and a design spec | Specified in the PRD; next on the roadmap |
 | `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, all 21 |
 | `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, all 21 |
 
@@ -115,12 +116,12 @@ profiles/                    persona source of truth, plus the generated ROSTER.
 tiers.conf                   persona -> model
 agents/                      generated subagents, ck:<name>
 skills/<persona>/            generated switch commands, /ck:<name>
-skills/opportunity, prd, architecture, next, review-page
+skills/opportunity, prd, architecture, brand-guide, next, review-page
 skills/*-artifact/           the ten document contracts
-workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft, market-research, roadmap
+workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft, market-research, roadmap, brand
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
-scripts/                     generate.sh, render-review.py, usage-log.sh, check-prereqs.sh
-tests/                       run.sh and two fixture projects
+scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh
+tests/                       run.sh, two fixture projects, the gallery fixtures, and the drill logs
 ```
 
 ## License
