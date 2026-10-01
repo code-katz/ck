@@ -156,14 +156,20 @@ for const, part in (('RECORD_SECTIONS', 'A'), ('GUIDE_SECTIONS', 'B')):
     got = js_list(m.group(1)) if m else []
     want = contract_sections('skills/brand-artifact/SKILL.md', part)
     if got != want: problems.append(f'brand.js[{const}] vs brand-artifact Part {part}: script {got} contract {want}')
+# design-round.js declares the spec's sections
+js = pathlib.Path('workflows/design-round.js').read_text()
+m = re.search(r'const SPEC_SECTIONS = \[(.*?)\]', js, re.S)
+got = js_list(m.group(1)) if m else []
+want = contract_sections('skills/design-spec-artifact/SKILL.md')
+if got != want: problems.append(f'design-round.js[SPEC_SECTIONS] vs design-spec-artifact: script {got} contract {want}')
 for p in problems: print(p, file=sys.stderr)
 sys.exit(1 if problems else 0)
 EOF
-then ok "brief, team, opportunity, market-research, prd, architecture, and brand section lists match their contracts"; else fail "contract and script section lists differ (see above)"; fi
+then ok "brief, team, opportunity, market-research, prd, architecture, brand, and design spec section lists match their contracts"; else fail "contract and script section lists differ (see above)"; fi
 
 # ─── 8. Gate-owning skills reference review-page ─────────────────────────────
 section "8. Gate mechanics live in one place"
-for f in skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md; do
+for f in skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
   if grep -q 'review-page/SKILL.md' "$f"; then ok "$f references skills/review-page/SKILL.md"; else fail "$f does not reference review-page"; fi
   if grep -qi 'comment mode' "$f"; then fail "$f restates the comment steps"; else ok "$f does not restate the comment steps"; fi
 done
@@ -230,7 +236,7 @@ out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
@@ -275,6 +281,19 @@ if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/dir --out "$TM
   [[ $(grep -o '<span>quiet</span>' "$TMP/gallery2.html" | wc -l | tr -d ' ') -eq 1 && -z "$(grep -o '<span>q</span>' "$TMP/gallery2.html")" ]] && ok "a mood written as one string is split on commas, not letters" || fail "string mood not split on commas"
 else
   fail "render-gallery.py --dir failed: $(cat "$TMP/rg2.err")"
+fi
+if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/design --out "$TMP/gallery5.html" >/dev/null 2>"$TMP/rg5.err"; then
+  ok "render-gallery.py renders a design round (screens and states from the authors' files)"
+  [[ $(grep -o 'class="device' "$TMP/gallery5.html" | wc -l | tr -d ' ') -eq 2 && $(grep -c '<h3>States</h3>' "$TMP/gallery5.html") -eq 2 ]] && ok "every design variant has its device frame and its states row" || fail "device frames or states rows missing"
+  grep -q 'device desktop' "$TMP/gallery5.html" && ok "a screen can ask for a desktop frame" || fail "desktop frame missing"
+  grep -q 'Neutral skin' "$TMP/gallery5.html" && grep -q '/ck:brand-guide' "$TMP/gallery5.html" && ok "the banner carries the skin note and names /ck:brand-guide" || fail "skin note missing"
+  if python3 scripts/render-gallery.py --dir tests/fixtures/gallery/design --chosen B --out "$TMP/chosen.html" >/dev/null 2>"$TMP/rg6.err"; then
+    [[ $(grep -c 'class="variant"' "$TMP/chosen.html") -eq 1 && $(grep -c '· success' "$TMP/chosen.html") -eq 1 ]] && ! grep -q 'comment mode' "$TMP/chosen.html" && ok "--chosen renders one variant with its success state and no comment steps" || fail "--chosen output is wrong"
+  else
+    fail "render-gallery.py --chosen failed: $(cat "$TMP/rg6.err")"
+  fi
+else
+  fail "render-gallery.py --dir (design) failed: $(cat "$TMP/rg5.err")"
 fi
 mkdir -p "$TMP/badround/A" && cp tests/fixtures/gallery/dir/variants.json "$TMP/badround/"
 if python3 scripts/render-gallery.py --dir "$TMP/badround" --out "$TMP/gallery3.html" >/dev/null 2>"$TMP/rg3.err"; then fail "render-gallery.py should refuse a round with missing author files"; else grep -q 'mark.svg' "$TMP/rg3.err" && ok "a missing author file is refused and named" || fail "the refusal does not name the file"; fi
