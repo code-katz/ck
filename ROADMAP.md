@@ -16,7 +16,7 @@ The skeleton is committed: 21 personas as subagents and switch commands on three
 | 2 | `/ck:prd` drill, including the review page and a `startAt` resume (done 2026-09-09 and 2026-10-01: $8.05 per PRD, down from $16.33; Will kept Fable for the rewrite and finalize stages on 2026-10-01, because the PRD is the most important step of a product kickoff and $8 is an accepted cost) | The flagship document | Test 13's `/ck:prd` rows pass; a review page with two applied comments |
 | 3 | The remaining contracts: `opportunity`, `market-research`, `roadmap`, `brand`, `design`, `gallery` (written 2026-10-01) | Every script needs its contract before it is written | Test 7 passes for every workflow once its script exists |
 | 4 | The remaining scripts: `opportunity-draft`, `market-research`, `roadmap`, `brand`, `design-round`, and the gate-owning skills `opportunity`, `architecture`, `brand-guide`, `design` (all built, drilled, and merged 2026-10-01; every command measured in `tests/drill/2026-10-01.md`) | Phase one is the whole pipeline | Test 9 passes for nine scripts; J1 and J2 drills complete |
-| 5 | Marketplace entry in `code-katz/claude-plugins` (opened 2026-10-02 as a pull request; installed and run from it in the cloud session the same day) and the install drill on Will's and Clare's machines | Distribution | `/plugin install ck@code-katz` then `/ck:next` on a second machine |
+| 5 | Marketplace entry in `code-katz/claude-plugins` (merged 2026-10-02; installed and run from it on Will's Mac the same day, drill 20) and the install drill on Clare's machine | Distribution | `/plugin install ck@code-katz` then `/ck:next` on a second machine |
 
 ### Tier 2 — High Value, Plan for Next Sprint
 
