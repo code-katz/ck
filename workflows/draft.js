@@ -151,7 +151,7 @@ if (runs('draft')) {
     `author already decided; do not re-ask any of it.\n` +
     `${contractStep} It gives the section order, required fields, and the checklist your draft will be ` +
     `validated against.\n` +
-    `Write ${outPath} to that contract, all sections in this order (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. ` +
+    `Write ${outPath} to that contract, all sections in this order (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. ` +
     SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
     `Apply your Required Behaviors in subagent form. Leave Appendix B (the premortem) for the pass after the ` +
     `panel, and say so under its heading.\n` +
@@ -238,7 +238,7 @@ const panelInputs = panel && panel.memoPath
 const final = await agent(
   `${contractStep} Read the inputs (${inputs.join(', ')}), ${outPath}, and ${panelInputs}.\n` +
   `Rewrite ${outPath}: the same sections, in contract order, revised where the panel showed a claim wrong or ` +
-  `unsupported, followed by two appendices. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. \n` +
+  `unsupported, followed by two appendices. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. \n` +
   `Appendix A, Challenged claims: one row per point a lens raised against a [C<n>] claim or against something ` +
   `untagged: claim | challenged by (persona and lens) | severity (blocking, major, minor: your call from the ` +
   `memo) | status | resolution. Status is upheld (you kept it; say why), revised (you changed it; quote the ` +
@@ -247,8 +247,8 @@ const final = await agent(
   `Appendix B, Premortem: write the 2-3 sentence scenario in which ${A.premortem}; name the hidden assumption ` +
   `it exposes; add that assumption to the Assumptions section; leave the question "What went wrong?" ` +
   `verbatim for the author. The review asks it.\n` +
-  `Keep the document under ${A.maxWords} words before the appendices. Check your own output against the contract's checklist before ` +
-  `returning. List every decision you left open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
+  `Keep the document under ${A.maxWords} words before the appendices; a checker runs next and names anything unmet, ` +
+  `so do not check or count it yourself. List every decision you left open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
   { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
 )
 if (!final) throw new Error(`draft: ${A.author} returned nothing for the synthesis; the draft is at ` + outPath)

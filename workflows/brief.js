@@ -104,7 +104,7 @@ let brief = await agent(
     ? `Comparable products, from Toni's market pass (attribute the section to it and cite its sources):\n` +
       JSON.stringify(market, null, 1) + '\n'
     : `The market pass returned nothing; write the Comparable products section as "pending" and say why.\n`) +
-  `Write ${briefPath} to that contract (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. Apply your Required Behaviors in ` +
+  `Write ${briefPath} to that contract (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. Apply your Required Behaviors in ` +
   `subagent form. Three Whys: do not accept the idea as the problem; write the chain (idea, why, why, why), ` +
   `each step more specific, until the user pain is exposed or the idea is shown to address a symptom, and say ` +
   `which. V0 Challenge: propose a first version that cuts at least half the scope, say what it cuts, and give ` +

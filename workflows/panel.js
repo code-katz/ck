@@ -178,7 +178,7 @@ const memo = await agent(
   `quote verbatim only what the sections require and summarize the rest; do not restate a lens's reasoning ` +
   `in your own words. Then return only the memo object: memoPath must be '${memoPath}'; disagreementCount ` +
   `and disagreementTopics (one line each) and killConditionsMet are counts of what you wrote; summary is at ` +
-  `most 80 words. Do not repeat the memo in the return value. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. `,
+  `most 80 words. Do not repeat the memo in the return value. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. `,
   { label: 'synthesis', phase: 'Synthesis', effort: 'medium', schema: MEMO_SCHEMA },
 )
 
