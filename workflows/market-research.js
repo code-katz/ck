@@ -6,7 +6,7 @@ export const meta = {
     { title: 'Research', detail: 'one neutral Sonnet 5 researcher per question, in parallel, with web search; a source per claim' },
     { title: 'Cross-check', detail: 'one neutral agent: every claim sourced or marked unverified; contradictions listed with both sources; stale sources flagged' },
     { title: 'Write', detail: 'ck:toni writes docs/market-research.md to the contract' },
-    { title: 'Validate', detail: 'one neutral Haiku agent checks the contract; ck:toni revises at most once' },
+    { title: 'Validate', detail: 'one neutral Haiku agent checks the contract; ck:toni revises at most twice' },
   ],
   personas: ['toni'],
 }
@@ -31,6 +31,7 @@ const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run th
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. '
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole sentences and paragraphs of repetition rather than trimming words. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const RESEARCH_MODEL = 'claude-sonnet-5'
+const MAX_REVISIONS = 2
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const MIN_QUESTIONS = 4
 const MAX_QUESTIONS = 6
@@ -221,27 +222,27 @@ if (runs('write')) {
 let validation = null
 if (runs('validate')) {
   phase('Validate')
-  validation = await agent(
-    `${contractStep} Read ${outPath}. Check the document against every numbered item in the contract's ` +
-    `checklist and against the section order. Return valid=true only if every item holds. For each unmet ` +
-    `item, one line in missing that quotes the checklist item and says what is absent or wrong. Judge the ` +
-    `shape, not the market.`,
-    { label: 'validate', phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
-  )
-  if (validation && !validation.valid) {
-    log(`validate: ${validation.missing.length} unmet item(s); Toni revises once`)
+  for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
+    validation = await agent(
+      `${contractStep} With the Bash tool, count the words of ${outPath} before its "## Sources" heading and put ` +
+      `the number in notes; the cap is the checklist's. Then check the document against every numbered item in ` +
+      `the contract's checklist and against the section order. Return valid=true only if every item holds. For ` +
+      `each unmet item, one line in missing that quotes the checklist item and says what is absent or wrong, the ` +
+      `length first. Judge the shape, not the market.`,
+      { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
+    )
+    if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }
+    if (validation.valid) { log(`validate: document passes the contract checklist (round ${round})`); break }
+    if (round > MAX_REVISIONS) { log(`validate: still unmet after ${MAX_REVISIONS} revision(s): ${validation.missing.join(' | ')}`); break }
+    log(`validate: ${validation.missing.length} unmet item(s); Toni revises (revision ${round} of ${MAX_REVISIONS})`)
     const revised = await agent(
       `${contractStep} Read ${outPath}. A checker found these unmet ` +
       `checklist items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
       `Revise ${outPath} so each item holds. ` + SMALLEST_EDITS + `Return only the updated object; path must be '${outPath}'.`,
-      { label: 'toni:revise', phase: 'Validate', agentType: 'ck:toni', effort: 'medium', schema: DOC_SCHEMA },
+      { label: `toni:revise:${round}`, phase: 'Validate', agentType: 'ck:toni', effort: 'medium', schema: DOC_SCHEMA },
     )
-    if (revised) doc = revised
-    else log('validate: revision returned nothing; keeping the first document')
-  } else if (!validation) {
-    log('validate: validator returned nothing; proceeding unvalidated')
-  } else {
-    log('validate: document passes the contract checklist')
+    if (!revised) { log('validate: revision returned nothing; keeping the previous document'); break }
+    doc = revised
   }
 }
 
