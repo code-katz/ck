@@ -66,6 +66,7 @@ const contractStep = a.pluginRoot
 const inputs = Array.isArray(a.inputs) && a.inputs.length ? a.inputs : [rationalePath]
 const SECTIONS = A.sections
 const MAX_REVISIONS = 2
+const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole sentences and paragraphs of repetition rather than trimming words. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 
 const ORDER = ['draft', 'validate', 'panel', 'synthesize']
@@ -187,7 +188,7 @@ if (runs('validate')) {
     const revised = await agent(
       `${contractStep} Read ${outPath}. A checker found these unmet ` +
       `checklist items:\n` + validation.missing.map(m => '- ' + m).join('\n') + '\n' +
-      `Revise ${outPath} so each item holds. Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. Keep every existing [C<n>] tag and add tags for any new ` +
+      `Revise ${outPath} so each item holds. ` + SMALLEST_EDITS + `Keep every existing [C<n>] tag and add tags for any new ` +
       `claim not from the inputs. Return the updated draft object; path must be '${outPath}'.`,
       { label: `${A.author}:revise:${round}`, phase: 'Validate', agentType: author, effort: 'medium', schema: DRAFT_SCHEMA },
     )
@@ -277,9 +278,7 @@ for (let round = 1; round <= 2; round++) {
     check.missing.map(m => '- ' + m).join('\n') + '\n' +
     `Revise ${outPath} so each holds. Where the body is over ${A.maxWords} words, cut repetition and move ` +
     `detail into Open questions or the appendices until it is under; never shorten Appendix A or Appendix B, ` +
-    `and never delete a challenge. Make the smallest edits that satisfy each listed item, with the Edit tool ` +
-    `on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, ` +
-    `and do not run web searches. Return only the updated object; path must be '${outPath}'.`,
+    `and never delete a challenge. ` + SMALLEST_EDITS + `Return only the updated object; path must be '${outPath}'.`,
     { label: `${A.author}:trim`, phase: 'Check', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
   )
   if (!trimmed) { log('check: revision returned nothing; keeping the rewrite as it is'); break }
