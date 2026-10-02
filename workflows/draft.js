@@ -6,6 +6,7 @@ export const meta = {
     { title: 'Validate', detail: 'one neutral Haiku agent checks the contract checklist; the author revises at most twice' },
     { title: 'Panel', detail: 'nested /ck:panel on the draft, three lenses on three models, each reading its own evidence' },
     { title: 'Synthesize', detail: 'the author rewrites the document: revised body, Appendix A Challenged claims, Appendix B Premortem' },
+    { title: 'Check', detail: 'the checker runs once more on the rewrite, length first; the author trims at most once' },
   ],
   personas: ['river', 'toni', 'kai', 'akira', 'morgan', 'alex', 'jordan'],
 }
@@ -252,6 +253,38 @@ const final = await agent(
 )
 if (!final) throw new Error(`draft: ${A.author} returned nothing for the synthesis; the draft is at ` + outPath)
 
+// ---- Check ----
+// The checker ran on the draft, before the panel; the rewrite is the stage that overruns the cap, so it is
+// checked too, with the length first, and the author gets one revision to bring it under.
+phase('Check')
+let check = null
+for (let round = 1; round <= 2; round++) {
+  check = await agent(
+    `${contractStep} With the Bash tool, count the words of ${outPath} before its first "## Appendix" heading ` +
+    `(for example: awk '/^## Appendix/{exit} {print}' "${outPath}" | wc -w) and put the number in notes. ` +
+    `Item 1: that count is under ${A.maxWords}. Then check the whole document against every numbered item in ` +
+    `the contract's checklist and the section order, with Appendix A (Challenged claims) and Appendix B ` +
+    `(Premortem) present after the sections. Return valid=true only if every item holds; for each unmet item, ` +
+    `one line in missing that quotes the item and says what is absent or wrong, the length first.`,
+    { label: `check:${round}`, phase: 'Check', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
+  )
+  if (!check) { log('check: checker returned nothing after the rewrite; proceeding unchecked'); break }
+  if (check.valid) { log(`check: the rewritten document passes (${check.notes})`); break }
+  if (round === 2) { log(`check: still unmet after the revision: ${check.missing.join(' | ')}`); break }
+  log(`check: ${check.missing.length} unmet item(s) after the rewrite; ${A.author} revises once`)
+  const trimmed = await agent(
+    `${contractStep} Read ${outPath}. A checker found these unmet items after your rewrite:\n` +
+    check.missing.map(m => '- ' + m).join('\n') + '\n' +
+    `Revise ${outPath} so each holds. Where the body is over ${A.maxWords} words, cut repetition and move ` +
+    `detail into Open questions or the appendices until it is under; never shorten Appendix A or Appendix B, ` +
+    `and never delete a challenge. Make the smallest edits that satisfy each listed item, with the Edit tool ` +
+    `on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, ` +
+    `and do not run web searches. Return only the updated object; path must be '${outPath}'.`,
+    { label: `${A.author}:trim`, phase: 'Check', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
+  )
+  if (!trimmed) { log('check: revision returned nothing; keeping the rewrite as it is'); break }
+}
+
 return {
   runId,
   artifact: a.artifact,
@@ -260,6 +293,7 @@ return {
   memoPath: panel ? panel.memoPath : (startAt === 'synthesize' ? earlierMemo : null),
   lenses: panel ? panel.lenses : [],
   validation,
+  check,
   challengedClaims: final.challengedClaims,
   premortem: final.premortem,
   openDecisions: final.openDecisions,

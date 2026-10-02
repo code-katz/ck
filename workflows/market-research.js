@@ -198,7 +198,8 @@ if (runs('write')) {
   phase('Write')
   doc = await agent(
     `The project repository is ${projectRoot}. Read ${runDir}/plan.json, every file under ${runDir}/research/, ` +
-    `and ${runDir}/crosscheck.json if it exists. ${contractStep} It gives the section order, required fields, ` +
+    `and ${runDir}/crosscheck.json if it exists: read each of those once, in that order, and nothing else; do not ` +
+    `re-read any of them and do not search the web, the research is done. ${contractStep} It gives the section order, required fields, ` +
     `and the checklist your document will be validated against. The sections, in order: ` +
     SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
     `Write ${outPath} to that contract (create the directory if needed). ` + ONE_WRITE +
