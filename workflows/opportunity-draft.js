@@ -178,7 +178,7 @@ if (runs('assemble')) {
     `worth-doing-smaller; the premortem belongs to the review, not here. At least three stage gates, each with ` +
     `what must be true to proceed and the kill condition. Every risk with a mitigation or an explicit ` +
     `acceptance. Open questions present even when empty, each with the assumption you proceeded on. Date the ` +
-    `document ${stamp}. Under 3,500 words before Sources.\n` +
+    `document ${stamp}. Under 4,000 words before Sources.\n` +
     `Return only the object: path must be '${outPath}'; verdict, the deciding number, counts of stage gates, ` +
     `risks, and sources, and the open questions one line each. Do not repeat the document in the return value.`,
     { label: 'river:assemble', phase: 'Assemble', agentType: 'ck:river', effort: 'medium', schema: DOC_SCHEMA },

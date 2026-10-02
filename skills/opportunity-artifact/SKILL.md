@@ -32,7 +32,7 @@ Use these headings verbatim, in this order.
 5. At least three stage gates, each with a kill condition.
 6. Every risk carries a mitigation or an explicit acceptance.
 7. Open questions is present even when empty.
-8. The document is under 3,500 words before Sources.
+8. The document is under 4,000 words before Sources (four contributor sections of up to 600 words each, plus the fixed sections).
 9. No em-dashes in prose.
 
 ## Writing
