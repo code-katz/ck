@@ -46,7 +46,7 @@ Then remove the persona files it installed under `~/.claude/commands/` and `~/.c
 
 ## Install
 
-From the Code Katz marketplace, once the entry is published:
+From the Code Katz marketplace:
 
 ```
 /plugin marketplace add code-katz/claude-plugins
