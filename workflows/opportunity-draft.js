@@ -30,8 +30,8 @@ const rosterStep = a.pluginRoot
   ? 'Read the roster: ' + a.pluginRoot + '/profiles/ROSTER.md (one line per persona: name, role, tier, domain).'
   : 'Load the skill ck:roster with the Skill tool (the roster: one line per persona with name, role, tier, domain).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
-const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read it after writing. '
-const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned; do not rewrite the document, do not re-read files you were not asked to read, and do not run web searches. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
+const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. '
+const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const MAX_CONTRIBUTORS = 4
 const MAX_REVISIONS = 2
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
@@ -178,7 +178,7 @@ if (runs('assemble')) {
     `worth-doing-smaller; the premortem belongs to the review, not here. At least three stage gates, each with ` +
     `what must be true to proceed and the kill condition. Every risk with a mitigation or an explicit ` +
     `acceptance. Open questions present even when empty, each with the assumption you proceeded on. Date the ` +
-    `document ${stamp}. Under 3,500 words before Sources.\n` +
+    `document ${stamp}. Under 4,000 words before Sources.\n` +
     `Return only the object: path must be '${outPath}'; verdict, the deciding number, counts of stage gates, ` +
     `risks, and sources, and the open questions one line each. Do not repeat the document in the return value.`,
     { label: 'river:assemble', phase: 'Assemble', agentType: 'ck:river', effort: 'medium', schema: DOC_SCHEMA },
