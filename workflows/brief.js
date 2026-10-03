@@ -25,7 +25,11 @@ const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/brief-artifact/SKILL.md (the brief contract).'
   : 'Load the skill ck:brief-artifact with the Skill tool (the brief contract).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
-const existing = [a.opportunityPath, a.marketResearchPath].filter(Boolean)
+// A direct launch (/ck:brief <idea>) cannot check the disk, so it names the documents a project may already have
+// and lets the agents read the ones that exist; a skill launch passes the paths that exist.
+const existing = a.runDir
+  ? [a.opportunityPath, a.marketResearchPath].filter(Boolean)
+  : [projectRoot + '/docs/opportunity.md (if it exists)', projectRoot + '/docs/market-research.md (if it exists)']
 const ideaText = a.idea || 'Take the idea from the concept statement in ' + a.opportunityPath
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const SECTIONS = ['Idea', 'Problem and root-cause chain', 'User', 'Success metric and leading indicator', 'Comparable products', 'Scope', 'Non-goals', 'Open questions for the author']
