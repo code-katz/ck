@@ -32,9 +32,8 @@ import argparse, html, json, pathlib, re, sys
 STEPS = """<ol>
 <li>Open this link signed in to your Claude account.</li>
 <li>Switch the page to <strong>comment mode</strong> from the bar at the top.</li>
-<li>Click the variant or the passage you want to comment on and type.</li>
-<li>Put <strong>@claude</strong> in the comment so Claude can reply to it and resolve it.</li>
-<li>Say <strong>done</strong> in the chat when you have finished.</li>
+<li>Click the variant or the passage you want to comment on and type. Do not send the comment to Claude; your session reads it.</li>
+<li>Say <strong>done</strong> in your Claude Code session when you have finished.</li>
 </ol>"""
 
 CSS = """

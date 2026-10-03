@@ -65,7 +65,7 @@ After editing a workflow in a running session, run `/reload-skills`.
 
 1. You type a command. If it needs a document you do not have yet, it says which command writes it, and stops.
 2. The work runs in the background as a workflow; `/workflows` shows every agent, model, and token count if you want them. The command itself never prints them.
-3. The document appears in your repository. Commands with a review step publish it as a page you can comment on, with the steps in the page's banner. Say "done" in the chat when you have finished; Claude applies every comment, republishes the same page, and resolves each one with a line saying what changed.
+3. The document appears in your repository. Commands with a review step publish it as a page you can comment on, with the steps in the page's banner. Comment on the page without sending comments to Claude (a comment sent to Claude wakes a cloud session that cannot see your files), then say "done" in your Claude Code session; Claude proposes a change for each comment, applies the ones you approve, republishes the same page, and tells you what changed.
 4. `/ck:next` tells you what comes next.
 
 Where things go, inside your repository:

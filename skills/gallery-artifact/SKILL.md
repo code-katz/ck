@@ -10,12 +10,11 @@ One page shape for brand galleries and design galleries, so a review is the same
 
 ## The page, in order
 
-1. **Banner**: the product name; what is being reviewed and the round or revision; the five comment steps, verbatim:
+1. **Banner**: the product name; what is being reviewed and the round or revision; the four comment steps, verbatim:
    1. Open this link signed in to your Claude account.
    2. Switch the page to comment mode from the bar at the top.
-   3. Click the variant or the passage you want to comment on and type.
-   4. Put `@claude` in the comment so Claude can reply to it and resolve it.
-   5. Say "done" in the chat when you have finished.
+   3. Click the variant or the passage you want to comment on and type. Do not send the comment to Claude; your session reads it.
+   4. Say "done" in your Claude Code session when you have finished.
 2. **Variant strip**: one button per variant, labeled with consecutive capital letters from A, that scrolls to the variant.
 3. **Per variant**, in this order, inside one container with `id="variant-<label>"`:
    1. The label and the variant's name.
@@ -39,5 +38,5 @@ One page shape for brand galleries and design galleries, so a review is the same
 2. Every variant has every part listed above, in order (States only for design galleries).
 3. No external asset references other than Google Fonts.
 4. The file is under 16 MB.
-5. The banner carries the five steps verbatim.
+5. The banner carries the four steps verbatim.
 6. For a design gallery: every PRD requirement named under Satisfies exists in `docs/PRD.md`.

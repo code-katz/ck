@@ -142,10 +142,12 @@ if (runs('sections')) {
     `Read ${runDir}/frame.json for the full frame.\n` +
     `Write your section to ${runDir}/sections/${c.persona}.md (create the directory if needed). ` + ONE_WRITE +
     `It starts with the heading "## ${c.lens.charAt(0).toUpperCase() + c.lens.slice(1)}: ${c.title}" and answers ` +
-    `these questions in order: ${c.questions.map((q, i) => (i + 1) + '. ' + q).join(' ')}\n` +
+    `these questions, each as prose under a short bold lead-in of two or three words, with no numbering: ` +
+    `${c.questions.join(' ')}\n` +
     `Every claim about the world (market size, competitors, prices, platform rules, history) carries a source: ` +
     `use web search, cite the URL inline as [n] with a Sources list at the end of your section, and record the ` +
-    `count. Apply your Required Behaviors in subagent form. End with your Handoff Brief. At most 600 words ` +
+    `count. Apply your Required Behaviors in subagent form, but write no hand-off brief and no note to another ` +
+    `persona: a question only the author can answer goes in the questions field of your return value. At most 600 words ` +
     `before your Sources list. Return the object; path must be '${runDir}/sections/${c.persona}.md'.`,
     { label: `${c.lens}:${c.persona}`, phase: 'Sections', agentType: 'ck:' + c.persona, effort: 'high', schema: SECTION_SCHEMA },
   )))).filter(Boolean)
@@ -170,8 +172,9 @@ if (runs('assemble')) {
     `validated against.\n` +
     `Write ${outPath} to that contract (create the directory if needed). ` + ONE_WRITE +
     `The fixed sections, in order: ` + SECTIONS.map(s => '"' + s + '"').join(', ') + `. The contributors' ` +
-    `sections go between Market context and Stage gates, each included verbatim under its own heading with ` +
-    `its Handoff Brief; renumber their inline source markers so every source appears once in the final ` +
+    `sections go between Market context and Stage gates, each included verbatim under its own heading, minus ` +
+    `any hand-off brief or note addressed to another persona (fold a contributor's questions for the author ` +
+    `into Open questions); renumber their inline source markers so every source appears once in the final ` +
     `Sources list. Market context draws on Toni's section and names its sources. Apply your Required ` +
     `Behaviors in subagent form: the root-cause chain under Problem (idea, why, why, why, ending at a root ` +
     `cause or a symptom, saying which); a smaller first version under Executive summary when the verdict is ` +
