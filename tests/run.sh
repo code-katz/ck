@@ -252,7 +252,7 @@ if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "
   ok "render-review.py renders the fixture PRD"
   h_src=$(grep -cE '^##+ ' tests/fixtures/game/docs/PRD.md); h_out=$(grep -o '<h[234] id=' "$TMP/review.html" | wc -l | tr -d ' ')
   [[ "$h_src" == "$h_out" ]] && ok "every heading is on the page ($h_out)" || fail "headings: $h_src in the source, $h_out on the page"
-  grep -q 'comment mode' "$TMP/review.html" && grep -q '@claude' "$TMP/review.html" && ok "the banner carries the five comment steps" || fail "banner steps missing"
+  grep -q 'comment mode' "$TMP/review.html" && grep -q 'Do not send the comment to Claude' "$TMP/review.html" && ! grep -q '@claude' "$TMP/review.html" && ok "the banner carries the four comment steps" || fail "banner steps missing"
   grep -q 'What went wrong?' "$TMP/review.html" && ok "the gate's question is in the banner" || fail "question missing"
   grep -q '<div class="table-wrap"><table>' "$TMP/review.html" && ok "tables scroll in their own container" || fail "table wrapper missing"
 else
@@ -264,7 +264,7 @@ section "13. Gallery renderer"
 if python3 scripts/render-gallery.py --in tests/fixtures/gallery/brand.json --out "$TMP/gallery.html" >/dev/null 2>"$TMP/rg.err"; then
   ok "render-gallery.py renders the brand fixture from one JSON file"
   [[ $(grep -c 'class="variant"' "$TMP/gallery.html") -eq 2 ]] && grep -q 'id="variant-A"' "$TMP/gallery.html" && grep -q 'id="variant-B"' "$TMP/gallery.html" && ok "two variants, labeled A and B, with matching ids" || fail "variant sections or ids missing"
-  grep -q 'comment mode' "$TMP/gallery.html" && grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries the five comment steps" || fail "banner steps missing"
+  grep -q 'comment mode' "$TMP/gallery.html" && grep -q 'Do not send the comment to Claude' "$TMP/gallery.html" && ! grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries the four comment steps" || fail "banner steps missing"
   parts_ok=1
   for part in 'class="mark"' 'class="swatches"' 'class="specimen"' 'class="frame"' '<h3>Rationale</h3>' '<h3>Trade-off</h3>' '<h3>Satisfies</h3>'; do
     [[ $(grep -o "$part" "$TMP/gallery.html" | wc -l | tr -d ' ') -eq 2 ]] || { fail "each variant should have $part once"; parts_ok=0; }

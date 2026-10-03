@@ -166,11 +166,9 @@ td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}tr:l
 STEPS = """<ol>
 <li>Open this link signed in to your Claude account.</li>
 <li>Switch the page to <strong>comment mode</strong> from the bar at the top.</li>
-<li>Click the passage you want to comment on and type.</li>
-<li>Put <strong>@claude</strong> in the comment so Claude can reply to it and resolve it.</li>
-<li>Say <strong>done</strong> in the chat when you have finished.</li>
-</ol>
-<p>Claude then works through every comment, changes the document, republishes this same page, and resolves each comment with one line saying what changed.</p>"""
+<li>Click the passage you want to comment on and type. Do not send the comment to Claude; your session reads it.</li>
+<li>Say <strong>done</strong> in your Claude Code session when you have finished.</li>
+</ol>"""
 
 def main():
     ap = argparse.ArgumentParser()
