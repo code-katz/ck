@@ -16,18 +16,18 @@ def slug(text):
     return s or 'section'
 
 def inline(text):
-    parts = re.split(r'(`[^`\n]*`)', text)
-    out = []
-    for p in parts:
-        if p.startswith('`') and p.endswith('`') and len(p) >= 2:
-            out.append('<code>' + html.escape(p[1:-1]) + '</code>')
-            continue
-        p = html.escape(p, quote=False)
-        p = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+)\)', r'<a href="\2">\1</a>', p)
-        p = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', p)
-        p = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'<em>\1</em>', p)
-        out.append(p)
-    return ''.join(out)
+    # Code spans are lifted out first so bold and emphasis can run across the whole
+    # line; a bold phrase that contains a code span would otherwise never match.
+    codes = []
+    def lift(m):
+        codes.append('<code>' + html.escape(m.group(1)) + '</code>')
+        return '\x00%d\x00' % (len(codes) - 1)
+    p = re.sub(r'`([^`\n]*)`', lift, text)
+    p = html.escape(p, quote=False)
+    p = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+)\)', r'<a href="\2">\1</a>', p)
+    p = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', p)
+    p = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'<em>\1</em>', p)
+    return re.sub(r'\x00(\d+)\x00', lambda m: codes[int(m.group(1))], p)
 
 def render(md):
     lines = md.split('\n')

@@ -1,15 +1,15 @@
 export const meta = {
-  name: 'brief',
-  description: 'Toni runs a basic market pass (three to five comparable products, sourced), River writes docs/brief.md from one line of idea text to the brief contract, and a checker validates the shape. Type /ck:brief followed by the idea in a sentence; the text is the only argument needed. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, idea, opportunityPath (optional; absolute), marketResearchPath (optional; absolute), briefPath (optional; default <projectRoot>/docs/brief.md).',
+  name: 'brief-draft',
+  description: 'Toni runs a basic market pass (three to five comparable products, sourced), River writes docs/brief.md from one line of idea text to the brief contract, and a checker validates the shape, with River revising at most twice. Normally launched by /ck:brief, which mints the run directory and owns the review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, idea, opportunityPath (optional; absolute), marketResearchPath (optional; absolute), briefPath (optional; default <projectRoot>/docs/brief.md). A direct /ck:brief-draft <idea> works too, with everything defaulted to the current project and no run record.',
   phases: [
     { title: 'Market pass', detail: 'ck:toni finds three to five comparable products with a source each, reading market research and the opportunity first when they exist' },
     { title: 'Draft', detail: 'ck:river writes the brief: problem and root-cause chain, user, success metric, comparable products, scope with a smaller first version, non-goals, open questions' },
-    { title: 'Validate', detail: 'one neutral Haiku agent checks the brief contract; ck:river revises at most once' },
+    { title: 'Validate', detail: 'one neutral Haiku agent checks the brief contract, word count first; ck:river revises at most twice, and the checker runs again after each revision' },
   ],
   personas: ['toni', 'river'],
 }
 
-// Direct invocation (/ck:brief <idea>) hands the typed text to the script as a string; a skill
+// Direct invocation (/ck:brief-draft <idea>) hands the typed text to the script as a string; a skill
 // launch passes an object. Both are accepted. Paths default to the project the session is in,
 // and without a plugin root the contract is loaded by skill name instead of by path.
 const a = (args && typeof args === 'object') ? args : { idea: typeof args === 'string' ? args.trim() : '' }
@@ -25,13 +25,16 @@ const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/brief-artifact/SKILL.md (the brief contract).'
   : 'Load the skill ck:brief-artifact with the Skill tool (the brief contract).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
-// A direct launch (/ck:brief <idea>) cannot check the disk, so it names the documents a project may already have
+// A direct launch (/ck:brief-draft <idea>) cannot check the disk, so it names the documents a project may already have
 // and lets the agents read the ones that exist; a skill launch passes the paths that exist.
 const existing = a.runDir
   ? [a.opportunityPath, a.marketResearchPath].filter(Boolean)
   : [projectRoot + '/docs/opportunity.md (if it exists)', projectRoot + '/docs/market-research.md (if it exists)']
 const ideaText = a.idea || 'Take the idea from the concept statement in ' + a.opportunityPath
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
+const MAX_REVISIONS = 2
+const WORD_CAP = 1200
+const WORD_TARGET = 1000
 const SECTIONS = ['Idea', 'Problem and root-cause chain', 'User', 'Success metric and leading indicator', 'Comparable products', 'Scope', 'Non-goals', 'Open questions for the author']
 
 const MARKET_SCHEMA = {
@@ -101,6 +104,7 @@ else log(`market pass: ${market.comparables.length} comparable(s), ${market.sear
 phase('Draft')
 let brief = await agent(
   `The author's idea, in their own words: ${ideaText}\n` +
+  `Length first: write about ${WORD_TARGET} words in all and never more than ${WORD_CAP}, which is the contract's cap; this is the short document that governs the long one, and a draft over the cap is sent back for a trim.\n` +
   (existing.length ? `Also read: ${existing.join(', ')}.\n` : '') +
   `${contractStep} It gives the section order, required fields, and the checklist your brief ` +
   `will be validated against. The sections, in order: ` + SECTIONS.map(s => '"' + s + '"').join(', ') + `.\n` +
@@ -116,7 +120,7 @@ let brief = await agent(
   `One primary user. One success number with a target and a date, plus one leading indicator. At least two ` +
   `non-goals. Anything you would have asked the author goes under Open questions for the author, each with ` +
   `the assumption you proceeded on; the list is present even when empty. Date the document ${stamp}.\n` +
-  `Plain words, under 1,200 words in all: this is the short document that governs the long one. ` +
+  `Plain words. ` +
   `Return only the brief object: briefPath must be '${briefPath}'; chainSteps, comparables, and nonGoals are ` +
   `counts of what you wrote; openQuestions is the list of open questions, one line each. Do not repeat the ` +
   `document in the return value.`,
@@ -127,27 +131,27 @@ log(`brief: ${brief.chainSteps} step(s) in the root-cause chain, ${brief.compara
 
 // ---- Validate ----
 phase('Validate')
-const validation = await agent(
-  `${contractStep} Read ${briefPath}. Check the brief against every numbered item in the contract's ` +
-  `checklist and against the section order. Return valid=true only if every item holds. For each unmet item, ` +
-  `one line in missing that quotes the checklist item and says what is absent or wrong. Judge the shape, not ` +
-  `the idea.`,
-  { label: 'validate', phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
-)
-if (validation && !validation.valid) {
-  log(`validate: ${validation.missing.length} unmet item(s); River revises once`)
+let validation = null
+for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
+  validation = await agent(
+    `${contractStep} First count the words with the Bash tool: wc -w < ${briefPath} ; the contract caps the brief at ${WORD_CAP} words, and a count over the cap is an unmet item that quotes the count. Then read ${briefPath} and check it against every numbered item in the contract's ` +
+    `checklist and against the section order. Return valid=true only if every item holds. For each unmet item, ` +
+    `one line in missing that quotes the checklist item and says what is absent or wrong. Judge the shape, not ` +
+    `the idea.`,
+    { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
+  )
+  if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }
+  if (validation.valid) { log(`validate: brief passes the contract checklist (round ${round})`); break }
+  if (round > MAX_REVISIONS) { log(`validate: still unmet after ${MAX_REVISIONS} revision(s): ${validation.missing.join(' | ')}`); break }
+  log(`validate: ${validation.missing.length} unmet item(s); River revises (revision ${round} of ${MAX_REVISIONS})`)
   const revised = await agent(
     `${contractStep} Read ${briefPath}. A checker found these unmet checklist items:\n` +
     validation.missing.map(m => '- ' + m).join('\n') + '\n' +
     `Revise ${briefPath} so each item holds. Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. Return only the updated brief object (counts and open questions); briefPath must be '${briefPath}'.`,
-    { label: 'river:revise', phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: BRIEF_SCHEMA },
+    { label: `river:revise:${round}`, phase: 'Validate', agentType: 'ck:river', effort: 'medium', schema: BRIEF_SCHEMA },
   )
-  if (revised) brief = revised
-  else log('validate: revision returned nothing; keeping the first draft')
-} else if (!validation) {
-  log('validate: validator returned nothing; proceeding unvalidated')
-} else {
-  log('validate: brief passes the contract checklist')
+  if (!revised) { log('validate: revision returned nothing; keeping the previous document'); break }
+  brief = revised
 }
 
 return {
