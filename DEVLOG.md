@@ -5,6 +5,29 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-04] 0.1.3: /ck:brief becomes a gate-owning skill; the brief workflow checks after every revision; review pages render bold around code
+
+**Category:** `fix`
+**Tags:** `ck`, `brief`, `review-page`, `drill`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+The first real `/ck:brief` run (drill 22, on the ck Workbench project) wrote a good brief and left four things broken around it. All four are fixed here, and the fixes follow the shapes the other commands already use.
+
+### Detail
+
+- **`/ck:brief` is now a skill** (`skills/brief/SKILL.md`), and the workflow is `ck:brief-draft`. The skill mints a timestamped run directory with a `run.json`, launches the workflow with absolute paths, and owns the review page, the same way `/ck:opportunity` does. Typed directly, the old workflow could not mint anything: the run landed in `.ck/runs/brief-latest` with the run id `brief-direct` and a placeholder where the date should be.
+- **The checker runs again after each revision** (`validate -> revise -> validate`, at most two revisions, word count first), as in the team and market-research workflows. Before, one check ran before the one revision, so a run that needed a trim always reported `valid: false` on a valid file.
+- **River is told the length first**: about 1,000 words, never over the contract's 1,200. The cap stays; the target moved down so a normal draft lands under it instead of 200 words over and paying for a trim (drill 22: 1,403 words, then a $1.14 revision).
+- **`render-review.py` lifts code spans out before it applies bold and emphasis.** A bold phrase containing a code span rendered with literal asterisks because the line was split at the code span first. Test added.
+- **`tests/run.sh` runs on macOS**: the GNU-only `sed '0,/re/'` form is replaced with `awk`, so the suite runs on the Mac where ck is now developed.
+
+### Rejected
+- Raising or dropping the 1,200-word cap. The content fits (1,173 words with eight sections and five sourced comparables); the hard edge was the problem, not the number.
+
+---
+
 ## [2026-09-09] Repository created from PRD revision 3: profiles imported, generator, four workflows, six contracts, tests
 
 **Category:** `milestone`
