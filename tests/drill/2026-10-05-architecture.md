@@ -33,3 +33,7 @@ Against **$15.87** on the fixture drill (2026-10-01). Akira on Fable 5.1 is $13.
 5. **The Mermaid diagram shows as code on the review page.** `render-review.py` emits a `<pre><code>` block for the `mermaid` fence and the page carries no script to draw it; the contract requires the diagram.
 
 For Will's review, not plugin bugs: the scale line says "six to eight agents per run" while this project's own runs had 3, 4, 11, and 14; and the architecture amends the final PRD's AC2.2 and AC3.1 (skip lines move into the run directory), flagged as its own Open question 8.
+
+## Review, 2026-10-05
+
+Will left no page comments and no premortem answer. Two items raised by the ck-test session and approved by Will: the scale line became "Three to fourteen agents per run, as observed in this project", and Open question 8 (the PRD amendment) stays open in both documents. No finalize agent ran: the 0.1.6 architecture skill still launches one in every case, but the ck-test session applied the PRD skill's 0.1.5 rule by hand (one Edit to the Status line, status final in `run.json`) and saved about $2. The 0.1.5 finalize rule reached the PRD and opportunity skills only; the architecture skill needs it too. Architecture total: $17.31.
