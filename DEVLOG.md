@@ -5,6 +5,30 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-04] 0.1.4: length rules move to the front of the PRD and architecture prompts; every agent carries the roster rule
+
+**Category:** `fix`
+**Tags:** `ck`, `draft`, `prd`, `cost`, `drill`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+The first real `/ck:prd` (drill 23) cost $13.90 against the $8 accepted, and three of River's five Fable passes were about length: a 3,604-word draft against a 3,000 cap, two revisions, a rewrite that grew to 3,947, and a trim that stopped at 3,406. The `draft` workflow now states the length first and lower, forbids the rewrite from growing, gives the trim the count and a number to cut, and makes every validator count before judging. Every persona agent now carries Will's rule: describe the roster, never count it.
+
+### Detail
+
+- **Length first, and lower.** Each artifact in `workflows/draft.js` has a `targetWords` (2,500) beside its `maxWords` (3,000). The draft prompt opens with it instead of closing with the cap.
+- **The rewrite may not grow.** The post-panel rewrite must be no longer than the draft it replaces: for every sentence the panel makes the author add, one comes out. The appendices stay separate and uncounted.
+- **The trim gets a number.** The checker's notes (with its count) are passed in; the author cuts at least count minus nine tenths of the cap, and may count once at the end to confirm. Before, it cut blind and stopped 406 words short.
+- **Validators always count.** The pre-panel validator runs the same `awk ... | wc -w` as the post-rewrite check; the third round of drill 23 had failed the document on an impression.
+- **Roster rule.** One sentence in the generator's shared preamble, regenerated into all persona agents: plain words; describe the roster and the team, never count it.
+- **Cost method.** Drill 23 records the shared method both sessions now use: sum usage once per message id (transcripts repeat each assistant message several times), price each message at its own model's rates, cache writes at 1.25 times input for five-minute writes and 2 times for one-hour writes, per-model cache-read rate. Summing every line overstates by about three times.
+
+### Open
+- The README, `ROADMAP.md`, the plugin description, and the PRD in `code-katz/.github` still count the roster. Separate cleanup, proposed to Will when between runs.
+
+---
+
 ## [2026-10-04] 0.1.3: /ck:brief becomes a gate-owning skill; the brief workflow checks after every revision; review pages render bold around code
 
 **Category:** `fix`

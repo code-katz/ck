@@ -22,6 +22,7 @@ const ARTIFACTS = {
     premortem: 'this shipped on time and did not move the success metric',
     memoSlug: 'prd-review',
     maxWords: 3000,
+    targetWords: 2500,
     lenses: [
       { persona: 'river', lens: 'product', model: 'claude-fable-5-1', reads: ['docs/brief.md', 'docs/opportunity.md', 'ROADMAP.md'] },
       { persona: 'toni', lens: 'marketing', model: 'claude-opus-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
@@ -38,6 +39,7 @@ const ARTIFACTS = {
     premortem: 'this shipped and fell over in production in its first month',
     memoSlug: 'architecture-review',
     maxWords: 3000,
+    targetWords: 2500,
     lenses: [
       { persona: 'morgan', lens: 'security', model: 'claude-fable-5-1', reads: ['docs/PRD.md', 'SECURITY.md'] },
       { persona: 'alex', lens: 'platform', model: 'claude-sonnet-5', reads: ['infra/', 'Dockerfile', '.github/workflows/'] },
@@ -150,6 +152,7 @@ if (runs('draft')) {
   draft = await agent(
     `The project repository is ${projectRoot}. Read these inputs: ${inputs.join(', ')}. They record what the ` +
     `author already decided; do not re-ask any of it.\n` +
+    `Length first: aim for about ${A.targetWords} words before the appendices and never more than ${A.maxWords}, which is the contract's cap; a draft over the cap is sent back for a trim at your own cost.\n` +
     `${contractStep} It gives the section order, required fields, and the checklist your draft will be ` +
     `validated against.\n` +
     `Write ${outPath} to that contract, all sections in this order (create the directory if needed). Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. ` +
@@ -158,7 +161,7 @@ if (runs('draft')) {
     `panel, and say so under its heading.\n` +
     `Tag every claim that is not taken directly from the inputs with an inline marker [C1], [C2], ... so the ` +
     `panel can address it, and list those claims with their section. Put anything you would have asked the ` +
-    `author under Open questions, with your assumption. Keep the document under ${A.maxWords} words before the appendices.\n` +
+    `author under Open questions, with your assumption.\n` +
     `Return the draft object; path must be '${outPath}'.`,
     { label: `${A.author}:draft`, phase: 'Draft', agentType: author, effort: 'medium', schema: DRAFT_SCHEMA },
   )
@@ -172,10 +175,12 @@ if (runs('validate')) {
   phase('Validate')
   for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     validation = await agent(
-      `${contractStep} Read ${outPath}. Check the document against every numbered item in the contract's ` +
-      `checklist and against the section order. Return valid=true only if every item holds. For each unmet ` +
-      `item, one line in missing that quotes the checklist item and says what is absent or wrong. Judge the ` +
-      `shape, not the product.`,
+      `${contractStep} With the Bash tool, count the words of ${outPath} before its first "## Appendix" heading ` +
+      `(for example: awk '/^## Appendix/{exit} {print}' "${outPath}" | wc -w) and put the number in notes; never judge ` +
+      `length by impression. Item 1: that count is under ${A.maxWords}. Then read the document and check it against every ` +
+      `numbered item in the contract's checklist and against the section order. Return valid=true only if every item holds. ` +
+      `For each unmet item, one line in missing that quotes the checklist item and says what is absent or wrong, the length ` +
+      `first with the count. Judge the shape, not the product.`,
       { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
     )
     if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }
@@ -248,7 +253,9 @@ const final = await agent(
   `Appendix B, Premortem: write the 2-3 sentence scenario in which ${A.premortem}; name the hidden assumption ` +
   `it exposes; add that assumption to the Assumptions section; leave the question "What went wrong?" ` +
   `verbatim for the author. The review asks it.\n` +
-  `Keep the document under ${A.maxWords} words before the appendices; a checker runs next and names anything unmet, ` +
+  `Length rule: the body before the appendices must be no longer than the draft you are rewriting, and under ${A.maxWords} words; ` +
+  `aim for about ${A.targetWords}. Revisions replace text, they do not add it: for every sentence the panel makes you add, ` +
+  `take one out. The appendices are separate and uncounted. A checker runs next and names anything unmet, ` +
   `so do not check or count it yourself. List every decision you left open under openDecisions. Generated ${stamp}, run ${runId}. Return the object; path must be '${outPath}'.`,
   { label: `${A.author}:synthesize`, phase: 'Synthesize', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
 )
@@ -276,9 +283,13 @@ for (let round = 1; round <= 2; round++) {
   const trimmed = await agent(
     `${contractStep} Read ${outPath}. A checker found these unmet items after your rewrite:\n` +
     check.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `Revise ${outPath} so each holds. Where the body is over ${A.maxWords} words, cut repetition and move ` +
-    `detail into Open questions or the appendices until it is under; never shorten Appendix A or Appendix B, ` +
-    `and never delete a challenge. ` + SMALLEST_EDITS + `Return only the updated object; path must be '${outPath}'.`,
+    `The checker's notes: ${check.notes}\n` +
+    `Revise ${outPath} so each holds. Where the body is over ${A.maxWords} words: take the checker's count, subtract ` +
+    `${Math.round(A.maxWords * 0.9)}, and cut at least that many words, so one revision settles it. Cut whole paragraphs of ` +
+    `repetition and move detail into Open questions or the appendices; never shorten Appendix A or Appendix B, and never ` +
+    `delete a challenge. ` + SMALLEST_EDITS + `The one exception to the no-counting rule: when you believe you are done, run the ` +
+    `count once (awk '/^## Appendix/{exit} {print}' "${outPath}" | wc -w); if it is still ${A.maxWords} or more, cut more and ` +
+    `return without counting again. Return only the updated object; path must be '${outPath}'.`,
     { label: `${A.author}:trim`, phase: 'Check', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
   )
   if (!trimmed) { log('check: revision returned nothing; keeping the rewrite as it is'); break }
