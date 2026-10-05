@@ -203,7 +203,7 @@ if (stage === 'variants') {
         `file that is missing or wrong). If it succeeds: ${galleryContractStep} Then check ${galleryPath} ` +
         `against the contract's checklist with grep and wc, not by reading the whole page: the count of ` +
         `'class="variant"' is ${VARIANT_LABELS.length}; each variant section has at least one 'class="device' ` +
-        `and one '<h3>States</h3>'; '@claude' appears in the banner; and every requirement number named under ` +
+        `and one '<h3>States</h3>'; 'Do not send the comment to Claude' appears in the banner; and every requirement number named under ` +
         `Satisfies in ${designDir}/variants.json is a numbered item of the Requirements section of ${a.prd} ` +
         `(grep for the line starting with that number and a period). Return valid=true only if every item ` +
         `holds, and one line per unmet item in missing.`,
@@ -286,7 +286,9 @@ if (runs('validate')) {
   phase('Validate')
   for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     validation = await agent(
-      `${contractStep} Read ${specPath}, ${featurePath}, and the Requirements section of ${a.prd}. Check the spec ` +
+      `${contractStep} With the Bash tool, count the words of ${specPath} (wc -w < ${specPath}) and put the number in notes; ` +
+      `never judge length by impression. The contract caps the spec at 2,500 words; a count at or over it is an unmet item that ` +
+      `quotes the count. Then read ${specPath}, ${featurePath}, and the Requirements section of ${a.prd}. Check the spec ` +
       `against every numbered item of the contract's checklist and the section order, including that every ` +
       `acceptance criterion of every requirement named under Feature has a traceability row and that the ` +
       `Acceptance section holds checks, not a placeholder. Return valid=true only if every item holds. For each ` +

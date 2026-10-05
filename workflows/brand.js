@@ -138,7 +138,7 @@ async function gallery(roundDir, roundName) {
       `file that is missing or wrong). If it succeeds: ${galleryContractStep} Then check ${out} against the ` +
       `contract's checklist with grep and wc, not by reading the whole page: the count of 'class="variant"' ` +
       `equals the number of variants in ${roundDir}/variants.json; each variant section has 'class="mark"', ` +
-      `'class="swatches"', 'class="specimen"', and 'class="frame"'; '@claude' appears in the banner; the file ` +
+      `'class="swatches"', 'class="specimen"', and 'class="frame"'; 'Do not send the comment to Claude' appears in the banner; the file ` +
       `is under 16 MB. Return valid=true only if every item holds, and one line per unmet item in missing.`,
       { label: `gallery:${roundName}:${round}`, phase: 'Gallery', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
     )

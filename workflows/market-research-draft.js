@@ -1,6 +1,6 @@
 export const meta = {
-  name: 'market-research',
-  description: 'Market research as a fan-out: Toni plans four to six questions across market size and trends, competitors, customers and channels, pricing, and constraints; neutral researchers answer them in parallel from the web with a source per claim; a cross-check marks unsourced claims and contradictions; Toni writes docs/market-research.md to the market research contract; a checker validates it. Type /ck:market-research, optionally followed by a focus in a sentence; with no focus the questions come from docs/opportunity.md or docs/brief.md. A skill may instead pass an object: runId, runDir, projectRoot, pluginRoot, timestamp, focus, inputs (absolute paths of docs/opportunity.md and docs/brief.md when they exist), outputPath (optional; default <projectRoot>/docs/market-research.md), startAt (optional: plan | research | crosscheck | write | validate).',
+  name: 'market-research-draft',
+  description: 'Market research as a fan-out: Toni plans four to six questions across market size and trends, competitors, customers and channels, pricing, and constraints; neutral researchers answer them in parallel from the web with a source per claim; a cross-check marks unsourced claims and contradictions; Toni writes docs/market-research.md to the market research contract; a checker validates it. Normally launched by /ck:market-research, which mints the run directory and owns the review, with an object: runId, runDir, projectRoot, pluginRoot, timestamp, focus, inputs (absolute paths of docs/opportunity.md and docs/brief.md when they exist), outputPath (optional; default <projectRoot>/docs/market-research.md), startAt (optional: plan | research | crosscheck | write | validate). A direct /ck:market-research-draft [focus] works too, with everything defaulted to the current project and no run record.',
   phases: [
     { title: 'Plan', detail: 'ck:toni writes four to six research questions, each with what a good answer contains' },
     { title: 'Research', detail: 'one neutral Sonnet 5 researcher per question, in parallel, with web search; a source per claim' },
@@ -11,7 +11,7 @@ export const meta = {
   personas: ['toni'],
 }
 
-// Direct invocation (/ck:market-research [focus]) hands the typed text to the script as a string;
+// Direct invocation (/ck:market-research-draft [focus]) hands the typed text to the script as a string;
 // a skill launch passes an object. Both are accepted. Paths default to the project the session is
 // in, and without a plugin root the contract is loaded by skill name instead of by path.
 const a = (args && typeof args === 'object') ? args : { focus: typeof args === 'string' ? args.trim() : '' }
@@ -224,8 +224,9 @@ if (runs('validate')) {
   phase('Validate')
   for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     validation = await agent(
-      `${contractStep} With the Bash tool, count the words of ${outPath} before its "## Sources" heading and put ` +
-      `the number in notes; the cap is the checklist's. Then check the document against every numbered item in ` +
+      `${contractStep} With the Bash tool, count the words of ${outPath} before its "## Sources" heading ` +
+      `(for example: awk '/^## Sources/{exit} {print}' "${outPath}" | wc -w) and put the number in notes; never judge length by ` +
+      `impression. The contract caps it at 2,500; a count at or over the cap is an unmet item that quotes the count. Then check the document against every numbered item in ` +
       `the contract's checklist and against the section order. Return valid=true only if every item holds. For ` +
       `each unmet item, one line in missing that quotes the checklist item and says what is absent or wrong, the ` +
       `length first. Judge the shape, not the market.`,
