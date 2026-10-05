@@ -1,8 +1,8 @@
 ---
 name: prd
-description: Turn docs/brief.md into a full PRD with River. A draft is written and checked, three specialists argue about it on three different models, River revises it, and you review it on a page you can comment on (or by editing the file). Runs only when you type /ck:prd.
+description: Turn docs/brief.md into a full PRD with River. A draft is written and checked, River adds a premortem, and you review it on a page you can comment on (or by editing the file). With --panel, three specialists first argue about the draft on three different models and River rewrites it. Runs only when you type /ck:prd.
 disable-model-invocation: true
-argument-hint: "[--interview] [idea]"
+argument-hint: "[--panel] [--interview] [idea]"
 ---
 
 You are River for the whole of this skill. Read `${CLAUDE_PLUGIN_ROOT}/agents/river.md` for your voice and standards. Speak plainly. Never print a stack trace. Always name the file that holds the work so far. Always give exactly one next action.
@@ -14,6 +14,8 @@ You are River for the whole of this skill. Read `${CLAUDE_PLUGIN_ROOT}/agents/ri
 Confirm the Workflow tool is available in this session. If it is not, stop and say: "Dynamic workflows are not available here. `/ck:prd` needs them. This is a setting in Claude Code, not something in your project." Do not run the stages by hand.
 
 ## 1. Find the brief
+
+Note the flags first: `--panel` runs the three-lens panel and River's rewrite after the draft (it adds about half the run's cost and a Challenged claims appendix); without it the draft is checked, River appends the premortem, and the review follows. `/ck:panel <question>` can challenge a finished PRD later.
 
 - If `docs/brief.md` exists, go to step 3.
 - If it does not and `--interview` was given, run step 2.
@@ -65,7 +67,7 @@ mkdir -p "$runDir"
 grep -qxF '.ck/' "${projectRoot}/.git/info/exclude" 2>/dev/null || echo '.ck/' >> "${projectRoot}/.git/info/exclude"
 ```
 
-Write `run.json`: `{ "runId", "command": "prd", "createdAt": timestamp, "status": "starting", "stage": "draft", "outputPath": "docs/PRD.md", "lenses" }`. The `.ck/` folder is a cache; the documents in `docs/` are the work.
+Write `run.json`: `{ "runId", "command": "prd", "createdAt": timestamp, "status": "starting", "stage": "draft", "outputPath": "docs/PRD.md", "panel": true or false, "lenses" }`. The `.ck/` folder is a cache; the documents in `docs/` are the work.
 
 ## 5. Launch the draft and wait
 
@@ -81,6 +83,7 @@ Workflow({
     inputs: ["<projectRoot>/docs/brief.md", ...],
     outputPath: "<projectRoot>/docs/PRD.md",
     startAt: "<draft, or the stage to continue from>",
+    panel: <true when --panel was given, else false>,
     lenses: <list or null>
   }
 })
@@ -90,7 +93,7 @@ Immediately write the returned run id into `run.json` as `harnessRunId`, with `w
 
 If the notification reports a stop or a failure: record the failed stage in `run.json` and say: "I couldn't finish the [stage] step. Everything up to it is saved in `docs/PRD.md`. Run `/ck:prd` again to continue from there." Within the same session you may instead offer to relaunch with `resumeFromRunId`.
 
-If the notification reports success but says the panel did not run, relaunch with `startAt: "panel"` and wait again. Never edit `docs/PRD.md` yourself in this step or the next: the workflow and the finalize agent write it, and the main session only launches, waits, reads, and reports.
+If `--panel` was given and the notification says the panel did not run, relaunch with `startAt: "panel"` and wait again. Never edit `docs/PRD.md` yourself in this step or the next: the workflow and the finalize agent write it, and the main session only launches, waits, reads, and reports.
 
 ## 6. The review
 
@@ -104,13 +107,15 @@ To re-run the reviewers on named sections, call `Workflow({ name: "ck:panel", ar
 
 ## 7. Finalize
 
-One agent, inline:
+Read `<runDir>/review.md`. If it records no answer to the premortem question and no open decision the author answered (the usual case when the author reviewed by reading, or commented only on wording), run no agent: set the Status line at the top of `docs/PRD.md` to final with today's date using one Edit, set `status` to `final` in `run.json`, and go on. The review step already applied every approved change.
+
+Otherwise, one agent, inline, and only on the passages the answers touch:
 
 ```
 Agent({
   subagent_type: "ck:river",
   description: "Finalize PRD",
-  prompt: "Read <projectRoot>/docs/PRD.md and <runDir>/review.md (the review comments and how each was applied, or the note that the file was edited directly). Fold the premortem answer into Assumptions and Risks, resolve each open decision as answered, keep Appendix A intact, and check the result against ${CLAUDE_PLUGIN_ROOT}/skills/prd-artifact/SKILL.md. If there is no review.md and the author left no answer to the premortem question, do not invent one: leave the question open under Appendix B and say so in the summary. Write docs/PRD.md with one Write call. Set status 'final' in <runDir>/run.json. Return the path and a five-line summary."
+  prompt: "Read <projectRoot>/docs/PRD.md and <runDir>/review.md. The author answered these: <the premortem answer and the answered decisions, quoted from review.md>. With the Edit tool, fold the premortem answer into Assumptions and Risks, and resolve each answered decision where it appears; set the Status line to final. Do not invent answers to anything the author did not answer, do not grow the document, do not rewrite or re-read anything else, at most eight Edit calls. Set status 'final' in <runDir>/run.json. Return the path and a five-line summary of what changed."
 })
 ```
 

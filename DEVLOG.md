@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-05] 0.1.5: the PRD panel is optional (--panel); finalize runs no agent when the review changed nothing
+
+**Category:** `decision`
+**Tags:** `ck`, `prd`, `panel`, `cost`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+Two decisions by Will after drill 23. The three-lens panel inside `/ck:prd` has returned "yes, with conditions" on every run and costs about half of each PRD run, so it is now opt-in: `/ck:prd --panel`. Without it the draft is checked, River appends the premortem with a few edits, and the review follows; `/ck:panel` stays as its own command for challenging a finished document. The finalize step of `/ck:prd` and `/ck:opportunity` runs no agent when the review record holds no premortem answer and no answered decision; when it does, the agent edits the passages concerned instead of rewriting the file. Drill 23's finalize cost $2.02 to change one line.
+
+### Detail
+
+- `workflows/draft.js`: `panel: false` skips the panel stage, the rewrite, and the post-rewrite check; a `${author}:premortem` agent appends Appendix A (one line: the panel did not run) and Appendix B with at most four edits. `panel` defaults to true so `/ck:architecture` is unchanged.
+- `skills/prd/SKILL.md`: `--panel` flag; `panel` recorded in `run.json` and passed in `args`; the finalize step reads `review.md` first and skips the agent when nothing was answered.
+- `skills/opportunity/SKILL.md`: the same finalize rule.
+- Expected cost of `/ck:prd` without the panel: about $7; with it, about $12 on the 0.1.4 length rules.
+
+---
+
 ## [2026-10-04] 0.1.4: length rules move to the front of the PRD and architecture prompts; every agent carries the roster rule
 
 **Category:** `fix`
