@@ -4,7 +4,7 @@
 
 ## Current State Snapshot
 
-The skeleton is committed: 21 personas as subagents and switch commands on three tiers, four of nine workflow scripts (`panel`, `brief`, `draft`, `team`), the `prd`, `next`, and `review-page` skills, five of ten document contracts, two hooks, and the static test suite. Nothing has run end to end on a real project yet. Phase 0 answered seven of eight spikes (see the PRD's §8.0).
+The skeleton is committed: the full persona roster as subagents and switch commands on three tiers, four of nine workflow scripts (`panel`, `brief`, `draft`, `team`), the `prd`, `next`, and `review-page` skills, five of ten document contracts, two hooks, and the static test suite. Nothing has run end to end on a real project yet. Phase 0 answered seven of eight spikes (see the PRD's §8.0).
 
 ## Opportunities — Prioritized
 

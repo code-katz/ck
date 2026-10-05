@@ -136,7 +136,7 @@ def js_list(text):
     return re.findall(r"'((?:[^'\\]|\\.)*)'", text)
 problems = []
 # brief.js and team.js declare SECTIONS
-for script, contract in (('workflows/brief-draft.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md'), ('workflows/market-research.js', 'skills/market-research-artifact/SKILL.md')):
+for script, contract in (('workflows/brief-draft.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team-draft.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md'), ('workflows/market-research-draft.js', 'skills/market-research-artifact/SKILL.md')):
     js = pathlib.Path(script).read_text()
     m = re.search(r'const SECTIONS = \[(.*?)\]', js, re.S)
     got = js_list(m.group(1)) if m else []
@@ -169,7 +169,7 @@ then ok "brief, team, opportunity, market-research, prd, architecture, brand, an
 
 # ─── 8. Gate-owning skills reference review-page ─────────────────────────────
 section "8. Gate mechanics live in one place"
-for f in skills/brief/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
+for f in skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
   if grep -q 'review-page/SKILL.md' "$f"; then ok "$f references skills/review-page/SKILL.md"; else fail "$f does not reference review-page"; fi
   if grep -qi 'comment mode' "$f"; then fail "$f restates the comment steps"; else ok "$f does not restate the comment steps"; fi
 done
@@ -208,6 +208,14 @@ EOF
   done
 done
 
+# Every validator that judges a capped document counts it with wc first.
+for f in workflows/brief-draft.js workflows/team-draft.js workflows/market-research-draft.js workflows/opportunity-draft.js workflows/draft.js workflows/design-round.js; do
+  if grep -q 'wc -w' "$f"; then ok "$f: the validator counts words with wc"; else fail "$f: no validator counts words with wc"; fi
+done
+for f in workflows/brand.js workflows/design-round.js; do
+  if grep -q "'@claude' appears" "$f"; then fail "$f checks the gallery banner for @claude, which the renderer no longer writes"; else ok "$f does not look for @claude in the banner"; fi
+done
+
 # ─── 10. Hooks ───────────────────────────────────────────────────────────────
 section "10. Hooks"
 if python3 - <<'EOF'
@@ -236,7 +244,7 @@ out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/brief/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi

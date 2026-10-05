@@ -5,6 +5,26 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-05] 0.1.6: /ck:team, /ck:roadmap, and /ck:market-research become gate-owning skills; every validator counts; nominees read less; the roster is described, not counted
+
+**Category:** `fix`
+**Tags:** `ck`, `team`, `roadmap`, `market-research`, `validators`, `cost`, `drill`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+The first real `/ck:team` (drill 24, $10.85 against $6.29 on the fixture) passed a 2,685-word document against a 2,500 cap because the validator guessed, left no run record, and spent two thirds of its cost on eight nominees each reading the whole PRD. Three fixes, all approved by Will, and one house-style change: the roster is never counted in the plugin's own text.
+
+### Detail
+
+- **Skills own the run and the review.** `skills/team`, `skills/roadmap`, and `skills/market-research` mint a timestamped run with `run.json`, launch `ck:team-draft`, `ck:roadmap-draft`, or `ck:market-research-draft` with absolute paths, and review on a page, the same shape as `/ck:brief` and `/ck:opportunity`. The workflows are renamed accordingly; typed directly they still run with defaults and no record.
+- **Every validator counts.** The team, opportunity, design-spec, and market-research validators run `wc -w` (before `## Sources` where the contract says so) and quote the count; the brief and draft validators already did. A test checks every capped workflow for it.
+- **Nominees read less.** In `team-draft`, each nominee reads River's nomination and the brief (or the opportunity analysis), and a PRD requirement only when a responsibility names it. Drill 24's confirmations read 220k to 425k cached tokens each.
+- **Gallery banner check fixed.** The brand and design gallery validators still looked for `@claude` in the banner, which the renderer stopped writing in 0.1.1, so every gallery check would have failed and spent its two fix rounds. They now look for the local-review sentence. Found while editing the validators; a test guards it.
+- **Roster wording.** The README, `ROADMAP.md`, and the plugin description describe the roster ("the full persona roster, a complete cross-domain team", "every persona") instead of counting it, per Will's rule from the brief review. The PRD in `code-katz/.github` gets the same change in its own commit; drill logs and the correction note about the proposal's count stay as history.
+
+---
+
 ## [2026-10-05] 0.1.5: the PRD panel is optional (--panel); finalize runs no agent when the review changed nothing
 
 **Category:** `decision`

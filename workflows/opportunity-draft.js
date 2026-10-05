@@ -196,7 +196,10 @@ if (runs('validate')) {
   phase('Validate')
   for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     validation = await agent(
-      `${contractStep} Read ${outPath} and list the files under ${runDir}/sections/. Check the document ` +
+      `${contractStep} With the Bash tool, count the words of ${outPath} before its "## Sources" heading ` +
+      `(for example: awk '/^## Sources/{exit} {print}' "${outPath}" | wc -w) and put the number in notes; never judge length ` +
+      `by impression. The contract caps it at 4,000; a count at or over the cap is an unmet item that quotes the count. ` +
+      `Then read ${outPath} and list the files under ${runDir}/sections/. Check the document ` +
       `against every numbered item in the contract's checklist and against the section order, including that ` +
       `every contributor's section file appears in the document under its heading. Return valid=true only if ` +
       `every item holds. For each unmet item, one line in missing that quotes the checklist item and says what ` +

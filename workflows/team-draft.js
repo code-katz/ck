@@ -1,16 +1,16 @@
 export const meta = {
-  name: 'team',
-  description: 'Team selection and roles and responsibilities. River reads the product documents and the roster and nominates a cast with an owner per document and stage; each nominee confirms or declines on its own tier and names what it needs and one missing seat; River writes docs/TEAM.md; a checker validates it. Type /ck:team with nothing after it. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents that exist: opportunity, brief, PRD, market research; at least one of the first two), teamPath (optional; default <projectRoot>/docs/TEAM.md), maxCast (optional; default 8).',
+  name: 'team-draft',
+  description: 'Team selection and roles and responsibilities. River reads the product documents and the roster and nominates a cast with an owner per document and stage; each nominee confirms or declines on its own tier and names what it needs and one missing seat; River writes docs/TEAM.md; a checker validates it, word count first. Normally launched by /ck:team, which mints the run directory and owns the review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents that exist: opportunity, brief, PRD, market research; at least one of the first two), teamPath (optional; default <projectRoot>/docs/TEAM.md), maxCast (optional; default 8). A direct /ck:team-draft works too, with everything defaulted to the current project and no run record.',
   phases: [
     { title: 'Nominate', detail: 'ck:river proposes the cast: an owner and reviewers per pipeline document and stage, and the missing seats' },
-    { title: 'Confirm', detail: 'every nominee, in parallel on its own tier at low effort, accepts or declines each responsibility, names its needs, one risk, and one missing seat' },
+    { title: 'Confirm', detail: 'every nominee, in parallel on its own tier at low effort, reads its nomination and the brief (not the whole PRD), accepts or declines each responsibility, names its needs, one risk, and one missing seat' },
     { title: 'Assemble', detail: 'ck:river writes docs/TEAM.md: cast, roles and responsibilities matrix, hand-off order, needs, missing seats, declined nominations' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the team contract; ck:river revises at most twice' },
   ],
   personas: ['river', 'akira', 'alex', 'casey', 'cornelius', 'ernie', 'iris', 'jordan', 'kai', 'morgan', 'noon', 'piper', 'quinn', 'reiner', 'rez', 'robin', 'sage', 'sasha', 'toni', 'tracy', 'travolta'],
 }
 
-// Direct invocation (/ck:team) needs no arguments: the documents that exist in the project are
+// Direct invocation (/ck:team-draft) needs no arguments: the documents that exist in the project are
 // read. A skill may pass an object. Without a plugin root the roster and the contract are loaded
 // by skill name instead of by path.
 const a = (args && typeof args === 'object') ? args : {}
@@ -29,6 +29,9 @@ const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/team-artifact/SKILL.md (the team contract).'
   : 'Load the skill ck:team-artifact with the Skill tool (the team contract).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
+// What a nominee reads to confirm: the brief when it exists, else the opportunity analysis; the PRD only per named requirement.
+const briefLike = inputs.find(x => /brief\.md$/.test(x)) || inputs.find(x => /opportunity\.md$/.test(x)) || inputs[0]
+const confirmReads = briefLike + ' and your nomination in ' + runDir + '/nominations.json'
 const MAX_CAST = Number.isInteger(a.maxCast) && a.maxCast > 0 ? Math.min(a.maxCast, 12) : 8
 const MAX_REVISIONS = 2
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
@@ -145,8 +148,10 @@ log(`nominate: ${nominations.productKind}; ${cast.length} nominated; ${nominatio
 // ---- Confirm ----
 phase('Confirm')
 const confirmations = (await parallel(cast.map(n => () => agent(
-  `You are ${n.persona}. You have been nominated to this product's team. Read ${inputs.join(', ')}. ` +
-  `${rosterStep}\n` +
+  `You are ${n.persona}. You have been nominated to this product's team. Read only ${confirmReads}: not the PRD, ` +
+  `the market research, or the opportunity analysis in full; when a responsibility below names a PRD requirement, read that ` +
+  `requirement's section of the PRD and nothing more. River's one-line case for you is below; the staffing check does not ` +
+  `need the whole product in your context. ${rosterStep}\n` +
   `Your nomination: ${n.why}. Responsibilities proposed for you:\n` +
   n.responsibilities.map(r => `- ${r.role} of ${r.item}`).join('\n') + '\n' +
   `For each responsibility: accept or decline, with a reason from your domain; when you decline, name the ` +
@@ -188,7 +193,9 @@ phase('Validate')
 let validation = null
 for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
   validation = await agent(
-    `${contractStep} Read ${teamPath}. Check the document against every numbered item in the contract's ` +
+    `${contractStep} With the Bash tool, count the words of ${teamPath} (wc -w < ${teamPath}) and put the number in notes; ` +
+    `never judge length by impression. The contract caps the document at 2,500 words; a count at or over it is an unmet item that ` +
+    `quotes the count. Then read the document and check it against every numbered item in the contract's ` +
     `checklist and against the section order, including "every pipeline document has exactly one owner". ` +
     `Return valid=true only if every item holds; for each unmet item, one line in missing that quotes the ` +
     `checklist item and says what is absent or wrong.`,

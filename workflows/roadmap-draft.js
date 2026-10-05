@@ -1,6 +1,6 @@
 export const meta = {
-  name: 'roadmap',
-  description: "The product roadmap in the roadmap skill's format: River prioritizes the PRD's requirements into three tiers with a why-now and a success signal each, plus the OKR table; Quinn sequences them with dependencies and writes ROADMAP.md with a dated revision-history entry; a checker validates it. With ROADMAP.md present it runs in update mode: Section 1 rewritten, a new revision entry prepended. Type /ck:roadmap with nothing after it. A skill may instead pass an object: runId, runDir, projectRoot, pluginRoot, timestamp, inputs (absolute paths of docs/PRD.md and, when they exist, docs/opportunity.md, docs/market-research.md, docs/TEAM.md), outputPath (optional; default <projectRoot>/ROADMAP.md), startAt (optional: prioritize | sequence | validate).",
+  name: 'roadmap-draft',
+  description: "The product roadmap in the roadmap skill's format: River prioritizes the PRD's requirements into three tiers with a why-now and a success signal each, plus the OKR table; Quinn sequences them with dependencies and writes ROADMAP.md with a dated revision-history entry; a checker validates it. With ROADMAP.md present it runs in update mode: Section 1 rewritten, a new revision entry prepended. Normally launched by /ck:roadmap, which mints the run directory and owns the review, with an object: runId, runDir, projectRoot, pluginRoot, timestamp, inputs (absolute paths of docs/PRD.md and, when they exist, docs/opportunity.md, docs/market-research.md, docs/TEAM.md), outputPath (optional; default <projectRoot>/ROADMAP.md), startAt (optional: prioritize | sequence | validate). A direct /ck:roadmap-draft works too, with everything defaulted to the current project and no run record.",
   phases: [
     { title: 'Prioritize', detail: 'ck:river writes the current-state snapshot, the three tiers with a success signal each, and the OKR table' },
     { title: 'Sequence', detail: 'ck:quinn orders the work with dependencies and writes ROADMAP.md with a dated revision-history entry' },
@@ -9,7 +9,7 @@ export const meta = {
   personas: ['river', 'quinn'],
 }
 
-// Direct invocation (/ck:roadmap) needs no arguments; a skill may pass an object. Paths default to
+// Direct invocation (/ck:roadmap-draft) needs no arguments; a skill may pass an object. Paths default to
 // the project the session is in, and without a plugin root the contract is loaded by skill name.
 const a = (args && typeof args === 'object') ? args : {}
 const projectRoot = a.projectRoot || '.'

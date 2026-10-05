@@ -1,6 +1,6 @@
 # ck
 
-Code Katz personas and workflows for Claude Code. One plugin: the product-definition pipeline from an idea to a designed feature, a three-lens decision panel, and 21 personas as subagents and switch commands on three model tiers.
+Code Katz personas and workflows for Claude Code. One plugin: the product-definition pipeline from an idea to a designed feature, a three-lens decision panel, and the full persona roster, a complete cross-domain team, as subagents and switch commands on three model tiers.
 
 Every document `ck` writes goes into the repository you opened Claude Code in, under `docs/` (or `ROADMAP.md` and `brand/`), and is committed with your product. Every document has a contract, so it has the same shape every time, on every project.
 
@@ -14,15 +14,15 @@ Phase one, first release in progress. What runs today:
 | `/ck:brief <idea>` | Toni runs a short market pass, River writes `docs/brief.md` (from your sentence, or from `docs/opportunity.md`), a checker validates it; you review on a page you can comment on | Built; drilled 2026-10-04 on a real project |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd [--panel]` | River drafts `docs/PRD.md` from the brief, a checker validates, River adds a premortem; with `--panel`, three specialists on three models challenge it first and River rewrites; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
-| `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md` | Built; drilled 2026-10-01 |
+| `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md`; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
 | `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan; you review on a page you can comment on | Built; drilled 2026-10-01 |
 | `/ck:opportunity <idea>` | River frames the idea, Toni, Akira, and a domain seat write sourced sections, River assembles `docs/opportunity.md`; you review on a page you can comment on | Built; drilled 2026-10-01 |
 | `/ck:market-research [focus]` | Toni plans the questions, researchers answer them from the web in parallel, a cross-check marks what is unsourced or contradictory, Toni writes `docs/market-research.md` | Built; drilled 2026-10-01 |
 | `/ck:roadmap` | River prioritizes the PRD's requirements into three tiers, Quinn sequences them and writes `ROADMAP.md` in the roadmap skill's format, with a dated revision entry | Built; drilled 2026-10-01 |
 | `/ck:brand-guide` | Three rounds: Toni positions, Iris designs four to six brand directions, Kai skins a screen in each, you pick from a gallery; the picks are worked up in full as a second gallery; then the brand direction record, `docs/brand-guide.md`, and the assets under `brand/final/` | Built; drilled 2026-10-01 |
 | `/ck:design <feature>` | River pulls the feature from the PRD, Kai draws three labeled variants of its screens with their empty, loading, and error states, you pick one from a gallery, then Kai finishes it at full fidelity with `docs/design/<feature>/spec.md` and Robin adds the acceptance checks | Built; drilled 2026-10-01 |
-| `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, all 21 |
-| `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, all 21 |
+| `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, every persona |
+| `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, every persona |
 
 The specification is the phase-one PRD in `code-katz/.github`, `plans/2026-09-05-ck-plugin-prd-phase-1.md`.
 
