@@ -13,7 +13,7 @@ Phase one, first release in progress. What runs today:
 | `/ck:next` | Says what to run next, in one sentence | Built |
 | `/ck:brief <idea>` | Toni runs a short market pass, River writes `docs/brief.md` (from your sentence, or from `docs/opportunity.md`), a checker validates it; you review on a page you can comment on | Built; drilled 2026-10-04 on a real project |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
-| `/ck:prd` | River drafts `docs/PRD.md` from the brief, a checker validates, the panel challenges, River rewrites; you review on a page you can comment on | Built |
+| `/ck:prd [--panel]` | River drafts `docs/PRD.md` from the brief, a checker validates, River adds a premortem; with `--panel`, three specialists on three models challenge it first and River rewrites; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
 | `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md` | Built; drilled 2026-10-01 |
 | `/ck:architecture` | Akira recommends an architecture from the PRD and roadmap, challenged by Morgan, Alex, and Jordan; you review on a page you can comment on | Built; drilled 2026-10-01 |
 | `/ck:opportunity <idea>` | River frames the idea, Toni, Akira, and a domain seat write sourced sections, River assembles `docs/opportunity.md`; you review on a page you can comment on | Built; drilled 2026-10-01 |

@@ -1,6 +1,6 @@
 export const meta = {
   name: 'draft',
-  description: "One author drafts a document to its contract, a checker validates it, the three-lens panel challenges it (forming its view before reading the rationale), and the author rewrites it with a Challenged claims appendix and a premortem. Serves the PRD (river; lenses river, toni, kai) and the architecture document (akira; lenses morgan, alex, jordan). Normally launched by /ck:prd or /ck:architecture with an object: artifact ('prd' | 'architecture'), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents to read; the skill lists the ones that exist), outputPath (optional; default from the artifact table), startAt (optional: draft | validate | panel | synthesize; earlier stages are skipped and the document on disk is used), lenses (optional). A direct /ck:draft prd works too, with everything defaulted to the current project.",
+  description: "One author drafts a document to its contract, a checker validates it, optionally the three-lens panel challenges it (forming its view before reading the rationale) and the author rewrites it with a Challenged claims appendix; the author adds a premortem either way. Serves the PRD (river; lenses river, toni, kai) and the architecture document (akira; lenses morgan, alex, jordan). Normally launched by /ck:prd or /ck:architecture with an object: artifact ('prd' | 'architecture'), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents to read; the skill lists the ones that exist), outputPath (optional; default from the artifact table), startAt (optional: draft | validate | panel | synthesize; earlier stages are skipped and the document on disk is used), lenses (optional), panel (optional; false skips the panel and the rewrite: the author appends the premortem with a few edits instead, which is the cheap path). A direct /ck:draft prd works too, with everything defaulted to the current project.",
   phases: [
     { title: 'Draft', detail: 'the author writes the document from its inputs to the contract; every claim not from the inputs tagged [C<n>]' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the contract checklist; the author revises at most twice' },
@@ -66,6 +66,7 @@ const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/' + A.contract + ' (the contract).'
   : 'Load the skill ck:' + A.contract.split('/')[1] + ' with the Skill tool (the contract).'
 const inputs = Array.isArray(a.inputs) && a.inputs.length ? a.inputs : [rationalePath]
+const withPanel = a.panel !== false
 const SECTIONS = A.sections
 const MAX_REVISIONS = 2
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
@@ -204,7 +205,8 @@ if (runs('validate')) {
 
 // ---- Panel (nested by name; one level only; each lens reads its own evidence and sees the rationale last) ----
 let panel = null
-if (runs('panel')) {
+if (!withPanel) log('panel: skipped by the caller (panel: false); the author appends the premortem and no rewrite runs')
+if (runs('panel') && withPanel) {
   phase('Panel')
   const lenses = Array.isArray(a.lenses) && a.lenses.length ? a.lenses : A.lenses
   try {
@@ -230,6 +232,21 @@ if (runs('panel')) {
   }
 }
 
+// ---- Premortem only (panel off) ----
+let final = null
+let check = null
+if (!withPanel) {
+  phase('Synthesize')
+  final = await agent(
+    `${contractStep} Read ${outPath}. The panel did not run for this document, by the author's choice. With the Edit tool and at most four Edit calls, and without rewriting or re-reading anything else: ` +
+    `(1) replace the placeholder under "Appendix A. Challenged claims" (or add the heading after the last section) with one sentence: the panel did not run; /ck:panel can challenge the tagged claims later. ` +
+    `(2) Write "Appendix B. Premortem" after it: the 2-3 sentence scenario in which ${A.premortem}; the hidden assumption it exposes; and the question "What went wrong?" verbatim for the author. ` +
+    `(3) Add that assumption as one line under the Assumptions section. Do not change anything else, do not count or check the file, and return as soon as the edits are made. ` +
+    `challengedClaims is an empty list; openDecisions lists the decisions the document leaves open. Return the object; path must be '${outPath}'.`,
+    { label: `${A.author}:premortem`, phase: 'Synthesize', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
+  )
+  if (!final) throw new Error(`draft: ${A.author} returned nothing for the premortem; the draft is at ` + outPath)
+} else {
 // ---- Synthesize ----
 phase('Synthesize')
 // A resumed run starts here with the panel's files already on disk from the earlier run.
@@ -241,7 +258,7 @@ const panelInputs = panel && panel.memoPath
     : (startAt === 'synthesize'
       ? `${earlierMemo} and every file under ${runDir}/panel/, written by the earlier run of this workflow (if neither exists, say in the document header that the panel did not run)`
       : 'nothing else: the panel did not run, and the document header must say so'))
-const final = await agent(
+final = await agent(
   `${contractStep} Read the inputs (${inputs.join(', ')}), ${outPath}, and ${panelInputs}.\n` +
   `Rewrite ${outPath}: the same sections, in contract order, revised where the panel showed a claim wrong or ` +
   `unsupported, followed by two appendices. Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. \n` +
@@ -265,7 +282,6 @@ if (!final) throw new Error(`draft: ${A.author} returned nothing for the synthes
 // The checker ran on the draft, before the panel; the rewrite is the stage that overruns the cap, so it is
 // checked too, with the length first, and the author gets one revision to bring it under.
 phase('Check')
-let check = null
 for (let round = 1; round <= 2; round++) {
   check = await agent(
     `${contractStep} With the Bash tool, count the words of ${outPath} before its first "## Appendix" heading ` +
@@ -293,6 +309,8 @@ for (let round = 1; round <= 2; round++) {
     { label: `${A.author}:trim`, phase: 'Check', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
   )
   if (!trimmed) { log('check: revision returned nothing; keeping the rewrite as it is'); break }
+}
+
 }
 
 return {

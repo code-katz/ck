@@ -77,13 +77,15 @@ Set `status` to `review`. Read `docs/opportunity.md`. Review it per `${CLAUDE_PL
 
 ## 6. Finalize
 
-One agent, inline:
+Read `<runDir>/review.md`. If it records no answer to "what did we get wrong" and no open question the author answered, run no agent: set `status` to `final` in `run.json` and go on. The review step already applied every approved change.
+
+Otherwise, one agent, inline, and only on the passages the answers touch:
 
 ```
 Agent({
   subagent_type: "ck:river",
   description: "Finalize opportunity analysis",
-  prompt: "Read <projectRoot>/docs/opportunity.md and <runDir>/review.md (the review comments and how each was applied, or the note that the file was edited directly). Fold the author's answer to 'what did we get wrong' into Risks and, where it changes the verdict, into Executive summary; resolve each open question the author answered; keep every contributor's section and the Sources list intact; check the result against ${CLAUDE_PLUGIN_ROOT}/skills/opportunity-artifact/SKILL.md. If there is no review.md and the author left no answer, do not invent one: say so in the summary and leave the open questions as they are. Write docs/opportunity.md with one Write call. Set status 'final' in <runDir>/run.json. Return the path, the verdict, and a five-line summary."
+  prompt: "Read <projectRoot>/docs/opportunity.md and <runDir>/review.md. The author answered these: <the answer to 'what did we get wrong' and the answered open questions, quoted from review.md>. With the Edit tool, fold the answer into Risks and, where it changes the verdict, into Executive summary; resolve each answered open question where it appears; keep every contributor's section and the Sources list intact. Do not invent answers to anything the author did not answer, do not grow the document, do not rewrite or re-read anything else, at most eight Edit calls. Set status 'final' in <runDir>/run.json. Return the path, the verdict, and a five-line summary of what changed."
 })
 ```
 
