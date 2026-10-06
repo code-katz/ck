@@ -137,7 +137,8 @@ for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     `${contractStep} First count the words with the Bash tool: wc -w < ${briefPath} ; the contract caps the brief at ${WORD_CAP} words, and a count over the cap is an unmet item that quotes the count. Then read ${briefPath} and check it against every numbered item in the contract's ` +
     `checklist and against the section order. Return valid=true only if every item holds. For each unmet item, ` +
     `one line in missing that quotes the checklist item and says what is absent or wrong. Judge the shape, not ` +
-    `the idea.`,
+    `the idea. ` +
+      `House-style item: the document never states the total size of the persona roster (a count of a subset, such as the seats on one tier, is fine); an occurrence is an unmet item that quotes it. `,
     { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
   )
   if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }

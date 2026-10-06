@@ -84,6 +84,7 @@ if (runs('prioritize')) {
     `stopReason to "Run /ck:prd first. It writes docs/PRD.md, the requirements the roadmap orders." and return ` +
     `empty lists. Say whether ${outPath} already exists (existingRoadmap) and, if it does, read it so the ` +
     `snapshot reflects what shipped since its last entry.\n` +
+    `Length first: the roadmap is capped at 2,500 words in all, so be brief everywhere; the snapshot is one short paragraph of five sentences at most, and openQuestions points to the PRD's open questions by number ("PRD open question 3") instead of restating them, writing out only the questions the roadmap itself raises.\n` +
     `Write the current-state snapshot (one paragraph: what exists today, what is in flight, what is blocked). ` +
     `Then the opportunities, from the PRD's numbered requirements and the other documents, in three tiers: ` +
     `Tier 1, ship next, each with why now, a measurable success signal, and the PRD requirement number it ` +
@@ -108,6 +109,7 @@ if (runs('sequence')) {
     `The project repository is ${projectRoot}. Read ${runDir}/priorities.json and the product documents: ` +
     `${inputs.join(', ')}. ${contractStep} It carries the exact skeleton of ROADMAP.md, including the dashes ` +
     `in its headings, which are not prose.\n` +
+    `Length first: under 2,500 words in all; carry the priorities' wording, do not expand it, and keep Open Questions to pointers at the PRD's numbered questions plus the roadmap's own.\n` +
     `Write ${outPath} to that skeleton. ` + ONE_WRITE +
     `Section 1 (everything above Revision History): the snapshot and the three tier tables from the ` +
     `priorities, each tier with the skeleton's columns; Recommended Sequencing as an ordered list that places ` +
@@ -129,11 +131,13 @@ let validation = null
 if (runs('validate')) {
   phase('Validate')
   validation = await agent(
-    `${contractStep} Read ${outPath} and ${projectRoot}/docs/PRD.md. Check the roadmap against every numbered ` +
+    `${contractStep} With the Bash tool, count the words of ${outPath} (wc -w < ${outPath}) and put the number in notes; never judge ` +
+    `length by impression. The contract caps it at 2,500; a count at or over the cap is an unmet item that quotes the count. ` +
+    `Then read ${outPath} and ${projectRoot}/docs/PRD.md. Check the roadmap against every numbered ` +
     `item in the contract's checklist and against the skeleton's heading order, including that every Tier 1 ` +
     `row traces to a numbered PRD requirement and that the newest revision-history entry is dated ${stamp}. ` +
     `Return valid=true only if every item holds. For each unmet item, one line in missing that quotes the ` +
-    `checklist item and says what is absent or wrong. Judge the shape, not the priorities.`,
+    `checklist item and says what is absent or wrong. House-style item: the document never states the total size of the persona roster (a count of a subset, such as the seats on one tier, is fine); an occurrence is an unmet item that quotes it. Judge the shape, not the priorities.`,
     { label: 'validate', phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
   )
   if (validation && !validation.valid) {

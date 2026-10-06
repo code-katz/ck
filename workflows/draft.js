@@ -6,7 +6,7 @@ export const meta = {
     { title: 'Validate', detail: 'one neutral Haiku agent checks the contract checklist; the author revises at most twice' },
     { title: 'Panel', detail: 'nested /ck:panel on the draft, three lenses on three models, each reading its own evidence' },
     { title: 'Synthesize', detail: 'the author rewrites the document: revised body, Appendix A Challenged claims, Appendix B Premortem' },
-    { title: 'Check', detail: 'the checker runs once more on the rewrite, length first; the author trims at most once' },
+    { title: 'Check', detail: 'the checker runs once more on the rewrite, length first; a neutral Sonnet editor trims at most once' },
   ],
   personas: ['river', 'toni', 'kai', 'akira', 'morgan', 'alex', 'jordan'],
 }
@@ -69,6 +69,7 @@ const inputs = Array.isArray(a.inputs) && a.inputs.length ? a.inputs : [rational
 const withPanel = a.panel !== false
 const SECTIONS = A.sections
 const MAX_REVISIONS = 2
+const TRIM_MODEL = 'claude-sonnet-5'
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 
@@ -181,7 +182,7 @@ if (runs('validate')) {
       `length by impression. Item 1: that count is under ${A.maxWords}. Then read the document and check it against every ` +
       `numbered item in the contract's checklist and against the section order. Return valid=true only if every item holds. ` +
       `For each unmet item, one line in missing that quotes the checklist item and says what is absent or wrong, the length ` +
-      `first with the count. Judge the shape, not the product.`,
+      `first with the count. Appendix B (Premortem) is written after the panel by design: skip any checklist item about the premortem and treat its placeholder as expected at this stage. House-style item: the document never states the total size of the persona roster (a count of a subset, such as the seats on one tier, is fine); an occurrence is an unmet item that quotes it. Judge the shape, not the product.`,
       { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
     )
     if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }
@@ -289,7 +290,8 @@ for (let round = 1; round <= 2; round++) {
     `Item 1: that count is under ${A.maxWords}. Then check the whole document against every numbered item in ` +
     `the contract's checklist and the section order, with Appendix A (Challenged claims) and Appendix B ` +
     `(Premortem) present after the sections. Return valid=true only if every item holds; for each unmet item, ` +
-    `one line in missing that quotes the item and says what is absent or wrong, the length first.`,
+    `one line in missing that quotes the item and says what is absent or wrong, the length first. ` + 
+    `House-style item: the document never states the total size of the persona roster (a count of a subset, such as the seats on one tier, is fine); an occurrence is an unmet item that quotes it. `,
     { label: `check:${round}`, phase: 'Check', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
   )
   if (!check) { log('check: checker returned nothing after the rewrite; proceeding unchecked'); break }
@@ -299,14 +301,14 @@ for (let round = 1; round <= 2; round++) {
   const trimmed = await agent(
     `${contractStep} Read ${outPath}. A checker found these unmet items after your rewrite:\n` +
     check.missing.map(m => '- ' + m).join('\n') + '\n' +
-    `The checker's notes: ${check.notes}\n` +
+    `You are a neutral editor, not the author: you delete repetition and move detail, you do not add or reword substance, and you do not deliberate; decide the cuts in one pass. The checker's notes: ${check.notes}\n` +
     `Revise ${outPath} so each holds. Where the body is over ${A.maxWords} words: take the checker's count, subtract ` +
     `${Math.round(A.maxWords * 0.9)}, and cut at least that many words, so one revision settles it. Cut whole paragraphs of ` +
     `repetition and move detail into Open questions or the appendices; never shorten Appendix A or Appendix B, and never ` +
     `delete a challenge. ` + SMALLEST_EDITS + `The one exception to the no-counting rule: when you believe you are done, run the ` +
     `count once (awk '/^## Appendix/{exit} {print}' "${outPath}" | wc -w); if it is still ${A.maxWords} or more, cut more and ` +
     `return without counting again. Return only the updated object; path must be '${outPath}'.`,
-    { label: `${A.author}:trim`, phase: 'Check', agentType: author, effort: 'medium', schema: FINAL_SCHEMA },
+    { label: 'trim', phase: 'Check', model: TRIM_MODEL, effort: 'low', schema: FINAL_SCHEMA },
   )
   if (!trimmed) { log('check: revision returned nothing; keeping the rewrite as it is'); break }
 }

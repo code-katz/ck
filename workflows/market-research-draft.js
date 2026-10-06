@@ -229,7 +229,7 @@ if (runs('validate')) {
       `impression. The contract caps it at 2,500; a count at or over the cap is an unmet item that quotes the count. Then check the document against every numbered item in ` +
       `the contract's checklist and against the section order. Return valid=true only if every item holds. For ` +
       `each unmet item, one line in missing that quotes the checklist item and says what is absent or wrong, the ` +
-      `length first. Judge the shape, not the market.`,
+      `length first. House-style item: the document never states the total size of the persona roster (a count of a subset, such as the seats on one tier, is fine); an occurrence is an unmet item that quotes it. Judge the shape, not the market.`,
       { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },
     )
     if (!validation) { log('validate: validator returned nothing; proceeding unvalidated'); break }

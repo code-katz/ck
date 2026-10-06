@@ -78,3 +78,4 @@ Every update rewrites everything above Revision History and prepends one new ent
 5. The newest revision-history entry is dated with the run's timestamp and has every subsection.
 6. The roadmap skill's lint check passes when that skill is installed.
 7. No em-dashes in prose outside the skeleton's own headings.
+8. The document is under 2,500 words. The current-state snapshot is one short paragraph, and Open Questions points to the PRD's open questions by number instead of restating them; only questions the roadmap itself raises are written out.

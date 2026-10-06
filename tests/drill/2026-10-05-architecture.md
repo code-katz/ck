@@ -37,3 +37,14 @@ For Will's review, not plugin bugs: the scale line says "six to eight agents per
 ## Review, 2026-10-05
 
 Will left no page comments and no premortem answer. Two items raised by the ck-test session and approved by Will: the scale line became "Three to fourteen agents per run, as observed in this project", and Open question 8 (the PRD amendment) stays open in both documents. No finalize agent ran: the 0.1.6 architecture skill still launches one in every case, but the ck-test session applied the PRD skill's 0.1.5 rule by hand (one Edit to the Status line, status final in `run.json`) and saved about $2. The 0.1.5 finalize rule reached the PRD and opportunity skills only; the architecture skill needs it too. Architecture total: $17.31.
+
+## The fix in 0.1.7
+
+1. The pre-panel checker skips the premortem item.
+2. The trim is a neutral Sonnet editor at low effort, not the author.
+3. `/ck:architecture --panel`, default off.
+4. Review pages draw Mermaid diagrams.
+5. Not fixed, recorded: the length rules did not hold for Akira; the cheap trim is the backstop.
+6. The finalize rule reaches the architecture skill.
+
+Re-measure `/ck:architecture` without the panel: expected draft, one check, premortem, about $5; with the panel about $11.
