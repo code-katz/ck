@@ -26,10 +26,11 @@ Read the latest `.ck/runs/*/run.json` with `command: "team"` for this project, i
 
 - `status` is `final`: ask "The team document is finished. Revise it from your comments, or choose the team again from the current documents?" A revision goes to step 5; choosing again goes to step 3.
 - `status` is `review`: go to step 5.
+- There is no `run.json` with `command: "team"` and `docs/TEAM.md` exists: the workflow was started directly, or `.ck/` was cleared (a folder under `.ck/runs/` with no `run.json` is not a record). The team document is written, so launch nothing: mint a run (step 3) and go to step 5.
 - `docs/TEAM.md` exists and is newer than `run.json`: the workflow finished; go to step 5.
 - Otherwise go to step 3.
 
-When continuing, say: "Your team document is at `docs/TEAM.md`. Continuing from the review." Reuse the existing run directory, run id, and timestamp.
+When continuing, say: "Your team document is at `docs/TEAM.md`. Continuing from the review." Reuse the existing run directory, run id, and timestamp, when there is a run record.
 
 ## 3. Mint the run
 

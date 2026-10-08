@@ -27,6 +27,7 @@ Read the latest `.ck/runs/*/run.json` with `command: "opportunity"` for this pro
 
 - `status` is `final`: ask "The opportunity analysis is finished. Revise it from your comments, re-run the contributors, or start over?" Revise means `startAt: "assemble"` with the existing frame and sections; re-run means `startAt: "sections"`.
 - `status` is `review`: go to step 6; the author has reviewed.
+- There is no `run.json` with `command: "opportunity"` and `docs/opportunity.md` exists: the workflow was started directly, or `.ck/` was cleared (a folder under `.ck/runs/` with no `run.json` is not a record). The opportunity analysis is written, so launch nothing: mint a run (step 3) and go to step 5.
 - `docs/opportunity.md` exists and `<runDir>/sections/` has one file per contributor in `frame.json`: the assembly finished. `startAt` is `validate`.
 - `<runDir>/sections/` has one file per contributor in `frame.json` and `docs/opportunity.md` does not exist: `startAt` is `assemble`.
 - `<runDir>/frame.json` exists and sections are missing: `startAt` is `sections`.

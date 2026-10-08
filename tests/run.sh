@@ -400,6 +400,40 @@ for sh in bash zsh; do
     'docs/design/turn-timer/gallery.html' 'docs/design/turn-timer/spec.md' '.ck/runs/20261001T000000Z-turn-timer-design/feature.md' '.ck/runs/20261001T000000Z-turn-timer-design/review.md'
 done
 
+# ─── 16. No run record ───────────────────────────────────────────────────────
+section "16. A document with no run record"
+# A workflow started directly keeps its files in .ck/runs/<name>-latest/ and writes no run.json, and
+# .ck/ is a cache that a clone does not have. A finished document with no record goes to the review
+# with a new run. The branch is third, after the two that read a record's status and ahead of every
+# branch that reads a run folder or launches, and the steps it names are the skill's own.
+for pair in brief:docs/brief.md team:docs/TEAM.md roadmap:ROADMAP.md market-research:docs/market-research.md prd:docs/PRD.md architecture:docs/ARCHITECTURE.md opportunity:docs/opportunity.md; do
+  f="skills/${pair%%:*}/SKILL.md"
+  if python3 - "$f" "${pair%%:*}" "${pair#*:}" <<'EOF' 2>"$TMP/norecord.err"
+import re, sys, pathlib
+text, cmd, doc = pathlib.Path(sys.argv[1]).read_text(), sys.argv[2], sys.argv[3]
+steps = dict(re.findall(r'^## (\d+)\. (.+)$', text, re.M))
+resume = re.search(r'^## \d+\. Resume check\n(.*?)^## ', text, re.M | re.S).group(1)
+bullets = [l for l in resume.split('\n') if l.startswith('- ')]
+assert bullets[0].startswith('- `status` is `final`') and bullets[1].startswith('- `status` is `review`'), 'the first two branches do not read the status'
+b = bullets[2]
+assert b.startswith(f'- There is no `run.json` with `command: "{cmd}"`'), 'the third branch is not the one for no run record'
+assert f'`{doc}`' in b, f'the branch does not name {doc}'
+m = re.search(r'launch nothing: mint a run \(step (\d+)\) and go to step (\d+)\.$', b)
+assert m, 'the branch does not end by minting a run and going to the review without launching'
+assert steps[m.group(1)] == 'Mint the run' and steps[m.group(2)] == 'The review', f'steps {m.group(1)} and {m.group(2)} are not Mint the run and The review'
+if cmd in ('prd', 'architecture'):
+    # A draft with its premortem still pending is not finished: it resumes at validate, and that needs a run too.
+    assert 'its Appendix B has the premortem, not a note that it is pending' in b, 'the branch does not tell a finished document from a draft'
+    assert f'or mint a run first (step {m.group(1)}) when there is no run record' in resume, 'resuming a draft with no run record mints no run'
+if cmd == 'roadmap':
+    # An existing roadmap with no sign of a direct run is updated, as step 1 says; the sign is the workflow's own folder.
+    assert '`.ck/runs/roadmap-latest/priorities.json` exists' in b, 'the branch does not look for the direct run'
+    js = pathlib.Path('workflows/roadmap-draft.js').read_text()
+    assert "'/.ck/runs/roadmap-latest'" in js and 'priorities.json' in js, 'workflows/roadmap-draft.js no longer writes roadmap-latest/priorities.json'
+EOF
+  then ok "$f: a finished document with no run record goes to the review with a new run, ahead of every branch that launches"; else fail "$f: $(tail -1 "$TMP/norecord.err")"; fi
+done
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then
