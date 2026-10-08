@@ -20,7 +20,14 @@ Read if present: `docs/PRD.md`, `docs/market-research.md`. They are passed as `i
 
 ## 2. Resume check
 
-Read the latest `.ck/runs/*/run.json` with `command: "brand-guide"` for this project, if any. `run.json` can be stale, so decide the stage from what is on disk. List it with this exact command, never with a recursive listing that a pipe can cut short: `ls docs/brand-guide.md brand/proposals/gallery.html brand/finalists/gallery.html .ck/runs/*-brand/review-*.md 2>/dev/null`. Then decide, in this order:
+Read the latest `.ck/runs/*/run.json` with `command: "brand-guide"` for this project, if any. `run.json` can be stale, so decide the stage from what is on disk. List it with these exact commands, as written, never with a recursive listing that a pipe can cut short:
+
+```bash
+ls docs/brand-guide.md brand/proposals/gallery.html brand/finalists/gallery.html 2>/dev/null
+find .ck/runs -maxdepth 2 -path '*-brand/review-*.md' 2>/dev/null | sort
+```
+
+The first line lists the guide and the galleries that exist. The second lists the review files in every brand run folder, oldest run first. Keep the quotes: a file pattern outside quotes that matches nothing stops zsh before the command runs, and the files that do exist are never listed. Then decide, in this order:
 
 - `docs/brand-guide.md` exists: the guide is finished. Say so, name it, and ask whether to run a revision round on the finalists (the same chosen labels, with new changes from the author's comments) or leave it. In a session that cannot ask, say that and stop.
 - `<runDir>/review-2.md` names `chosen:`: the second review is done. Launch the `guide` stage (step 4).
