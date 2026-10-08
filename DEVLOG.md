@@ -38,6 +38,39 @@ On a real product (2026-10-07), after `/ck:opportunity` and `/ck:brief`, Will ha
 
 ---
 
+## [2026-10-07] Resume checks: listings that run under zsh, a finished document with no run record goes to the review, the design listing matches one feature
+
+**Category:** `fix`
+**Tags:** `ck`, `resume`, `zsh`, `brand-guide`, `design`, `skills`, `tests`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+Three faults in the resume checks of the gate-owning skills, each of which could launch a paid stage over finished work. Merged as pull request 22 and shipped in 0.1.8, with no version of its own. `tests/run.sh` gains sections 15 and 16.
+
+### Detail
+
+- **The resume listings in `/ck:brand-guide` and `/ck:design` run under zsh.** Each listed what is on disk with one `ls` whose last arguments were file patterns under `.ck/runs/`. Claude Code's Bash tool on macOS runs zsh, and zsh stops a command whose pattern matches nothing before `ls` runs: it prints "no matches found" and lists none of the files that do exist. With a gallery waiting for review and no review file yet, the listing was empty and the decision list fell through to `proposals` or `variants`. Each listing is now two exact commands: a plain `ls` for the fixed paths, and `find` with a quoted `-path` for the files under `.ck/runs/`, sorted so the oldest run comes first. The six other exact commands in the gate-owning skills were plain `ls` lines and needed nothing.
+- **A finished document with no run record goes to the review.** A workflow started directly keeps its files in `.ck/runs/<name>-latest/` and writes no `run.json`, and `.ck/` is a cache a clone does not have. With the document on disk and no record, `/ck:brief`, `/ck:team`, and `/ck:market-research` failed every branch and launched a full redraft; `/ck:opportunity` fell to `startAt: frame` with the idea taken from the document it was about to replace; `/ck:prd` and `/ck:architecture` chose `validate` and were then told to reuse a run that did not exist. Each of the seven skills now has one branch, third in its list: no `run.json` with this command and the document exists, so launch nothing, mint a run, and go to the review.
+- **Two of the seven differ.** `/ck:prd` and `/ck:architecture` also ask that Appendix B has the premortem: a draft with the premortem still pending resumes at `validate` as before, with a run minted first. `/ck:roadmap` applies the branch only when `.ck/runs/roadmap-latest/priorities.json` exists and is older than `ROADMAP.md`, the mark of a direct run; any other existing roadmap is still updated from the PRD, as step 1 of that skill says.
+- **"Newer than `run.json`" was not one answer.** `[[ doc -nt missing ]]` is true in bash and false in zsh, so the branch that compares ages gave a different result per shell when there was no record. The new branch is decided before that comparison.
+- **The `/ck:design` listing matches only this feature's runs.** `*-<slug>-design` for the slug `checkout` also matched `20261001T000000Z-guest-checkout-design`, so a `chosen:` from another feature could send `/ck:design checkout` to `refine`. The pattern is now `*Z-<slug>-design`, where the `Z` ends the timestamp step 3 puts at the front of the run id.
+- **Tests.** Section 15 pulls every exact command out of the nine gate-owning skills, refuses a file pattern outside quotes, and runs each under bash and zsh (a shell that is not installed is skipped) in an empty project and in fixtures for each state the two decision lists name. It also mints a design run the way step 3 does and checks the listing finds it, so the pattern and the run id cannot drift apart. Section 16 checks the no-run-record branch in each of the seven skills: its place in the list, the document it names, and that the two steps it names are that skill's Mint the run and The review. On the old skill text section 15 fails 6 times, all under zsh or in the pattern check. The suite went from 158 checks to 182 on the branch, and is 207 on `main` with 0.1.7 and 0.1.8 merged.
+- **How the second fix was checked.** No real `/ck:` command was run. Seven fresh readers followed the text against fixture projects and reported which branch they took: three on the old text, four on the new (a brief, a finished PRD, a draft PRD, a roadmap from a direct run). That is evidence about how the text reads, not a drill.
+
+### Rejected
+- Sending every document with no record to the review. For a draft PRD that finishes an unvalidated document, and for the roadmap it turns off update mode for a roadmap that predates ck.
+- Asking the author what to do, as the `final` branch does. A session that cannot ask has no answer, and the review costs nothing when the author wanted something else.
+- Folding the `/ck:design` over-match into the zsh fix. The old `ls` pattern had the same fault, so the zsh fix carried it over unchanged and the tightening went in as its own commit, approved by Will.
+
+### Open
+- The first sentence of every resume check, "Read the latest `.ck/runs/*/run.json`", is prose, but every reader typed it as an `ls` with that pattern, which errors under zsh when there are no runs. Each read the error as "no record", so nothing breaks today. The third line of the `/ck:next` look, added in 0.1.9, reads the records with no pattern; the resume checks could use the same line.
+- A typed idea is ignored when a document exists with no record: `/ck:brief <new idea>` goes to the review of the brief that is there, as the branch that compares ages already does.
+- A PRD run whose own slug is `<feature>-design` has the same folder name as that feature's design run.
+- Not run on Linux, and not drilled in a real session.
+
+---
+
 ## [2026-10-06] 0.1.8: a cheap neutral trim, no false premortem failure, --panel for the architecture, Mermaid on review pages, a roadmap cap, the roster rule refined
 
 **Category:** `fix`
