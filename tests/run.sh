@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# tests/run.sh: static checks for the ck plugin (PRD section 9, tests 1 to 11).
+# tests/run.sh: static checks for the ck plugin (PRD section 9, tests 1 to 11), and
+# the workflow scripts run with stub agents (section 14, tests/workflows.mjs).
 #
 # Usage: bash tests/run.sh
 #
 # Needs Bash 4+, python3 (for JSON and list parsing), and node (for the workflow
-# script check). Runs the skills' exact commands under zsh too when it is installed
+# script checks). Runs the skills' exact commands under zsh too when it is installed
 # (section 15). Touches nothing outside a temporary directory.
 
 set -uo pipefail
@@ -315,6 +316,20 @@ mkdir -p "$TMP/badround/A" && cp tests/fixtures/gallery/dir/variants.json "$TMP/
 if python3 scripts/render-gallery.py --dir "$TMP/badround" --out "$TMP/gallery3.html" >/dev/null 2>"$TMP/rg3.err"; then fail "render-gallery.py should refuse a round with missing author files"; else grep -q 'mark.svg' "$TMP/rg3.err" && ok "a missing author file is refused and named" || fail "the refusal does not name the file"; fi
 printf '{"product":"x","kind":"brand","variants":[{"label":"B","name":"n"}]}' > "$TMP/badlabels.json"
 python3 scripts/render-gallery.py --in "$TMP/badlabels.json" --out "$TMP/gallery4.html" >/dev/null 2>&1 && fail "render-gallery.py should refuse labels that do not start at A" || ok "labels that do not run from A are refused"
+
+# ─── 14. Workflow scripts, run with stub agents ──────────────────────────────
+section "14. Workflow scripts, run with stub agents"
+# tests/workflows.mjs runs each script as the runtime does, with no model: a stop signal a full answer
+# would trip, and a step that cannot be started at, both show up here. One line per check.
+node tests/workflows.mjs >"$TMP/wf.out" 2>"$TMP/wf.err"; rc=$?
+wf_lines=0
+while IFS=$'\t' read -r verdict message; do
+  case "$verdict" in
+    ok)   ok "$message"; wf_lines=$((wf_lines + 1)) ;;
+    fail) fail "$message"; wf_lines=$((wf_lines + 1)) ;;
+  esac
+done < "$TMP/wf.out"
+if [[ $rc -ne 0 || $wf_lines -eq 0 ]]; then fail "tests/workflows.mjs did not run to the end: exit $rc, $(head -3 "$TMP/wf.err" | tr '\n' ' ')"; fi
 
 # ─── 15. Exact commands ──────────────────────────────────────────────────────
 section "15. The exact commands in the gate-owning skills"

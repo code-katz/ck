@@ -235,6 +235,8 @@ if (runs('panel') && withPanel) {
 // ---- Premortem only (panel off) ----
 let final = null
 let check = null
+// A resumed run starts at synthesize with the panel's files already on disk from the earlier run.
+const earlierMemo = projectRoot + '/docs/decisions/' + stamp + '-' + A.memoSlug + '.md'
 if (!withPanel) {
   phase('Synthesize')
   final = await agent(
@@ -249,8 +251,6 @@ if (!withPanel) {
 } else {
 // ---- Synthesize ----
 phase('Synthesize')
-// A resumed run starts here with the panel's files already on disk from the earlier run.
-const earlierMemo = projectRoot + '/docs/decisions/' + stamp + '-' + A.memoSlug + '.md'
 const panelInputs = panel && panel.memoPath
   ? `${panel.memoPath} and every file under ${runDir}/panel/`
   : (panel
@@ -318,7 +318,7 @@ return {
   artifact: a.artifact,
   startedAt: startAt,
   path: final.path,
-  memoPath: panel ? panel.memoPath : (startAt === 'synthesize' ? earlierMemo : null),
+  memoPath: panel ? panel.memoPath : (withPanel && startAt === 'synthesize' ? earlierMemo : null),
   lenses: panel ? panel.lenses : [],
   validation,
   check,

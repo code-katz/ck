@@ -103,7 +103,7 @@ Personas live in `profiles/<name>.md` and `tiers.conf`. Everything else about a 
 
 ```
 bash scripts/generate.sh     # agents/, skills/<persona>/, profiles/ROSTER.md
-bash tests/run.sh            # the static checks
+bash tests/run.sh            # the static checks, and every workflow script run with stub agents
 ```
 
 Edit the profile, never the generated file; the generator refuses to overwrite uncommitted hand edits to generated files unless you pass `--force`. Every release bumps `version` in `.claude-plugin/plugin.json`, or nobody receives it.
@@ -121,7 +121,7 @@ skills/*-artifact/           the ten document contracts
 workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft, market-research, roadmap, brand, design-round
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
 scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh
-tests/                       run.sh, two fixture projects, the gallery fixtures, and the drill logs
+tests/                       run.sh, workflows.mjs (the workflow scripts run with stub agents), two fixture projects, the gallery fixtures, and the drill logs
 ```
 
 ## License
