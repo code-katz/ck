@@ -29,10 +29,10 @@ Read the latest `.ck/runs/*/run.json` with `command: "design"` and this slug, if
 
 ```bash
 ls docs/design/<slug>/spec.md docs/design/<slug>/gallery.html 2>/dev/null
-find .ck/runs -maxdepth 2 \( -path '*-<slug>-design/review.md' -o -path '*-<slug>-design/feature.md' \) 2>/dev/null | sort
+find .ck/runs -maxdepth 2 \( -path '*Z-<slug>-design/review.md' -o -path '*Z-<slug>-design/feature.md' \) 2>/dev/null | sort
 ```
 
-The first line lists the spec and the gallery if they exist. The second lists the review and the extracted feature in this feature's run folders, oldest run first. Keep the quotes: a file pattern outside quotes that matches nothing stops zsh before the command runs, and the files that do exist are never listed. Then decide, in this order:
+The first line lists the spec and the gallery if they exist. The second lists the review and the extracted feature in this feature's run folders, oldest run first. The `Z` is the end of the run's timestamp: without it, a feature whose name ends with this one's is listed too. Keep the quotes: a file pattern outside quotes that matches nothing stops zsh before the command runs, and the files that do exist are never listed. Then decide, in this order:
 
 - `docs/design/<slug>/spec.md` exists: the design is finished. Say so, name the files, and ask whether to run the refine stage again with new changes from the author's comments, or leave it. In a session that cannot ask, say that and stop.
 - `<runDir>/review.md` names `chosen:`: the review is done. Launch the `refine` stage (step 4).

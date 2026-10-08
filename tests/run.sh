@@ -388,16 +388,30 @@ for sh in bash zsh; do
   listing_is "$sh" brand-guide "$p" "the guide is written" \
     'brand/finalists/gallery.html' 'brand/proposals/gallery.html' 'docs/brand-guide.md' '.ck/runs/20261001T000000Z-brand/review-1.md' '.ck/runs/20261001T000000Z-brand/review-2.md' '.ck/runs/20261003T000000Z-brand/review-1.md'
 
-  # /ck:design, with turn-timer for <slug>: the same, and another feature's run folder is not this one's.
+  # /ck:design, with turn-timer for <slug>: the same, and another feature's run folder is not this one's,
+  # not even a feature whose name ends with this one's.
   p="$TMP/exact/$sh-design"; run1="$p/.ck/runs/20261001T000000Z-turn-timer-design"
-  mkdir -p "$p/docs/design/turn-timer" "$run1" "$p/.ck/runs/20261002T000000Z-lobby-design"
-  touch "$run1/feature.md" "$p/.ck/runs/20261002T000000Z-lobby-design/feature.md" "$p/.ck/runs/20261002T000000Z-lobby-design/review.md"
+  mkdir -p "$p/docs/design/turn-timer" "$run1"
+  for other in lobby first-turn-timer; do
+    mkdir -p "$p/.ck/runs/20261002T000000Z-$other-design"
+    touch "$p/.ck/runs/20261002T000000Z-$other-design/feature.md" "$p/.ck/runs/20261002T000000Z-$other-design/review.md"
+  done
+  touch "$run1/feature.md"
   listing_is "$sh" design "$p" "the feature is extracted and there is no gallery" '.ck/runs/20261001T000000Z-turn-timer-design/feature.md'
   rm "$run1/feature.md"; touch "$p/docs/design/turn-timer/gallery.html"
   listing_is "$sh" design "$p" "the variants are waiting for review and the run folder is empty" 'docs/design/turn-timer/gallery.html'
   touch "$run1/feature.md" "$run1/review.md" "$p/docs/design/turn-timer/spec.md"
   listing_is "$sh" design "$p" "the spec is written" \
     'docs/design/turn-timer/gallery.html' 'docs/design/turn-timer/spec.md' '.ck/runs/20261001T000000Z-turn-timer-design/feature.md' '.ck/runs/20261001T000000Z-turn-timer-design/review.md'
+  # The listing knows a run folder by the name step 3 gives it, so mint one as step 3 does: the two cannot drift apart.
+  minted=$(eval "$(awk '/^## 3\. Mint the run$/ { s = 1 } s && /^(timestamp|runId)=/' skills/design/SKILL.md | sed 's/<slug>/turn-timer/g')"; printf '%s' "${runId:-}")
+  if [[ "$minted" == *-turn-timer-design ]]; then
+    mkdir -p "$p/.ck/runs/$minted"; touch "$p/.ck/runs/$minted/review.md"
+    listing_is "$sh" design "$p" "a run named as step 3 names it is listed" \
+      'docs/design/turn-timer/gallery.html' 'docs/design/turn-timer/spec.md' '.ck/runs/20261001T000000Z-turn-timer-design/feature.md' '.ck/runs/20261001T000000Z-turn-timer-design/review.md' ".ck/runs/$minted/review.md"
+  else
+    fail "$sh: /ck:design step 3 mints no run id for the slug (got '$minted')"
+  fi
 done
 
 # ─── 16. No run record ───────────────────────────────────────────────────────
