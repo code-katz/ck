@@ -10,7 +10,7 @@ Phase one, first release in progress. What runs today:
 
 | Command | What it does | State |
 |---|---|---|
-| `/ck:next` | Says what to run next, in one sentence | Built |
+| `/ck:next` | Shows the whole pipeline as a table (each step in order, what it does, the document it writes, and where your project stands), then says what to run next in one sentence | Built |
 | `/ck:brief <idea>` | Toni runs a short market pass, River writes `docs/brief.md` (from your sentence, or from `docs/opportunity.md`), a checker validates it; you review on a page you can comment on | Built; drilled 2026-10-04 on a real project |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd [--panel]` | River drafts `docs/PRD.md` from the brief, a checker validates, River adds a premortem; with `--panel`, three specialists on three models challenge it first and River rewrites; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
@@ -66,7 +66,9 @@ After editing a workflow in a running session, run `/reload-skills`.
 1. You type a command. If it needs a document you do not have yet, it says which command writes it, and stops.
 2. The work runs in the background as a workflow; `/workflows` shows every agent, model, and token count if you want them. The command itself never prints them.
 3. The document appears in your repository. Commands with a review step publish it as a page you can comment on, with the steps in the page's banner. Comment on the page without sending comments to Claude (a comment sent to Claude wakes a cloud session that cannot see your files), then say "done" in your Claude Code session; Claude proposes a change for each comment, applies the ones you approve, republishes the same page, and tells you what changed.
-4. `/ck:next` tells you what comes next.
+4. Each pipeline command closes with the pipeline table: each step in order, what it does, the document it writes, and where your project stands, with the one thing to run next under it. `/ck:next` shows the same table at any time.
+
+Type each command; do not paste it. A pasted command reaches Claude as text, and the skills that own the run record and the review page run only when typed, so the most Claude can do is start the workflow underneath: the document is written, with no run record and no review page. Typing the command afterwards takes the finished document to its review.
 
 Where things go, inside your repository:
 

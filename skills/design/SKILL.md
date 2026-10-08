@@ -107,4 +107,4 @@ Then launch `refine` (step 4).
 
 ## 6. Finish
 
-After `refine`, set `status` to `final`. Say: "Your design for [feature] is finished: `docs/design/<slug>/chosen.html` and `docs/design/<slug>/spec.md`, from variant [label]. Next: run `/ck:design <another feature>`, or `/ck:next`." If the workflow returned questions for the author, list them in one short paragraph before the next action.
+After `refine`, set `status` to `final`. Say: "Your design for [feature] is finished: `docs/design/<slug>/chosen.html` and `docs/design/<slug>/spec.md`, from variant [label]." If the workflow returned questions for the author, list them in one short paragraph. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.

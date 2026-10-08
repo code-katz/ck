@@ -100,4 +100,4 @@ Then launch the next stage (step 4).
 
 ## 6. Finish
 
-After `guide`, set `status` to `final`. Say: "Your brand is finished: `docs/brand-guide.md`, the direction record in `docs/decisions/`, and the assets under `brand/final/`. The direction is [label and name]. Next: run `/ck:next`." If the workflow returned questions for the author, list them in one short paragraph before the next action. If the devlog skill is installed, add that `/devlog` can record the decision.
+After `guide`, set `status` to `final`. Say: "Your brand is finished: `docs/brand-guide.md`, the direction record in `docs/decisions/`, and the assets under `brand/final/`. The direction is [label and name]." If the workflow returned questions for the author, list them in one short paragraph. If the devlog skill is installed, add that `/devlog` can record the decision. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.

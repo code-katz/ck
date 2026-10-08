@@ -75,4 +75,4 @@ Set `status` to `review`. Read `ROADMAP.md`. Review it per `${CLAUDE_PLUGIN_ROOT
 
 ## 6. Finish
 
-Set `status` to `final` in `run.json`. Say: "Your roadmap is finished: `ROADMAP.md`. Next: run `/ck:next`." If the devlog skill is installed, add that `/devlog` can record the decision.
+Set `status` to `final` in `run.json`. Say: "Your roadmap is finished: `ROADMAP.md`." If the devlog skill is installed, add that `/devlog` can record the decision. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.
