@@ -5,6 +5,39 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-07] 0.1.9: /ck:next shows the whole pipeline as a table with each step's status; every pipeline command closes with it
+
+**Category:** `feature`
+**Tags:** `ck`, `next`, `pipeline`, `status`, `readme`, `tests`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+On a real product (2026-10-07), after `/ck:opportunity` and `/ck:brief`, Will had to ask what comes after the team step, whether the PRD was next, and whether there was a marketing brief: the one sentence from `/ck:next` did not give him the map. `/ck:next` now prints the pipeline as a table, one row per step in order, with what the step does in a sentence, the document it writes, and where this project stands, then its one next action. Every gate-owning skill closes with the same table instead of sending the reader to `/ck:next`.
+
+### Detail
+
+- **The table** (`skills/next/SKILL.md`): nine steps in the PRD's §6.1 order and the panel as "any". Status is the first that applies of `running`, `in review`, `stopped partway`, `done`, `next`, `skipped`, `not started`, read from the documents on disk and the last run record for each command. Design is per feature ("done: checkout; in review: onboarding").
+- **The look is three commands with no file pattern for the shell to expand** (`ls`, `find`, `grep -r --include=run.json ... | sort`), so it runs as written under zsh and bash and prints nothing in an empty project. A folder under `.ck/runs/` with no `run.json` is not a record.
+- **Finish lines.** The nine gate-owning skills end with "close per `skills/next/SKILL.md`" in place of "Next: run `/ck:next`", which told the reader to type a command to learn what to type. The table lives in one file; a test fails any skill that restates it.
+- **Marketing is visible.** One line under the table says no step writes a go-to-market plan or a marketing brief yet and that the marketing thinking is in steps 1, 2, 3, and 8. That is the PRD's intent: `/ck:gtm` is phase two (§2.5, §10.2).
+- **The sentence table had a gap.** With an opportunity analysis and market research but no brief, no line applied. Two states are reworded and one added ("Run `/ck:brief`. It starts from your opportunity analysis...").
+- **README.** The `/ck:next` row and step 4 of "How a run works" describe the table, and a note says to type each command, not paste it: the gate-owning skills run only when typed, so a pasted command can at most start the workflow underneath, with no run record and no review page. Will's project showed it: `.ck/runs/opportunity-latest/` with no `run.json`. Since 0.1.8, typing the command afterwards takes the finished document to its review.
+- **Tests** (section 17): the table's rows, order, and one-sentence rule; its paths against the README's; the seven statuses; that every step can be the next one; the look run under bash and zsh in an empty project and a fixture; the nine finish lines. Checked by hand as well: four deliberate breaks each failed the suite, and five fixture projects given to fresh Sonnet agents with only the skill each printed the expected table and sentence.
+
+### Decisions Made
+- **`/ck:next` prints the table; no new `/ck:status`.** Every finish line and the README already send the reader to `/ck:next`, and a second command would have to be discovered at the moment the reader does not know what to type. This relaxes the PRD's "say exactly one thing" (§6.12, Appendix F) to "show the table, then say exactly one thing"; "no more than one action" stands, since a status table is not an action.
+- **A seventh status, `running`**, beyond the six asked for. A run this session launched and is still waiting on would otherwise read `stopped partway` with "run the command again", which starts a second run.
+- **`skipped` applies only to steps 1 and 2.** The sentences always send the reader back to a missing team document, PRD, roadmap, architecture, or brand guide, so those are never skipped.
+- **Rejected: a script that prints the table.** It would be exact, but the plugin needs no script at run time for navigation today, and the look plus the drills cover the reading of it.
+
+### Open
+- The PRD in `code-katz/.github` (§6.12, Appendix F, test 11 in §9) still says "one thing"; it gets the same change in its own commit.
+- Seen from a second session, a run record at `drafting` reads `stopped partway` even when the workflow is still running elsewhere; the disk cannot tell the two apart.
+- Not yet seen in a live session: `running`, the brand guide's `review-1` and `review-2`, and a finish line printing the table.
+
+---
+
 ## [2026-10-06] 0.1.8: a cheap neutral trim, no false premortem failure, --panel for the architecture, Mermaid on review pages, a roadmap cap, the roster rule refined
 
 **Category:** `fix`

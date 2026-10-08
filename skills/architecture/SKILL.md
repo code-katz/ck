@@ -96,4 +96,4 @@ Agent({
 })
 ```
 
-Say: "Your architecture document is finished: `docs/ARCHITECTURE.md`. Next: run `/ck:next`." If the devlog skill is installed, add that `/devlog` can record the reviewers' memo from `docs/decisions/`.
+Say: "Your architecture document is finished: `docs/ARCHITECTURE.md`." If the devlog skill is installed, add that `/devlog` can record the reviewers' memo from `docs/decisions/`. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.

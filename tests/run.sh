@@ -471,6 +471,87 @@ EOF
   then ok "$f: a finished document with no run record goes to the review with a new run, ahead of every branch that launches"; else fail "$f: $(tail -1 "$TMP/norecord.err")"; fi
 done
 
+# ─── 17. The pipeline table ──────────────────────────────────────────────────
+section "17. The pipeline table in /ck:next"
+if python3 - <<'EOF'
+import re, sys, pathlib
+text = pathlib.Path('skills/next/SKILL.md').read_text()
+readme = pathlib.Path('README.md').read_text()
+def table(src, header):
+    lines = src.split('\n')
+    rows = []
+    for line in lines[lines.index(header) + 2:]:
+        if not line.startswith('|'): break
+        rows.append([c.strip() for c in line.strip().strip('|').split('|')])
+    return rows
+def ticks(cell):
+    return re.findall(r'`([^`]+)`', cell)
+problems = []
+steps = ['opportunity', 'market-research', 'brief', 'team', 'prd', 'roadmap', 'architecture', 'brand-guide', 'design']
+rows = table(text, '| # | Step | What it does | Writes | Status |')
+# One row per step, in the pipeline's order, then the panel.
+got = [(r[0], (re.search(r'`/ck:([a-z-]+)', r[1]) or [None, None])[1]) for r in rows]
+want = [(str(i + 1), s) for i, s in enumerate(steps)] + [('any', 'panel')]
+if got != want: problems.append(f'rows are {got}, expected {want}')
+for s in steps:
+    if not pathlib.Path(f'skills/{s}/SKILL.md').exists(): problems.append(f'/ck:{s} has no skill')
+if not any('optional' in r[1] for r in rows if 'market-research' in r[1]): problems.append('market research is not marked optional')
+# One sentence on what each step does; no status filled in.
+for r in rows:
+    if not r[2].endswith('.') or re.search(r'[.!?] ', r[2]): problems.append(f'not one sentence: {r[2]}')
+    if r[4]: problems.append(f'status is filled in the skill for row {r[0]}')
+# Every document a row writes is in the README's table of paths, and the other way round.
+writes = {p for r in rows for p in ticks(r[3])}
+where = {p for r in table(readme, '| Document | Path |') for p in ticks(r[1])}
+if writes != where: problems.append(f'Writes and README paths differ: {sorted(writes ^ where)}')
+# The look lists every single-file document the table names.
+look = text.split('```bash\n', 1)[1].split('```', 1)[0]
+for p in sorted(writes):
+    if p.endswith('.md') and p not in look.split('\n')[0]: problems.append(f'the look does not list {p}')
+# The seven statuses, in the order they are tried.
+statuses = [ticks(r[0])[0] for r in table(text, '| Status | When |')]
+if statuses != ['running', 'in review', 'stopped partway', 'done', 'next', 'skipped', 'not started']: problems.append(f'statuses are {statuses}')
+# Every step can be the next one: a sentence names its command.
+says = ' '.join(r[1] for r in table(text, '| State | Say |'))
+for s in steps:
+    if f'`/ck:{s}' not in says: problems.append(f'no sentence names /ck:{s}')
+for p in problems: print(p, file=sys.stderr)
+sys.exit(1 if problems else 0)
+EOF
+then ok "nine steps in order and the panel, one sentence each, paths match the README, seven statuses, every step can be next"; else fail "skills/next/SKILL.md pipeline table (see above)"; fi
+
+# The look runs as written in the shells Claude Code uses: nothing matched is no error and no output.
+awk '/^```bash$/ { f = 1; next } /^```$/ { if (f) exit } f' skills/next/SKILL.md > "$TMP/look.sh"
+mkdir -p "$TMP/empty" "$TMP/proj"
+cp -R tests/fixtures/game/docs "$TMP/proj/docs"
+mkdir -p "$TMP/proj/docs/design/turn" "$TMP/proj/docs/design/lobby" "$TMP/proj/.ck/runs/20261001T000000Z-fixture-brief" "$TMP/proj/.ck/runs/20261002T000000Z-fixture" "$TMP/proj/.ck/runs/team-latest"
+touch "$TMP/proj/docs/design/turn/gallery.html" "$TMP/proj/docs/design/turn/spec.md" "$TMP/proj/docs/design/lobby/gallery.html"
+printf '{\n  "runId": "x",\n  "command": "brief",\n  "status": "final"\n}\n' > "$TMP/proj/.ck/runs/20261001T000000Z-fixture-brief/run.json"
+printf '{"runId":"y","command":"prd","status":"review"}' > "$TMP/proj/.ck/runs/20261002T000000Z-fixture/run.json"
+printf '{"command": "team", "status": "final"}' > "$TMP/proj/.ck/runs/team-latest/nominations.json"
+for sh in bash zsh; do
+  command -v "$sh" >/dev/null 2>&1 || continue
+  (cd "$TMP/empty" && "$sh" "$TMP/look.sh") > "$TMP/look.out" 2> "$TMP/look.err"
+  [[ ! -s "$TMP/look.out" && ! -s "$TMP/look.err" ]] && ok "$sh: the look prints nothing in an empty project" || fail "$sh: the look in an empty project printed: $(cat "$TMP/look.out" "$TMP/look.err")"
+  (cd "$TMP/proj" && "$sh" "$TMP/look.sh") > "$TMP/look.out" 2> "$TMP/look.err"
+  look_ok=1
+  for line in 'docs/brief.md' 'docs/PRD.md' 'docs/design/turn/spec.md' 'docs/design/turn/gallery.html' 'docs/design/lobby/gallery.html' \
+              '.ck/runs/20261001T000000Z-fixture-brief/run.json:"command": "brief"' '.ck/runs/20261001T000000Z-fixture-brief/run.json:"status": "final"' \
+              '.ck/runs/20261002T000000Z-fixture/run.json:"command":"prd"' '.ck/runs/20261002T000000Z-fixture/run.json:"status":"review"'; do
+    grep -qxF -- "$line" "$TMP/look.out" || { fail "$sh: the look does not print $line"; look_ok=0; }
+  done
+  [[ -s "$TMP/look.err" ]] && { fail "$sh: the look wrote to stderr: $(cat "$TMP/look.err")"; look_ok=0; }
+  [[ $(wc -l < "$TMP/look.out" | tr -d ' ') -eq 9 ]] || { fail "$sh: the look printed $(wc -l < "$TMP/look.out" | tr -d ' ') lines, expected 9 (a folder with no run.json is not a record)"; look_ok=0; }
+  [[ "$(grep '"command"' "$TMP/look.out" | tail -1)" == *'"prd"' ]] || { fail "$sh: the newest run record is not printed last"; look_ok=0; }
+  [[ $look_ok -eq 1 ]] && ok "$sh: the look lists the documents, the designs, and the run records oldest first"
+done
+
+# Every gate-owning skill closes with the table by reference, and none restates it.
+for f in skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
+  if grep -q 'close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`' "$f"; then ok "$f closes per skills/next/SKILL.md"; else fail "$f does not close per skills/next/SKILL.md"; fi
+  if grep -qF '| # | Step |' "$f" || grep -q 'run `/ck:next`' "$f"; then fail "$f restates the pipeline table or sends the reader to /ck:next for it"; else ok "$f does not restate the table or add a hop to /ck:next"; fi
+done
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then

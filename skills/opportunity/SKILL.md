@@ -90,4 +90,4 @@ Agent({
 })
 ```
 
-Say: "Your opportunity analysis is finished: `docs/opportunity.md`. The verdict is [verdict]. Next: run `/ck:next`." If the devlog skill is installed, add that `/devlog` can record the decision.
+Say: "Your opportunity analysis is finished: `docs/opportunity.md`. The verdict is [verdict]." If the devlog skill is installed, add that `/devlog` can record the decision. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.
