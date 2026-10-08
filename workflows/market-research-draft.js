@@ -62,7 +62,8 @@ const PLAN_SCHEMA = {
       },
     },
   },
-  required: ['product', 'inputsRead', 'stopReason', 'questions'],
+  // stopReason is optional on purpose: a required string gets filled, and a filled one once stopped a good plan.
+  required: ['product', 'inputsRead', 'questions'],
 }
 
 const FINDINGS_SCHEMA = {
@@ -139,8 +140,9 @@ if (runs('plan')) {
     `The project repository is ${projectRoot}. ` + housekeeping +
     (focus ? `The author's focus for this research: ${focus}\n` : 'The author gave no focus.\n') +
     `Read the product documents: ${inputs.join(', ')}. List what you read in inputsRead. If there is no focus ` +
-    `and neither docs/opportunity.md nor docs/brief.md exists, do not plan: set stopReason to one sentence ` +
-    `naming what to run first (/ck:opportunity or /ck:brief) and return an empty questions list.\n` +
+    `and neither docs/opportunity.md nor docs/brief.md exists, do not plan: return an empty questions list and ` +
+    `set stopReason to one sentence naming what to run first (/ck:opportunity or /ck:brief). That is the only ` +
+    `case with a stopReason; when you write questions, leave the field out, and put no summary or note in it.\n` +
     `Otherwise say what the product is in one line (product) and write ${MIN_QUESTIONS} to ${MAX_QUESTIONS} ` +
     `research questions covering at least four of the five areas: market size and trends; competitors and ` +
     `substitutes; customers, segments, and channels; pricing and business models; platform, legal, or ` +
@@ -150,7 +152,10 @@ if (runs('plan')) {
     { label: 'toni:plan', phase: 'Plan', agentType: 'ck:toni', effort: 'medium', schema: PLAN_SCHEMA },
   )
   if (!plan) throw new Error('market-research: Toni returned no plan')
-  if (plan.stopReason) throw new Error('market-research: ' + plan.stopReason)
+  // The questions list decides whether to stop; stopReason only words the stop. Text beside questions is a note.
+  const note = (plan.stopReason || '').trim()
+  if (!plan.questions.length) throw new Error('market-research: ' + (note || 'Toni planned no questions. Type what to research after the command, or run /ck:opportunity or /ck:brief first.'))
+  if (note) log(`plan: Toni left a note beside the questions, which does not stop the run: ${note}`)
   plan.questions = plan.questions.slice(0, MAX_QUESTIONS)
   if (plan.questions.length < MIN_QUESTIONS) log(`plan: only ${plan.questions.length} question(s); the contract asks for ${MIN_QUESTIONS} to ${MAX_QUESTIONS}`)
   log(`plan: ${plan.product}; ${plan.questions.length} question(s) across ${new Set(plan.questions.map(q => q.area)).size} area(s)`)
@@ -160,7 +165,19 @@ if (runs('plan')) {
 let research = []
 if (runs('research')) {
   phase('Research')
-  if (!plan) throw new Error('market-research: cannot start at research without the plan; start at plan')
+  // A run that starts here has no plan in memory and a script cannot read a file, so one small agent reads it back.
+  if (!plan) {
+    plan = await agent(
+      `Read ${runDir}/plan.json and return it as the object, unchanged: the product, inputsRead, and every ` +
+      `question with its id, area, question, and goodAnswer, word for word and in the file's order. Do not add, ` +
+      `drop, reword, or renumber anything, and write no file. If the file does not exist or is not JSON, return ` +
+      `an empty product and empty lists.`,
+      { label: 'plan:reload', phase: 'Research', model: VALIDATOR_MODEL, effort: 'low', schema: PLAN_SCHEMA },
+    )
+    if (!plan || !plan.questions.length) throw new Error(`market-research: cannot start at research: ${runDir}/plan.json is missing or holds no questions; start at plan`)
+    plan.questions = plan.questions.slice(0, MAX_QUESTIONS)
+    log(`research: plan read back from ${runDir}/plan.json; ${plan.product}; ${plan.questions.length} question(s)`)
+  }
   research = (await parallel(plan.questions.map(q => () => agent(
     `Research question ${q.id} (${q.area}) about ${plan.product}: ${q.question}\n` +
     `A good answer contains: ${q.goodAnswer}\n` +

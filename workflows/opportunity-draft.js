@@ -133,8 +133,20 @@ if (runs('frame')) {
 let sections = []
 if (runs('sections')) {
   phase('Sections')
-  const contributors = frame ? frame.contributors : null
-  if (!contributors) throw new Error('opportunity: cannot start at sections without the frame; start at frame')
+  // A run that starts here has no frame in memory and a script cannot read a file, so one small agent reads it back.
+  if (!frame) {
+    frame = await agent(
+      `Read ${runDir}/frame.json and return it as the object, unchanged: productKind, concept, hypothesis, and ` +
+      `every contributor with its persona, lens, title, why, and questions, word for word and in the file's ` +
+      `order. Do not add, drop, or reword anything, and write no file. If the file does not exist or is not ` +
+      `JSON, return empty strings and an empty contributors list.`,
+      { label: 'frame:reload', phase: 'Sections', model: VALIDATOR_MODEL, effort: 'low', schema: FRAME_SCHEMA },
+    )
+    if (!frame || !frame.contributors.length) throw new Error(`opportunity: cannot start at sections: ${runDir}/frame.json is missing or names no contributors; start at frame`)
+    frame.contributors = frame.contributors.slice(0, MAX_CONTRIBUTORS)
+    log(`sections: frame read back from ${runDir}/frame.json; contributors ${frame.contributors.map(c => c.persona + ' (' + c.lens + ')').join(', ')}`)
+  }
+  const contributors = frame.contributors
   sections = (await parallel(contributors.map(c => () => agent(
     `You are ${c.persona}, the ${c.lens} lens on the opportunity analysis for: ${frame.concept}\n` +
     `Hypothesis: ${frame.hypothesis}\n` +

@@ -29,10 +29,10 @@ Read the latest `.ck/runs/*/run.json` with `command: "opportunity"` for this pro
 - `status` is `review`: go to step 6; the author has reviewed.
 - `docs/opportunity.md` exists and `<runDir>/sections/` has one file per contributor in `frame.json`: the assembly finished. `startAt` is `validate`.
 - `<runDir>/sections/` has one file per contributor in `frame.json` and `docs/opportunity.md` does not exist: `startAt` is `assemble`.
-- `<runDir>/frame.json` exists and sections are missing: `startAt` is `sections`.
+- `<runDir>/frame.json` exists, names at least one contributor, and sections are missing: `startAt` is `sections`; the workflow reads the frame back from that file.
 - Otherwise `startAt` is `frame`.
 
-When `startAt` is later than `frame`, say: "Your opportunity analysis stopped after the [stage] step. Everything so far is saved under `.ck/runs/<runId>/` and, if it exists, `docs/opportunity.md`. Continuing from there." Reuse the existing run directory, run id, timestamp, and idea (from `frame.json`), and go to step 4. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
+When `startAt` is later than `frame`, say: "Your opportunity analysis stopped after the [stage] step. Everything so far is saved under `.ck/runs/<runId>/` and, if it exists, `docs/opportunity.md`. Continuing from there." Reuse the existing run directory, run id, timestamp, and idea (from `run.json`; `frame.json` does not hold it), and go to step 4. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
 
 ## 3. Mint the run
 
