@@ -275,6 +275,14 @@ if python3 scripts/render-review.py --in "$TMP/bold.md" --out "$TMP/bold.html" -
 else
   fail "render-review.py leaves literal ** around a bold phrase with a code span"
 fi
+printf '# T\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n' > "$TMP/mm.md"
+if python3 scripts/render-review.py --in "$TMP/mm.md" --out "$TMP/mm.html" --title "MM" >/dev/null 2>&1 \
+   && grep -q '<pre class="mermaid">' "$TMP/mm.html" && grep -q 'cdnjs.cloudflare.com/ajax/libs/mermaid' "$TMP/mm.html"; then
+  ok "render-review.py draws a mermaid fence and loads the library"
+else
+  fail "render-review.py does not render mermaid fences"
+fi
+if grep -q 'libs/mermaid' "$TMP/bold.html"; then fail "render-review.py loads mermaid on a page without a diagram"; else ok "render-review.py loads mermaid only when a page has a diagram"; fi
 
 # ─── 13. Gallery renderer ────────────────────────────────────────────────────
 section "13. Gallery renderer"

@@ -49,11 +49,15 @@ def render(md):
         if stripped.startswith('```'):
             flush_para(); close_lists()
             fence = stripped[:3]
+            lang = stripped[3:].strip().lower()
             buf = []
             i += 1
             while i < n and not lines[i].strip().startswith(fence):
                 buf.append(lines[i]); i += 1
-            out.append('<pre><code>' + html.escape('\n'.join(buf)) + '</code></pre>')
+            if lang == 'mermaid':
+                out.append('<pre class="mermaid">' + html.escape('\n'.join(buf)) + '</pre>')
+            else:
+                out.append('<pre><code>' + html.escape('\n'.join(buf)) + '</code></pre>')
             i += 1
             continue
         if stripped.startswith('````'):
@@ -156,7 +160,7 @@ article>h2:first-of-type{margin-top:6px;padding-top:0;border-top:0}h3{font:600 1
 .anchor{font:400 14px/1 system-ui,sans-serif;color:var(--rule-strong);text-decoration:none;margin-left:6px}p{margin:0 0 15px}ul,ol{padding-left:26px;margin:0 0 15px}li{margin:0 0 5px}
 blockquote{margin:0 0 18px;padding:12px 18px;border-left:3px solid var(--accent);background:var(--surface)}blockquote p{margin:0 0 6px}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--surface);padding:1px 5px;border-radius:3px}
-pre{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;overflow-x:auto;margin:0 0 18px;font-size:13px;line-height:1.55}pre code{background:none;padding:0;font-size:inherit}
+pre.mermaid{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:14px;overflow-x:auto;margin:0 0 18px;text-align:center}pre{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;overflow-x:auto;margin:0 0 18px;font-size:13px;line-height:1.55}pre code{background:none;padding:0;font-size:inherit}
 .table-wrap{overflow-x:auto;margin:0 0 22px;border:1px solid var(--rule);border-radius:6px}table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.45}
 th{text-align:left;font:600 11.5px/1.3 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--rule-strong);background:var(--surface);white-space:nowrap}
 td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}tr:last-child td{border-bottom:0}li.task{list-style:'\\2610  '}li.task.done{list-style:'\\2611  '}
@@ -185,7 +189,10 @@ def main():
         q = ('<div><h2>One question first</h2><p class="q">' + html.escape(a.question) +
              '</p><p>Answer it as a comment on this box.</p></div>')
     meta = ('<p class="meta">' + html.escape(a.meta) + '</p>') if a.meta else ''
-    page = (f'<title>{html.escape(a.title)}</title>\n<style>{CSS}</style>\n'
+    mermaid = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js"></script>\n'
+               '<script>mermaid.initialize({startOnLoad:true,theme:window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"neutral"});</script>\n'
+               ) if 'class="mermaid"' in body else ''
+    page = (f'<title>{html.escape(a.title)}</title>\n<style>{CSS}</style>\n{mermaid}'
             f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · review page</p>'
             f'<h1>{html.escape(a.title)}</h1>{meta}</div>'
             f'<div class="howto"><div><h2>How to comment</h2>{STEPS}</div>{q}</div></div></header>\n'

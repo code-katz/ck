@@ -197,6 +197,7 @@ for (let round = 1; round <= MAX_REVISIONS + 1; round++) {
     `never judge length by impression. The contract caps the document at 2,500 words; a count at or over it is an unmet item that ` +
     `quotes the count. Then read the document and check it against every numbered item in the contract's ` +
     `checklist and against the section order, including "every pipeline document has exactly one owner". ` +
+    `House-style item: the document never states the total size of the persona roster (a count of a subset, such as the seats on one tier, is fine); an occurrence is an unmet item that quotes it. ` +
     `Return valid=true only if every item holds; for each unmet item, one line in missing that quotes the ` +
     `checklist item and says what is absent or wrong.`,
     { label: `validate:${round}`, phase: 'Validate', model: VALIDATOR_MODEL, effort: 'low', schema: VALIDATION_SCHEMA },

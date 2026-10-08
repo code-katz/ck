@@ -5,6 +5,28 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-06] 0.1.8: a cheap neutral trim, no false premortem failure, --panel for the architecture, Mermaid on review pages, a roadmap cap, the roster rule refined
+
+**Category:** `fix`
+**Tags:** `ck`, `draft`, `architecture`, `roadmap`, `review-page`, `cost`, `drill`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+Drills 25 (`/ck:roadmap`, $3.73, the first run with nothing fixed by hand) and 26 (`/ck:architecture`, $17.31, Akira on Fable $13.07 across five passes). Seven changes, all approved by Will.
+
+### Detail
+
+- **The trim is a neutral Sonnet editor at low effort**, not the author on Fable. Drill 26's trim cost $4.14 and 53,833 output tokens to make one Edit of about 5,000 characters: reasoning, not editing. A trim only deletes repetition and moves detail, so the author's voice is not at risk.
+- **The pre-panel checker skips the premortem item.** Appendix B is written after the panel by design; the first checker of drill 26 failed the draft on its placeholder and cost about $3 in revisions.
+- **`/ck:architecture --panel`**, default off, like `/ck:prd` since 0.1.5. The finalize rule from 0.1.5 (no agent when the review changed nothing) now reaches the architecture skill too; the ck-test session had applied it by hand in drill 26.
+- **Review pages draw Mermaid diagrams**: a `mermaid` fence becomes a diagram, with the library loaded from cdnjs only on pages that have one. The architecture contract requires a diagram, and drill 26's page showed it as code.
+- **The roadmap is capped at 2,500 words** (contract item 8); River and Quinn are told the length first, Open Questions points to the PRD's open questions by number, and the validator counts. Drill 25's roadmap ran to 4,777 words with no rule to count against.
+- **The roster rule, refined by Will in the roadmap review**: never state the total size of the roster; a subset count, such as the seats on one tier, is fine. Every agent's preamble says so, and every validator with a checklist carries it as a house-style item.
+- **Not fixed, recorded**: the length rules did not hold for Akira in drill 26 (a 4,191-word draft against "aim for 2,500"; the rewrite grew from 2,802 to 4,072). The cheap trim is the backstop.
+
+---
+
 ## [2026-10-07] 0.1.7: a note beside a good plan no longer stops the run; a stopped run can start again at research, sections, or synthesize
 
 **Category:** `fix`
