@@ -27,7 +27,7 @@ Read the latest `.ck/runs/*/run.json` with `command: "market-research"` for this
 - `status` is `final`: ask "The market research is finished. Revise it from your comments, or research again?" A revision goes to step 5; researching again goes to step 3.
 - `status` is `review`: go to step 5.
 - `docs/market-research.md` is newer than `run.json`: the workflow finished; go to step 5.
-- `<runDir>/crosscheck.json` exists: `startAt` is `write`. `<runDir>/research/` has one file per question in `<runDir>/plan.json`: `startAt` is `crosscheck`. `<runDir>/plan.json` exists: `startAt` is `research`.
+- `<runDir>/crosscheck.json` exists: `startAt` is `write`. `<runDir>/research/` has one file per question in `<runDir>/plan.json`: `startAt` is `crosscheck`. `<runDir>/plan.json` exists and lists at least one question: `startAt` is `research`; the workflow reads the plan back from that file.
 - Otherwise go to step 3 with `startAt` `plan`.
 
 When continuing, say: "Your market research stopped after the [stage] step. Everything so far is saved under `.ck/runs/<runId>/`. Continuing from there." Reuse the existing run directory, run id, timestamp, and focus.

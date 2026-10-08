@@ -5,6 +5,34 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-07] 0.1.7: a note beside a good plan no longer stops the run; a stopped run can start again at research, sections, or synthesize
+
+**Category:** `fix`
+**Tags:** `ck`, `market-research`, `roadmap`, `opportunity`, `draft`, `resume`, `tests`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+A real `/ck:market-research` on 0.1.6 (2026-10-07) threw away a good six-question plan: the schema required `stopReason`, Toni filled it with a summary of the plan, and the script read any text there as a stop. The documented way to continue, `startAt: "research"`, then threw every time, because the plan is only in memory when the plan stage ran and a script cannot read `plan.json`. Both are fixed, the same two shapes are fixed in the three other scripts that had them, and `tests/run.sh` now runs every workflow script with stub agents.
+
+### Detail
+
+- **The lists decide the stop; `stopReason` only words it.** In `market-research-draft` the run stops when the questions list is empty, and in `roadmap-draft` when all three tiers are empty. `stopReason` is the sentence shown in that case, with a default naming what to run first when it is absent. Text beside a filled list is logged as a note and the run goes on. The field is no longer in `required`, and both prompts say it belongs to the stop case only. `roadmap-draft` had the identical line and would have failed the same way on the first note River left.
+- **A run that starts after the first stage reads the saved file back.** `market-research-draft` at `research` and `opportunity-draft` at `sections` each ask one low-effort Haiku agent to return `plan.json` or `frame.json` unchanged against the stage's own schema. A missing file or an empty list stops with the file's path and the stage to start at. The later stages (`crosscheck`, `write`, `validate`; `assemble`, `validate`) never needed the object: their agents read the files themselves.
+- **`draft` at `synthesize` no longer throws at the end.** `earlierMemo` was declared inside the panel branch and read in the return statement outside it, so the PRD and architecture resume at `synthesize` did all its work and then failed with "earlierMemo is not defined". The declaration moved up, and a run with the panel off no longer names a memo. Found by the new tests, not by a run.
+- **`tests/workflows.mjs`, section 14 of `tests/run.sh`.** Each script is loaded as the runtime loads it and run with stub agents. One check per script starts it at every step its `ORDER` or `ORDERS` lists, with every agent filling every field of its schema with non-empty text: a required string read as a signal, or a step that cannot be started at, fails there. Fourteen named cases cover the two reported bugs and their neighbors. A case's own answer is checked against the script's schema, so a case cannot pass on an answer the runtime would refuse. On 0.1.6 the new section fails 15 of its 23 checks.
+- **Skills.** `skills/market-research` and `skills/opportunity` pick `research` or `sections` only when the saved file lists something, so a run cannot be sent back to a step that will refuse it again. `skills/opportunity` said to take the idea from `frame.json`, which does not hold it; it is in `run.json`.
+
+### Rejected
+- Passing the plan to the workflow in `args` from the skill. It saves one small agent call, but it only works when the skill is the caller and copies the object faithfully; reading the file inside the script makes `startAt` mean the same thing for every caller, which is what the script's own log line already claimed.
+- Fixing the prompt alone ("return an empty string when you planned"), or making the field optional alone. Either leaves the run depending on what a model writes in a free-text field. The list is the evidence; the text is not.
+
+### Open
+- A run started after the first step returns null or an empty list for what the skipped stages would have counted (`questions`, `contributors`, the roadmap's `openQuestions`, the brand and design `variants`). No skill reads those today.
+- The repository has no linter. An undefined-name rule would have caught `earlierMemo` without a test. The scripts need the same wrapping test 9 gives them for `node --check` before a linter can parse them.
+
+---
+
 ## [2026-10-05] 0.1.6: /ck:team, /ck:roadmap, and /ck:market-research become gate-owning skills; every validator counts; nominees read less; the roster is described, not counted
 
 **Category:** `fix`
