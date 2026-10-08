@@ -26,11 +26,12 @@ Read the latest `.ck/runs/*/run.json` with `command: "roadmap"` for this project
 
 - `status` is `final`: ask "The roadmap is finished. Revise it from your comments, or update it from the current PRD?" A revision goes to step 5; an update goes to step 3.
 - `status` is `review`: go to step 5.
+- There is no `run.json` with `command: "roadmap"`, `.ck/runs/roadmap-latest/priorities.json` exists, and `ROADMAP.md` exists and is newer than it: the workflow was started directly and finished (it keeps its files in `roadmap-latest` and writes no record). The roadmap is written, so launch nothing: mint a run (step 3) and go to step 5.
 - `ROADMAP.md` is newer than `run.json`: the workflow finished; go to step 5.
 - `<runDir>/priorities.json` exists and `ROADMAP.md` is older than it or missing: `startAt` is `sequence`.
 - Otherwise go to step 3 with `startAt` `prioritize`.
 
-When continuing, say: "Your roadmap stopped after the [stage] step. Everything so far is saved under `.ck/runs/<runId>/` and, if it exists, `ROADMAP.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp.
+When continuing, say: "Your roadmap stopped after the [stage] step. Everything so far is saved under `.ck/runs/<runId>/` and, if it exists, `ROADMAP.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp, when there is a run record.
 
 ## 3. Mint the run
 

@@ -47,7 +47,8 @@ const PRIORITIES_SCHEMA = {
     okrs: { type: 'array', items: ROW({ keyResult: { type: 'string' }, target: { type: 'string' }, current: { type: 'string' } }, ['keyResult', 'target', 'current']) },
     openQuestions: { type: 'array', items: { type: 'string' } },
   },
-  required: ['product', 'stopReason', 'existingRoadmap', 'snapshot', 'tier1', 'tier2', 'tier3', 'okrs', 'openQuestions'],
+  // stopReason is optional on purpose: a required string gets filled, and a filled one would stop good priorities.
+  required: ['product', 'existingRoadmap', 'snapshot', 'tier1', 'tier2', 'tier3', 'okrs', 'openQuestions'],
 }
 
 const DOC_SCHEMA = {
@@ -80,9 +81,10 @@ if (runs('prioritize')) {
   phase('Prioritize')
   priorities = await agent(
     `The project repository is ${projectRoot}. ` + housekeeping +
-    `Read the product documents: ${inputs.join(', ')}. If docs/PRD.md does not exist, do not prioritize: set ` +
-    `stopReason to "Run /ck:prd first. It writes docs/PRD.md, the requirements the roadmap orders." and return ` +
-    `empty lists. Say whether ${outPath} already exists (existingRoadmap) and, if it does, read it so the ` +
+    `Read the product documents: ${inputs.join(', ')}. If docs/PRD.md does not exist, do not prioritize: return ` +
+    `empty lists and set stopReason to "Run /ck:prd first. It writes docs/PRD.md, the requirements the roadmap ` +
+    `orders." That is the only case with a stopReason; when you prioritize, leave the field out, and put no ` +
+    `summary or note in it. Say whether ${outPath} already exists (existingRoadmap) and, if it does, read it so the ` +
     `snapshot reflects what shipped since its last entry.\n` +
     `Length first: the roadmap is capped at 2,500 words in all, so be brief everywhere; the snapshot is one short paragraph of five sentences at most, and openQuestions points to the PRD's open questions by number ("PRD open question 3") instead of restating them, writing out only the questions the roadmap itself raises.\n` +
     `Write the current-state snapshot (one paragraph: what exists today, what is in flight, what is blocked). ` +
@@ -97,7 +99,10 @@ if (runs('prioritize')) {
     { label: 'river:prioritize', phase: 'Prioritize', agentType: 'ck:river', effort: 'medium', schema: PRIORITIES_SCHEMA },
   )
   if (!priorities) throw new Error('roadmap: River returned no priorities')
-  if (priorities.stopReason) throw new Error('roadmap: ' + priorities.stopReason)
+  // The tiers decide whether to stop; stopReason only words the stop. Text beside a filled tier is a note.
+  const note = (priorities.stopReason || '').trim()
+  if (!(priorities.tier1.length + priorities.tier2.length + priorities.tier3.length)) throw new Error('roadmap: ' + (note || 'River found nothing to prioritize. If docs/PRD.md does not exist, run /ck:prd first; it writes the requirements the roadmap orders.'))
+  if (note) log(`prioritize: River left a note beside the tiers, which does not stop the run: ${note}`)
   log(`prioritize: ${priorities.product}; tiers ${priorities.tier1.length}/${priorities.tier2.length}/${priorities.tier3.length}, ${priorities.okrs.length} key result(s); ${priorities.existingRoadmap ? 'update' : 'create'} mode`)
 }
 
