@@ -50,11 +50,12 @@ Read the latest `.ck/runs/*/run.json` with `command: "prd"` for this project, if
 
 - `status` is `final`: ask "The PRD is finished. Re-run the reviewers on some sections, or start over?"
 - `status` is `review`: go to step 7; the author has reviewed.
+- There is no `run.json` with `command: "prd"`, `docs/PRD.md` exists, and its Appendix B has the premortem, not a note that it is pending: the workflow was started directly, or `.ck/` was cleared (a folder under `.ck/runs/` with no `run.json` is not a record). The PRD is written, so launch nothing: mint a run (step 4) and go to step 6.
 - The run directory holds `panel/*.json` and `docs/decisions/<timestamp>-prd-review.md` exists, but `docs/PRD.md` still has placeholder rows in Appendix A: the panel finished and the rewrite did not. `startAt` is `synthesize`.
 - `docs/PRD.md` exists and no panel files do: the draft finished. `startAt` is `validate`.
 - Otherwise `startAt` is `draft`.
 
-When `startAt` is later than `draft`, say: "Your PRD stopped after the [stage] step. Everything so far is saved in `docs/PRD.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp, and go to step 5. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
+When `startAt` is later than `draft`, say: "Your PRD stopped after the [stage] step. Everything so far is saved in `docs/PRD.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp, or mint a run first (step 4) when there is no run record, and go to step 5. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
 
 ## 4. Mint the run
 

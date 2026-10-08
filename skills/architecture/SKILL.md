@@ -27,11 +27,12 @@ Read the latest `.ck/runs/*/run.json` with `command: "architecture"` for this pr
 
 - `status` is `final`: ask "The architecture document is finished. Re-run the reviewers on some sections, or start over?"
 - `status` is `review`: go to step 6; the author has reviewed.
+- There is no `run.json` with `command: "architecture"`, `docs/ARCHITECTURE.md` exists, and its Appendix B has the premortem, not a note that it is pending: the workflow was started directly, or `.ck/` was cleared (a folder under `.ck/runs/` with no `run.json` is not a record). The architecture document is written, so launch nothing: mint a run (step 3) and go to step 5.
 - The run directory holds `panel/*.json` and `docs/decisions/<timestamp>-architecture-review.md` exists, but `docs/ARCHITECTURE.md` still has placeholder rows in Appendix A: the panel finished and the rewrite did not. `startAt` is `synthesize`.
 - `docs/ARCHITECTURE.md` exists and no panel files do: the draft finished. `startAt` is `validate`.
 - Otherwise `startAt` is `draft`.
 
-When `startAt` is later than `draft`, say: "Your architecture document stopped after the [stage] step. Everything so far is saved in `docs/ARCHITECTURE.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp, and go to step 4. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
+When `startAt` is later than `draft`, say: "Your architecture document stopped after the [stage] step. Everything so far is saved in `docs/ARCHITECTURE.md`. Continuing from there." Reuse the existing run directory, run id, and timestamp, or mint a run first (step 3) when there is no run record, and go to step 4. Offer "start over" only when the author asks for it; in a session that cannot ask, continue.
 
 ## 3. Mint the run
 
