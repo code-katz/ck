@@ -61,6 +61,7 @@ Then say the first line that applies. "The newest run record" is the last one th
 | This session is still waiting on a run it launched | "Your [document] is still being written. I'll tell you when it's ready." |
 | The newest run record is `in review` | "Your [document] is waiting for your review. Open the review page or `docs/<file>`, then say done or run `/ck:<command>` again." |
 | The newest run record is `stopped partway` | "Your [document] stopped partway. Everything so far is in `docs/<file>`. Run `/ck:<command>` again to continue." |
+| A build plan exists | "Type `/ck:start` to see the board and open the stages that could start now. `/ck:design <feature>` draws a feature's screens when a stage calls for it, and `/ck:panel <question>` settles a decision." |
 | No opportunity analysis and no brief | "Start with `/ck:opportunity` and describe your idea in a sentence. It writes `docs/opportunity.md`: what the product is, who it is for, what the market looks like, and whether it is worth doing." |
 | Opportunity, no market research, no brief | "Run `/ck:market-research` to go deeper on the market, or `/ck:brief` if the opportunity is enough to start from." |
 | Opportunity and market research, no brief | "Run `/ck:brief`. It starts from your opportunity analysis and writes `docs/brief.md`." |
@@ -70,7 +71,6 @@ Then say the first line that applies. "The newest run record" is the last one th
 | Roadmap, no architecture | "Run `/ck:architecture`. It recommends how to build it and writes `docs/ARCHITECTURE.md`." |
 | Architecture, no brand guide | "Run `/ck:brand-guide`. It takes two rounds of your review and writes the brand guide and assets." |
 | Brand guide, no build plan | "Run `/ck:plan`. It lays the work out in phases and stages, with one owner for each, and writes `docs/build-plan.md`." |
-| Everything above | "The definition and the build plan are complete. Type `/ck:start` to see the board and open the stages that could start now, `/ck:design <feature>` for a feature's screens, or `/ck:panel <question>` for a decision." |
 
 Do not run any agent. Do not explain how the tool works unless asked.
 

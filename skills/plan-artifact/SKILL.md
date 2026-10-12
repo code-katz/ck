@@ -23,7 +23,7 @@ Item: <ID>
 Reads: <the documents it was written from, by path>
 ```
 
-The `Item:` line is in an item plan only. Its id is short, capitals and digits, such as `A31`. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`.
+The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits, such as `A31`. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`.
 
 ## Section order
 
@@ -54,7 +54,7 @@ One `### Phase <n>. <name>` heading per phase, numbered in order from 0 or from 
 
 The columns:
 
-- **Stage** is `P<phase>-S<stage>`. Stages are numbered from 0 within their phase, in order, with no gaps. In an item plan a stage's full id puts the item first, `A31-P2-S0`; the table still shows `P2-S0`.
+- **Stage** is `P<phase>-S<stage>`. Stages are numbered from 0 within their phase, in order, with no gaps. Once a plan is approved a stage keeps its id: a stage that is added or split off later takes the next free number, at the end of its phase's table, and its Follows says where it sits in the order of work. In an item plan a stage's full id puts the item first, `A31-P2-S0`; the table still shows `P2-S0`.
 - **What** is the job in one plain phrase, with no file names.
 - **Who** is one owner: `<Persona>, <Model>` with a persona from the roster and one of `Fable`, `Opus`, `Sonnet`, `Haiku`; or `You`, for a job that is the author's own (a decision, a seat to fill, a pick on a page); or `Open`, when nobody on the roster or the team document can own it yet. The model is the persona's own tier unless the author chose another for this job.
 - **State** is one of four, in these exact words:

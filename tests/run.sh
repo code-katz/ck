@@ -674,11 +674,12 @@ for word in ('running in its session', 'not started; could start now', 'not star
     if script and not word.startswith('|') and word not in script: problems.append(f'scripts/plan.py lacks "{word}", which the contract fixes')
 # /ck:plan: the workflow it launches exists, it reviews on the page, and it approves with the script.
 if 'name: "ck:plan-draft"' not in plan or not pathlib.Path('workflows/plan-draft.js').exists(): problems.append('skills/plan does not launch ck:plan-draft, or the workflow is missing')
-for need in ('<plan.py> approve', '<plan.py> refresh', '<plan.py> check', 'docs/build-plan.md', 'docs/plan/', 'Run `/ck:roadmap` first'):
+for need in ('<plan.py> approve', '<plan.py> refresh', '<plan.py> check', 'docs/build-plan.md', 'docs/plan/', 'Run `/ck:roadmap` first', 'plan-before.md', 'git add -- "<the plan>" && git commit -m', 'pass the file as `existing`', 'passes the plan on disk as `existing`'):
     if need not in plan: problems.append(f'skills/plan lacks: {need}')
 # /ck:start: cards through the app's tool, a way without it, and its limits.
 for need in ('mcp__ccd_session__spawn_task', 'mcp__ccd_session_mgmt__list_sessions', 'mcp__ccd_session_mgmt__set_session_title', 'mcp__ccd_session_mgmt__set_session_model',
-             'paste this as its first message', 'you never start one', 'Never mark a row done without a merged pull request or the author', 'Never merge without the author'):
+             'paste this as its first message', 'you never start one', 'Never mark a row done without a merged pull request or the author', 'Never merge without the author',
+             'git-common-dir', 'starts with `[<the row\'s full id>] [`', '[dropped]', 'gh pr checks', 'in its own worktree', 'git add -- "<the plan>" && git commit -m'):
     if need not in start: problems.append(f'skills/start lacks: {need}')
 for word in ('review-page', 'run.json', 'Workflow('):
     if word in start: problems.append(f'skills/start mentions {word}; it launches nothing and reviews nothing')

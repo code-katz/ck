@@ -124,8 +124,9 @@ KIND_WORDS = {
     "check": "A check stage: it changes nothing and reports.",
 }
 FINISH_PR = (
-    "Commit on this session's branch, push it, and open a draft pull request "
-    'titled "[%s] %s". Do not merge it. Then stop.'
+    "Work on a branch of your own: if this checkout is on the repository's default branch, make a "
+    "branch named for the stage first, and never commit to or push the default branch. Commit on your "
+    'branch, push it, and open a draft pull request titled "[%s] %s". Do not merge it. Then stop.'
 )
 FINISH_REPORT = (
     "Report in the chat what passes and what fails, each with its file and line. "
@@ -704,8 +705,8 @@ def prompt(persona, role, plan, full, title, kind, does, done_when, path, reads,
         "",
         "Stage %s: %s. %s" % (full, title, KIND_SENTENCE[kind]),
         "",
-        "Do the work yourself in this session. Do not open helper sessions. "
-        "Stay inside this stage: the stages before and after it belong to other sessions.",
+        "Do the work yourself in this session. Do not use helper agents, workflows, or other sessions unless the "
+        "author tells you to. Stay inside this stage: the stages before and after it belong to other sessions.",
         "",
         "## The job",
         "",
@@ -715,7 +716,8 @@ def prompt(persona, role, plan, full, title, kind, does, done_when, path, reads,
         "",
         "## Read first",
         "",
-        "- The plan, `%s`: this stage's entry, and the rows it follows." % path,
+        "- The plan, `%s`: this stage's entry, and the rows it follows. If it is not in this checkout, "
+        "work from this message, which carries the entry." % path,
         "- %s" % reads,
     ]
     for stage, stage_title, state in followed:
@@ -1978,7 +1980,8 @@ def _(t):
     project = t.project()
     data, res = card(t, RELEASE_REL, "P2-S2", cwd=project)
     prompt_has(t, data, res,
-               "- The plan, `%s`: this stage's entry, and the rows it follows." % RELEASE_REL,
+               "- The plan, `%s`: this stage's entry, and the rows it follows. If it is not in this checkout, "
+               "work from this message, which carries the entry." % RELEASE_REL,
                "the path as typed, relative to the current folder")
 
 

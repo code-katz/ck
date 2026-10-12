@@ -858,7 +858,8 @@ def cmd_card(args, opts):
         persona, ', ' + role if role else '', plan.name or path)
     if fields.get('With'):
         first += ' Work with %s\'s standards beside your own.' % fields['With']
-    read = ['- The plan, `%s`: this stage\'s entry, and the rows it follows.' % path]
+    read = ['- The plan, `%s`: this stage\'s entry, and the rows it follows. If it is not in this checkout, '
+            'work from this message, which carries the entry.' % path]
     if fields.get('Reads'):
         read.append('- ' + fields['Reads'])
     for key in dict.fromkeys(follows):
@@ -871,8 +872,10 @@ def cmd_card(args, opts):
     files = fields.get('Files') or 'none'
     back = (fields.get('Hands back') or 'nothing').rstrip('.')
     if back.startswith('a draft pull request'):
-        finish = ('Commit on this session\'s branch, push it, and open a draft pull request titled "[%s] %s". '
-                  'Do not merge it. Then stop.' % (full, entry.title))
+        finish = ('Work on a branch of your own: if this checkout is on the repository\'s default branch, make a '
+                  'branch named for the stage first, and never commit to or push the default branch. Commit on your '
+                  'branch, push it, and open a draft pull request titled "[%s] %s". Do not merge it. Then stop.'
+                  % (full, entry.title))
     elif back == 'a report in the session':
         finish = ('Report in the chat what passes and what fails, each with its file and line. '
                   'Open no pull request. Then stop.')
@@ -884,8 +887,8 @@ def cmd_card(args, opts):
         ('Stage %s: %s. %s' % (full, entry.title, KIND_LINE.get(kind, 'This is a %s stage.' % kind if kind else ''))
          ).rstrip(),
         '',
-        'Do the work yourself in this session. Do not open helper sessions. Stay inside this stage: '
-        'the stages before and after it belong to other sessions.',
+        'Do the work yourself in this session. Do not use helper agents, workflows, or other sessions unless the '
+        'author tells you to. Stay inside this stage: the stages before and after it belong to other sessions.',
         '',
         '## The job',
         '',
