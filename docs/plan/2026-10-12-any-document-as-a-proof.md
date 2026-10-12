@@ -17,7 +17,7 @@ The names and the checks are put in place before anything is built. When it ends
 | Stage | What | Who | State |
 |---|---|---|---|
 | P0-S0 | The staged-plan release merged, pull request 25 | You | done (25) |
-| P0-S1 | The lint gate, a waiting state for the suite, and the checks for every later stage | Robin, Opus | not started; could start now |
+| P0-S1 | The lint gate, a waiting state for the suite, and the checks for every later stage | Robin, Opus | running in its session |
 | P0-S2 | The review page renamed to the proof, everywhere | Sasha, Sonnet | not started; follows S1 |
 | P0-S3 | A check that runs the suite on every pull request | Alex, Sonnet | not started; follows S1 |
 
