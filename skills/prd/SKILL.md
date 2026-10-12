@@ -98,7 +98,7 @@ If `--panel` was given and the notification says the panel did not run, relaunch
 
 ## 6. The review
 
-Set `status` to `review`. Read `docs/PRD.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, with the premortem question from Appendix B at the top of the page. That skill publishes, waits for "done", applies every comment to `docs/PRD.md` (recording each in `<runDir>/review.md`), republishes, and resolves; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
+Set `status` to `review`. Read `docs/PRD.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/proof-loop/SKILL.md`, with the premortem question from Appendix B at the top of the page. That skill publishes, waits for "done", applies every comment to `docs/PRD.md` (recording each in `<runDir>/review.md`), republishes, and resolves; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
 
 ### 3. Premortem
 

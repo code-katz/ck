@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""render-review.py: turn a markdown document into a self-contained review page.
+"""render-proof.py: turn a markdown document into a self-contained proof, the page a document is reviewed on.
 
 Usage:
-  render-review.py --in docs/PRD.md --out .ck/runs/<id>/review.html --title "Ardennes Hour PRD" \
+  render-proof.py --in docs/PRD.md --out .ck/runs/<id>/review.html --title "Ardennes Hour PRD" \
       [--question "Imagine this shipped and did not move the number. What went wrong?"] [--meta "Revision 1"]
 
 Standard library only. The page carries the five comment steps in its banner, a sticky
@@ -193,7 +193,7 @@ def main():
                '<script>mermaid.initialize({startOnLoad:true,theme:window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"neutral"});</script>\n'
                ) if 'class="mermaid"' in body else ''
     page = (f'<title>{html.escape(a.title)}</title>\n<style>{CSS}</style>\n{mermaid}'
-            f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · review page</p>'
+            f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · proof</p>'
             f'<h1>{html.escape(a.title)}</h1>{meta}</div>'
             f'<div class="howto"><div><h2>How to comment</h2>{STEPS}</div>{q}</div></div></header>\n'
             f'<div class="page"><nav class="toc" aria-label="Contents">{toc_html(toc)}</nav><article>\n{body}\n</article></div>\n')

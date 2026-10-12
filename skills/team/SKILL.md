@@ -69,7 +69,7 @@ Never edit `docs/TEAM.md` yourself in this step or the next: the workflow writes
 
 ## 5. The review
 
-Set `status` to `review`. Read `docs/TEAM.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, with this question at the top of the page: "Is anyone on this cast who should not be, and is any seat missing that the product cannot do without?" That skill publishes, waits for "done", proposes a change per comment, applies the ones the author approves to `docs/TEAM.md` (recording each in `<runDir>/review.md`), republishes, and reports; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
+Set `status` to `review`. Read `docs/TEAM.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/proof-loop/SKILL.md`, with this question at the top of the page: "Is anyone on this cast who should not be, and is any seat missing that the product cannot do without?" That skill publishes, waits for "done", proposes a change per comment, applies the ones the author approves to `docs/TEAM.md` (recording each in `<runDir>/review.md`), republishes, and reports; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
 
 ## 6. Finish
 

@@ -189,10 +189,10 @@ sys.exit(1 if problems else 0)
 EOF
 then ok "brief, team, opportunity, market-research, prd, architecture, brand, and design spec section lists match their contracts"; else fail "contract and script section lists differ (see above)"; fi
 
-# ─── 8. Gate-owning skills reference review-page ─────────────────────────────
+# ─── 8. Gate-owning skills reference proof-loop ──────────────────────────────
 section "8. Gate mechanics live in one place"
 for f in skills/plan/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
-  if grep -q 'review-page/SKILL.md' "$f"; then ok "$f references skills/review-page/SKILL.md"; else fail "$f does not reference review-page"; fi
+  if grep -q 'proof-loop/SKILL.md' "$f"; then ok "$f references skills/proof-loop/SKILL.md"; else fail "$f does not reference proof-loop"; fi
   if grep -qi 'comment mode' "$f"; then fail "$f restates the comment steps"; else ok "$f does not restate the comment steps"; fi
 done
 
@@ -266,7 +266,7 @@ out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/do/SKILL.md skills/plan/SKILL.md skills/start/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/do/SKILL.md skills/plan/SKILL.md skills/start/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/proof-loop/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
@@ -276,10 +276,10 @@ for f in skills/*-artifact/SKILL.md; do
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
 done
 
-# ─── 12. Review page renderer ────────────────────────────────────────────────
-section "12. Review page renderer"
-if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "$TMP/review.html" --title "Fixture PRD" --question "What went wrong?" >/dev/null 2>"$TMP/rr.err"; then
-  ok "render-review.py renders the fixture PRD"
+# ─── 12. Proof renderer ──────────────────────────────────────────────────────
+section "12. Proof renderer"
+if python3 scripts/render-proof.py --in tests/fixtures/game/docs/PRD.md --out "$TMP/review.html" --title "Fixture PRD" --question "What went wrong?" >/dev/null 2>"$TMP/rr.err"; then
+  ok "render-proof.py renders the fixture PRD"
   h_src=$(grep -cE '^##+ ' tests/fixtures/game/docs/PRD.md); h_out=$(grep -o '<h[234] id=' "$TMP/review.html" | wc -l | tr -d ' ')
   [[ "$h_src" == "$h_out" ]] && ok "every heading is on the page ($h_out)" || fail "headings: $h_src in the source, $h_out on the page"
   # What the steps say is checked in the check file of the stage that writes them, P1-S0.sh, and the
@@ -288,23 +288,23 @@ if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "
   grep -q 'What went wrong?' "$TMP/review.html" && ok "the gate's question is in the banner" || fail "question missing"
   grep -q '<div class="table-wrap"><table>' "$TMP/review.html" && ok "tables scroll in their own container" || fail "table wrapper missing"
 else
-  fail "render-review.py failed: $(cat "$TMP/rr.err")"
+  fail "render-proof.py failed: $(cat "$TMP/rr.err")"
 fi
 printf '# T\n\n**Bold with `code` inside.** Plain `code` and *em*.\n' > "$TMP/bold.md"
-if python3 scripts/render-review.py --in "$TMP/bold.md" --out "$TMP/bold.html" --title "Bold" >/dev/null 2>&1 \
+if python3 scripts/render-proof.py --in "$TMP/bold.md" --out "$TMP/bold.html" --title "Bold" >/dev/null 2>&1 \
    && grep -q '<strong>Bold with <code>code</code> inside.</strong>' "$TMP/bold.html" && ! grep -q '\*\*' "$TMP/bold.html"; then
-  ok "render-review.py renders a bold phrase that contains a code span"
+  ok "render-proof.py renders a bold phrase that contains a code span"
 else
-  fail "render-review.py leaves literal ** around a bold phrase with a code span"
+  fail "render-proof.py leaves literal ** around a bold phrase with a code span"
 fi
 printf '# T\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n' > "$TMP/mm.md"
-if python3 scripts/render-review.py --in "$TMP/mm.md" --out "$TMP/mm.html" --title "MM" >/dev/null 2>&1 \
+if python3 scripts/render-proof.py --in "$TMP/mm.md" --out "$TMP/mm.html" --title "MM" >/dev/null 2>&1 \
    && grep -q '<pre class="mermaid">' "$TMP/mm.html" && grep -q 'cdnjs.cloudflare.com/ajax/libs/mermaid' "$TMP/mm.html"; then
-  ok "render-review.py draws a mermaid fence and loads the library"
+  ok "render-proof.py draws a mermaid fence and loads the library"
 else
-  fail "render-review.py does not render mermaid fences"
+  fail "render-proof.py does not render mermaid fences"
 fi
-if grep -q 'libs/mermaid' "$TMP/bold.html"; then fail "render-review.py loads mermaid on a page without a diagram"; else ok "render-review.py loads mermaid only when a page has a diagram"; fi
+if grep -q 'libs/mermaid' "$TMP/bold.html"; then fail "render-proof.py loads mermaid on a page without a diagram"; else ok "render-proof.py loads mermaid only when a page has a diagram"; fi
 
 # ─── 13. Gallery renderer ────────────────────────────────────────────────────
 section "13. Gallery renderer"
@@ -604,9 +604,9 @@ for l in rows:
         problems.append(f'no roster persona owns the {l.split("|")[1].strip()} step')
 for name in re.findall(r'\(([A-Z][a-z]+)\)`', t):
     if name.lower() not in personas: problems.append(f'example step name uses {name}, who is not on the roster')
-# It is the quick path: no review page, no pipeline record, no pipeline table.
-for word in ('review-page', 'render-review', 'run.json', 'close per'):
-    if word in t: problems.append(f'mentions {word}; /ck:do publishes no review page and keeps its record in do.json so /ck:next does not read it')
+# It is the quick path: no proof, no pipeline record, no pipeline table.
+for word in ('proof-loop', 'render-proof', 'run.json', 'close per'):
+    if word in t: problems.append(f'mentions {word}; /ck:do publishes no proof and keeps its record in do.json so /ck:next does not read it')
 if 'do.json' not in t: problems.append('does not name its record, do.json')
 for stop in ('Go?', 'OK, or what should change?', 'Merge into `'):
     if stop not in t: problems.append(f'lacks the stop "{stop}"')
@@ -626,7 +626,7 @@ for name, cmd in zip(('look', 'start', 'back'), cmds): (out / f'{name}.sh').writ
 for p in problems: print(p)
 sys.exit(1 if problems else 0)
 EOF
-then ok "skills/do: typed only; every command and persona it names exists; no review page, record in do.json; three stops and four rules present"
+then ok "skills/do: typed only; every command and persona it names exists; no proof, record in do.json; three stops and four rules present"
 else while IFS= read -r l; do fail "skills/do: $l"; done < "$TMP/do/static.out"; fi
 if grep -q '^| `/ck:do <task>`' README.md; then ok "README.md has a row for /ck:do"; else fail "README.md has no row for /ck:do"; fi
 
@@ -713,7 +713,7 @@ for need in ('--fix - --title "<the title>"', "<<'CK_FAULT'", 'stays done on the
              'When the fix has a pull request, say `merge` and its number here.', "only when it is a stage's pull request: a fix's is never marked"):
     if need not in start: problems.append(f'skills/start lacks: {need}')
 if "<its pull request's number>" in start: problems.append('skills/start promises every fix a pull request number; a fix to a stage that hands back a report opens none')
-for word in ('review-page', 'run.json', 'Workflow('):
+for word in ('proof-loop', 'run.json', 'Workflow('):
     if word in start: problems.append(f'skills/start mentions {word}; it launches nothing and reviews nothing')
 # The script makes the fix card and puts the model check in every card; the contract names a fix's session.
 for need in ('check your own model', '--fix'):
@@ -795,8 +795,8 @@ fi
 # No check file spells those two paths, so a rename changes the two lines below and no check file.
 # A check file must run to its last line: one that stops early, or holds no check, fails the suite
 # in either folder.
-LOOP_SKILL=skills/review-page/SKILL.md
-PAGE_RENDERER=scripts/render-review.py
+LOOP_SKILL=skills/proof-loop/SKILL.md
+PAGE_RENDERER=scripts/render-proof.py
 WAITING=0
 WAITING_FILES=0
 

@@ -59,7 +59,7 @@ Then say the first line that applies. "The newest run record" is the last one th
 | State | Say |
 |---|---|
 | This session is still waiting on a run it launched | "Your [document] is still being written. I'll tell you when it's ready." |
-| The newest run record is `in review` | "Your [document] is waiting for your review. Open the review page or `docs/<file>`, then say done or run `/ck:<command>` again." |
+| The newest run record is `in review` | "Your [document] is waiting for your review. Open the proof or `docs/<file>`, then say done or run `/ck:<command>` again." |
 | The newest run record is `stopped partway` | "Your [document] stopped partway. Everything so far is in `docs/<file>`. Run `/ck:<command>` again to continue." |
 | A build plan exists | "Type `/ck:start` to see the board and open the stages that could start now. `/ck:design <feature>` draws a feature's screens when a stage calls for it, and `/ck:panel <question>` settles a decision." |
 | No opportunity analysis and no brief | "Start with `/ck:opportunity` and describe your idea in a sentence. It writes `docs/opportunity.md`: what the product is, who it is for, what the market looks like, and whether it is worth doing." |

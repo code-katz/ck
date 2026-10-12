@@ -1,16 +1,16 @@
 ---
-name: review-page
+name: proof-loop
 description: How every ck gate publishes a document or gallery for review, waits for "done", proposes a change per comment, applies the ones the author approves, republishes, and reports. Read by the gate-owning skills; not run on its own.
 user-invocable: false
 ---
 
-# The review page
+# The proof
 
-Every document or gallery that needs a decision is reviewed on a page in Claude's built-in review and comment system: a private page, published with the Artifact tool, that the reviewer switches to comment mode. `ck` builds nothing of its own for this. The session that wrote the document is the only session that changes it; the author's comments stay on the page, and this session reads them when the author says "done". When the Artifact tool is not available in the session, use the file-edit path at the end.
+A proof is the page a document that needs a decision is reviewed on, in Claude's built-in review and comment system: a private page, published with the Artifact tool, that the reviewer switches to comment mode. A gallery is reviewed the same way, and keeps its name. `ck` builds nothing of its own for this. The session that wrote the document is the only session that changes it; the author's comments stay on the page, and this session reads them when the author says "done". When the Artifact tool is not available in the session, use the file-edit path at the end.
 
 ## 1. Publish
 
-1. Build the page with one command, never by writing HTML yourself: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/render-review.py" --in <the document> --out <runDir>/review.html --title "<product>: <document>" --question "<the gate's question, if any>" --meta "<revision and date>"`. It renders the markdown with the banner below, a sticky table of contents so a comment can point at a section, tables and code that scroll inside their own container, and light and dark themes. For a gallery, the workflow has already written the page to the gallery contract; publish that file.
+1. Build the page with one command, never by writing HTML yourself: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/render-proof.py" --in <the document> --out <runDir>/review.html --title "<product>: <document>" --question "<the gate's question, if any>" --meta "<revision and date>"`. It renders the markdown with the banner below, a sticky table of contents so a comment can point at a section, tables and code that scroll inside their own container, and light and dark themes. For a gallery, the workflow has already written the page to the gallery contract; publish that file.
 2. The banner carries, in this order: the product name and what is being reviewed; the round or revision; the one question the gate asks, when it has one (the PRD's premortem question, for example); and these four steps, verbatim (the renderer writes them; a gallery page must carry them too):
    1. Open this link signed in to your Claude account.
    2. Switch the page to comment mode from the bar at the top.
