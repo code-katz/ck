@@ -1,8 +1,8 @@
-# tests/pending/P1-S0.sh: the checks for stage P1-S0, Mend and guard the renderer.
+# tests/checks/P1-S0.sh: the checks for stage P1-S0, Mend and guard the renderer.
 #
-# Written in stage P0-S1, before the work. Section 21 of tests/run.sh says how this file is run
-# and what it may use. The stage is done when every check here passes and this file has moved to
-# tests/checks/. Tighten a check when the work shows it is too weak. Never loosen one.
+# Written in stage P0-S1, before the work, and moved here when the work was done. Section 21 of
+# tests/run.sh says how this file is run and what it may use. Tighten a check when the work shows
+# it is too weak. Never loosen one.
 #
 # What the renderer must do, as these checks read it:
 #   - A file that holds a key shape is refused: a status other than 0, no page written, and a
@@ -14,7 +14,8 @@
 #   - The check reads the whole file as text, so a key inside a code fence stops the render too.
 #   - The stage may know more shapes than these. It may not know fewer.
 #
-# One check here passes today, on purpose: the one for the old third comment step. It says so.
+# The check for the old third comment step passed before the work, on purpose, and was reversed
+# when the four new steps went on the page. It now fails a page that still has the old step.
 
 renderer="$PWD/$PAGE_RENDERER"
 steps=tests/fixtures/proof/comment-steps.txt
@@ -33,13 +34,15 @@ else
 fi
 
 # This check stood in section 12 of tests/run.sh, inside "the banner carries the four comment
-# steps". It passes today, and it is the one check in this file that does: it looks for the old
-# third step, which this stage replaces. When the four new steps are on the page, reverse it, so
-# that it fails a page that still tells the reviewer not to send the comment.
-if grep -q 'Do not send the comment to Claude' "$SCRATCH/prd.html" 2> /dev/null; then
-  ok "the proof's banner still carries the old third step, Do not send the comment to Claude (until this stage reverses this check)"
+# steps", and passed on the old step. It is reversed: it fails a page that still tells the
+# reviewer not to send the comment. It also fails when no page was written, so that a renderer
+# that stops cannot pass it by leaving nothing to search.
+if [[ ! -s "$SCRATCH/prd.html" ]]; then
+  fail "the proof's banner no longer tells the reviewer not to send the comment to Claude: the renderer wrote no page"
+elif grep -qi 'do not send the comment' "$SCRATCH/prd.html"; then
+  fail "the proof's banner no longer tells the reviewer not to send the comment to Claude: it still says Do not send the comment to Claude"
 else
-  fail "the proof's banner still carries the old third step: it is gone, so reverse this check as the comment above it says"
+  ok "the proof's banner no longer tells the reviewer not to send the comment to Claude"
 fi
 
 # ─── The two faults ──────────────────────────────────────────────────────────
@@ -67,6 +70,11 @@ EOF
 )
 if [[ -z "$why" ]]; then ok "a quote in a link address adds no attribute, and a plain link is still a link"
 else fail "a quote in a link address adds no attribute, and a plain link is still a link: $why"; fi
+
+# Added by the stage that mended the fault. The address is held out of the line before bold and
+# emphasis run, so that the asterisks in this one cannot turn into tags inside its href.
+if grep -qF '<a href="https://example.com/*a*/*b*">the stars</a>' "$SCRATCH/link.html" 2> /dev/null; then ok "an address that holds asterisks stays one address, with no tag inside it"
+else fail "an address that holds asterisks stays one address, with no tag inside it: the link to example.com/*a*/*b* is not on the page as written"; fi
 
 render tests/fixtures/proof/table-bar.md "$SCRATCH/table.html"
 # third_cell <row> <the text its third cell must hold> [<the code span it must hold>]: prints
