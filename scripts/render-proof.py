@@ -5,29 +5,97 @@ Usage:
   render-proof.py --in docs/PRD.md --out .ck/runs/<id>/review.html --title "Ardennes Hour PRD" \
       [--question "Imagine this shipped and did not move the number. What went wrong?"] [--meta "Revision 1"]
 
-Standard library only. The page carries the five comment steps in its banner, a sticky
+Standard library only. The page carries the four comment steps in its banner, a sticky
 table of contents from the ## and ### headings, tables and code that scroll inside their
 own container, and light and dark themes. Publish the output with the Artifact tool.
+
+A file that holds a key shape is refused before anything is rendered: the status is 1, no
+page is written, and the message names each line and never prints the key. The check knows
+seven shapes and is not a secret scanner.
 """
-import argparse, html, re, pathlib
+import argparse, html, re, pathlib, sys
 
 def slug(text):
     s = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
     return s or 'section'
 
 def inline(text):
-    # Code spans are lifted out first so bold and emphasis can run across the whole
-    # line; a bold phrase that contains a code span would otherwise never match.
-    codes = []
-    def lift(m):
-        codes.append('<code>' + html.escape(m.group(1)) + '</code>')
-        return '\x00%d\x00' % (len(codes) - 1)
-    p = re.sub(r'`([^`\n]*)`', lift, text)
+    # Code spans and the opening tag of a link are lifted out first. Bold and emphasis can then
+    # run across the whole line, and they can never reach inside a tag: a bold phrase that
+    # contains a code span would otherwise never match, and an address that holds asterisks
+    # would be rewritten. A quote in an address would end the href and start an attribute of
+    # the author's choosing, so the address is percent-encoded here, once, before it is held.
+    held = []
+    def hold(tag):
+        held.append(tag)
+        return '\x00%d\x00' % (len(held) - 1)
+    def link(m):
+        address = m.group(2).replace('"', '%22').replace("'", '%27')
+        return hold('<a href="' + address + '">') + m.group(1) + '</a>'
+    p = re.sub(r'`([^`\n]*)`', lambda m: hold('<code>' + html.escape(m.group(1)) + '</code>'), text)
     p = html.escape(p, quote=False)
-    p = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+)\)', r'<a href="\2">\1</a>', p)
+    p = re.sub(r'\[([^\]]+)\]\((https?://[^)\s\x00]+)\)', link, p)
     p = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', p)
     p = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'<em>\1</em>', p)
-    return re.sub(r'\x00(\d+)\x00', lambda m: codes[int(m.group(1))], p)
+    return re.sub(r'\x00(\d+)\x00', lambda m: held[int(m.group(1))], p)
+
+CODE_SPAN = re.compile(r'`[^`\n]*`')
+
+def split_row(line):
+    # A bar ends a cell, with two exceptions. A bar after a backslash belongs to the cell, and
+    # the backslash is dropped. A bar inside a code span belongs to the cell, and a code span is
+    # what inline() reads as one: the same pattern. A backslash before another backslash is
+    # kept as two, so that \\| is a backslash and then the end of a cell.
+    s = line.strip()
+    if s.startswith('|'): s = s[1:]
+    cells, cur, i = [], [], 0
+    while i < len(s):
+        c = s[i]
+        span = CODE_SPAN.match(s, i) if c == '`' else None
+        if c == '\\' and s[i + 1:i + 2] in ('|', '\\'):
+            cur.append('|' if s[i + 1] == '|' else '\\\\'); i += 2
+        elif span:
+            cur.append(span.group().replace('\\|', '|')); i = span.end()
+        elif c == '|':
+            cells.append(''.join(cur).strip()); cur = []; i += 1
+        else:
+            cur.append(c); i += 1
+    last = ''.join(cur).strip()
+    if last: cells.append(last)  # no last cell when the row ends with a bar
+    return cells
+
+# The seven shapes of a key, each with a beginning and a length, so that a beginning alone, or
+# a word that holds one (risk-based, task-list, desk-bound), is not a key. A shape that starts
+# with a letter must not follow a letter or digit, which is what keeps those words out. This is
+# a check for the shapes that did the most harm, not a secret scanner.
+KEY_SHAPES = [
+    ('an AWS access key id', re.compile(r'(?<![A-Za-z0-9])(?:AKIA|ASIA)[0-9A-Z]{16}')),
+    ('a private key header', re.compile(r'-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----')),
+    ('an sk- or sk_ key', re.compile(r'(?<![A-Za-z0-9])sk[-_][A-Za-z0-9_-]{20,}')),
+    ('a GitHub token', re.compile(r'(?<![A-Za-z0-9])(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,})')),
+    ('a Slack token', re.compile(r'(?<![A-Za-z0-9])xox[abprs]-[A-Za-z0-9-]{10,}')),
+    ('a Google API key', re.compile(r'(?<![A-Za-z0-9])AIza[0-9A-Za-z_-]{35}')),
+    # The dash is in the boundary so that eyJeyJeyJ... is tried once, not at every eyJ: the match
+    # then takes time in proportion to the line, and a long line cannot stall the render.
+    ('a JSON web token', re.compile(r'(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}')),
+]
+
+def find_keys(md):
+    # One hit per line, in line order: (line number, the shape's name). The whole text is read,
+    # code fences included, because a key most often sits in one. The text of a hit is never kept.
+    hits = []
+    for number, line in enumerate(md.split('\n'), 1):
+        for name, shape in KEY_SHAPES:
+            if shape.search(line):
+                hits.append((number, name)); break
+    return hits
+
+def refusal(src, hits):
+    shown = ['  line %d: %s' % hit for hit in hits[:10]]
+    if len(hits) > 10: shown.append('  and %d more lines' % (len(hits) - 10))
+    return '\n'.join(['refused: %s holds what looks like a key. No page was written.' % src] + shown + [
+        'Take each key out of the file, name the setting and not its value, and render again.',
+        'This check knows seven key shapes and is not a secret scanner: a file that passes it has not been searched for secrets.'])
 
 def render(md):
     lines = md.split('\n')
@@ -79,11 +147,11 @@ def render(md):
         # table
         if stripped.startswith('|') and i + 1 < n and re.match(r'^\s*\|?\s*:?-{2,}', lines[i + 1]):
             flush_para(); close_lists()
-            header = [c.strip() for c in stripped.strip('|').split('|')]
+            header = split_row(stripped)
             i += 2
             rows = []
             while i < n and lines[i].strip().startswith('|'):
-                rows.append([c.strip() for c in lines[i].strip().strip('|').split('|')]); i += 1
+                rows.append(split_row(lines[i])); i += 1
             out.append('<div class="table-wrap"><table><thead><tr>' + ''.join('<th>' + inline(c) + '</th>' for c in header) + '</tr></thead><tbody>')
             for r in rows:
                 out.append('<tr>' + ''.join('<td>' + inline(c) + '</td>' for c in r) + '</tr>')
@@ -170,8 +238,8 @@ td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}tr:l
 STEPS = """<ol>
 <li>Open this link signed in to your Claude account.</li>
 <li>Switch the page to <strong>comment mode</strong> from the bar at the top.</li>
-<li>Click the passage you want to comment on and type. Do not send the comment to Claude; your session reads it.</li>
-<li>Say <strong>done</strong> in your Claude Code session when you have finished.</li>
+<li>Click the passage, type your comment, and leave <strong>Queue for Claude</strong> ticked. Your session answers in the thread.</li>
+<li>If your session was closed, or no answer comes, open it and say <strong>done</strong>. It then reads every comment on this page.</li>
 </ol>"""
 
 def main():
@@ -182,7 +250,9 @@ def main():
     ap.add_argument('--question', default='')
     ap.add_argument('--meta', default='')
     a = ap.parse_args()
-    md = pathlib.Path(a.src).read_text()
+    md = pathlib.Path(a.src).read_text(encoding='utf-8')
+    hits = find_keys(md)
+    if hits: sys.exit(refusal(a.src, hits))
     body, toc = render(md)
     q = ''
     if a.question:
@@ -198,7 +268,7 @@ def main():
             f'<div class="howto"><div><h2>How to comment</h2>{STEPS}</div>{q}</div></div></header>\n'
             f'<div class="page"><nav class="toc" aria-label="Contents">{toc_html(toc)}</nav><article>\n{body}\n</article></div>\n')
     pathlib.Path(a.out).parent.mkdir(parents=True, exist_ok=True)
-    pathlib.Path(a.out).write_text(page)
+    pathlib.Path(a.out).write_text(page, encoding='utf-8')
     print(f'wrote {a.out} ({len(page)} bytes, {len(toc)} headings)')
 
 if __name__ == '__main__':
