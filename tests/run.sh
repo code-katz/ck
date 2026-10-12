@@ -681,16 +681,31 @@ for need in ('mcp__ccd_session__spawn_task', 'mcp__ccd_session_mgmt__list_sessio
              'paste this as its first message', 'you never start one', 'Never mark a row done without a merged pull request or the author', 'Never merge without the author',
              'git-common-dir', 'starts with `[<the row\'s full id>] [`', '[dropped]', 'gh pr checks', 'in its own worktree', 'git add -- "<the plan>" && git commit -m'):
     if need not in start: problems.append(f'skills/start lacks: {need}')
+# A fix to a finished stage: the card command as it is run, the model check, and what a fix never does.
+for need in ('--fix - --title "<the title>"', "<<'CK_FAULT'", 'stays done on the board', 'It checks its own model before it works', 'Never change a State for a fix',
+             'gh pr view <n> --json title', 'back fix',
+             # Faults a review confirmed, each held shut by the words that cure it.
+             'When a line of the words is exactly `CK_FAULT`, use another word that no line of them equals for both markers',
+             'unless `fix` was typed, leave out any plan', "whose title's first brackets hold a row's full id followed by ` fix`",
+             'When the fix has a pull request, say `merge` and its number here.', "only when it is a stage's pull request: a fix's is never marked"):
+    if need not in start: problems.append(f'skills/start lacks: {need}')
+if "<its pull request's number>" in start: problems.append('skills/start promises every fix a pull request number; a fix to a stage that hands back a report opens none')
 for word in ('review-page', 'run.json', 'Workflow('):
     if word in start: problems.append(f'skills/start mentions {word}; it launches nothing and reviews nothing')
+# The script makes the fix card and puts the model check in every card; the contract names a fix's session.
+for need in ('check your own model', '--fix'):
+    if script and need not in script: problems.append(f'scripts/plan.py lacks: {need}')
+if '[A31-P1-S5 fix] [Akira Fable]' not in contract: problems.append('the contract lacks the name of a fix session, "[A31-P1-S5 fix] [Akira Fable]"')
 for p in problems: print(p)
 sys.exit(1 if problems else 0)
 EOF
-then ok "skills/plan and skills/start: typed only; every plan.py command they run exists; the contract's fixed words are the script's; cards, the paste fallback, and the limits are there"
+then ok "skills/plan and skills/start: typed only; every plan.py command they run exists; the contract's fixed words are the script's; cards, the paste fallback, the fix step, the model check, and the limits are there"
 else while IFS= read -r l; do fail "the staged plan: $l"; done < "$TMP/plan-static.out"; fi
 for row in '| `/ck:plan [work]`' '| `/ck:start [stage]`' '| Staged build plan | `docs/build-plan.md` |'; do
   if grep -qF -- "$row" README.md; then ok "README.md has: $row"; else fail "README.md lacks: $row"; fi
 done
+start_row="$(grep -F -- '| `/ck:start [stage]`' README.md)"
+if [[ "$start_row" == *'fix <stage> <what is wrong>'* ]]; then ok "README.md's row for /ck:start has: fix <stage> <what is wrong>"; else fail "README.md's row for /ck:start lacks: fix <stage> <what is wrong>"; fi
 for f in tests/fixtures/plan/project/docs/build-plan.md tests/fixtures/plan/project/docs/plan/2026-10-11-encounter-refactor.md; do
   python3 scripts/plan.py check "$f" > "$TMP/plan-check.out" 2>&1; rc=$?
   if [[ $rc -eq 0 && "$(grep -vc '^words: ' "$TMP/plan-check.out")" == 0 ]]; then ok "plan.py check passes $f"; else fail "plan.py check on $f: exit $rc, $(head -3 "$TMP/plan-check.out" | tr '\n' ' ')"; fi

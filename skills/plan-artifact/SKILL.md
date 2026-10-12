@@ -81,7 +81,7 @@ One entry per row, in the table's order, and no entry without a row:
 - Hands back: a draft pull request
 ```
 
-- The title after the id names the session: `[P2-S1] [Sasha Sonnet] Build the accounts screens`, or `[A31-P2-S1] [...]` in an item plan. That whole name must be 59 characters or fewer, so keep the title short.
+- The title after the id names the session: `[P2-S1] [Sasha Sonnet] Build the accounts screens`, or `[A31-P2-S1] [...]` in an item plan. That whole name must be 59 characters or fewer, so keep the title short. A fix to a stage that is done runs in a session of its own, named with ` fix` after the stage's id, the stage's owner, and a title for the fix: `[A31-P1-S5 fix] [Akira Fable] Mend the scan's natural 1`. It has no row and changes no State.
 - **Kind** is one of: `build` (changes the product and its tests), `drawing` (mockups only, no product code), `words` (one text file, no code), `tests` (tests only, no product code), `check` (changes nothing and reports), `design round` (the author types `/ck:design <feature>`; no session is opened for it), `yours` (a row whose owner is `You`).
 - **Does** is two sentences at most.
 - **Files** is what the session may change, by folder or file, or `none`.
