@@ -116,12 +116,17 @@ bash tests/run.sh            # the static checks, and every workflow script run 
 
 Edit the profile, never the generated file; the generator refuses to overwrite uncommitted hand edits to generated files unless you pass `--force`. Every release bumps `version` in `.claude-plugin/plugin.json`, or nobody receives it.
 
+The suite also lints the Python in `scripts/` and `tests/` with Ruff, to the rules in `ruff.toml`, when Ruff is installed (`pipx install ruff`). Without it the lint is skipped, and the suite says so. In CI, where the `CI` variable is set, a missing Ruff fails the suite: nobody reads a note there.
+
+A stage of a staged plan can have its checks written before its work. They are one Bash file, named for the stage, under `tests/pending/`: the suite runs it, lists each check that fails as waiting, and still passes. The stage is done when every check in its file passes and the file has moved to `tests/checks/`, where its checks count like any other. A file left under `tests/pending/` with every check passing fails the suite. A stage may tighten the checks in its file, and never loosens one.
+
 Layout:
 
 ```
 .claude-plugin/plugin.json   the manifest; name "ck" sets the /ck: prefix
 profiles/                    persona source of truth, plus the generated ROSTER.md
 tiers.conf                   persona -> model
+ruff.toml                    lint rules for the Python in scripts/ and tests/
 agents/                      generated subagents, ck:<name>
 skills/<persona>/            generated switch commands, /ck:<name>
 skills/opportunity, prd, architecture, brand-guide, design, next, review-page
@@ -130,6 +135,7 @@ workflows/                   panel, brief, draft (PRD and architecture), team, o
 hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
 scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh
 tests/                       run.sh, workflows.mjs (the workflow scripts run with stub agents), two fixture projects, the gallery fixtures, and the drill logs
+tests/checks/, pending/      one file of checks for each stage of a staged plan: counted, and waiting for the stage's work
 ```
 
 ## License
