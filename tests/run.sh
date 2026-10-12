@@ -6,7 +6,11 @@
 #
 # Needs Bash 4+, python3 (for JSON and list parsing), and node (for the workflow
 # script checks). Runs the skills' exact commands under zsh too when it is installed
-# (section 15). Touches nothing outside a temporary directory.
+# (section 15), and Ruff over the Python when it is installed (section 20). Touches
+# nothing outside a temporary directory.
+#
+# A stage of a staged plan keeps its checks in a file of its own: under tests/checks/ they
+# count, and under tests/pending/ they wait for the stage's work (sections 21 and 22).
 
 set -uo pipefail
 
@@ -32,7 +36,23 @@ FAIL=0
 ERRORS=()
 ok()   { PASS=$((PASS + 1)); printf "  \033[32m✓\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); ERRORS+=("$1"); printf "  \033[31m✗\033[0m %s\n" "$1"; }
+# A line that is not a check: something could not run here, or there was nothing to run. It is
+# not counted, and it is never silent.
+note() { printf "  \033[33m-\033[0m %s\n" "$1"; }
 section() { printf "\n\033[1m%s\033[0m\n" "$1"; }
+
+# banner_steps <page>: the comment steps in a page's banner, one line each, as a reader sees them
+# (tags dropped, entities read). Sections 12 and 13 count them, and the check files compare them
+# with tests/fixtures/proof/comment-steps.txt.
+banner_steps() {
+  python3 - "$1" <<'EOF'
+import html, re, sys
+page = open(sys.argv[1], encoding='utf-8').read()
+steps = re.search(r'<h2>How to comment</h2>\s*<ol>(.*?)</ol>', page, re.S)
+for item in re.findall(r'<li[^>]*>(.*?)</li>', steps.group(1) if steps else '', re.S):
+    print(' '.join(html.unescape(re.sub(r'<[^>]+>', '', item)).split()))
+EOF
+}
 
 # The persona names, from profiles/, skipping the generated roster.
 personas=()
@@ -262,7 +282,9 @@ if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "
   ok "render-review.py renders the fixture PRD"
   h_src=$(grep -cE '^##+ ' tests/fixtures/game/docs/PRD.md); h_out=$(grep -o '<h[234] id=' "$TMP/review.html" | wc -l | tr -d ' ')
   [[ "$h_src" == "$h_out" ]] && ok "every heading is on the page ($h_out)" || fail "headings: $h_src in the source, $h_out on the page"
-  grep -q 'comment mode' "$TMP/review.html" && grep -q 'Do not send the comment to Claude' "$TMP/review.html" && ! grep -q '@claude' "$TMP/review.html" && ok "the banner carries the four comment steps" || fail "banner steps missing"
+  # What the steps say is checked in the check file of the stage that writes them, P1-S0.sh, and the
+  # check for the old third step that stood here moved there. What stays holds for any wording.
+  [[ $(banner_steps "$TMP/review.html" 2>/dev/null | wc -l) -eq 4 ]] && grep -q 'comment mode' "$TMP/review.html" && ! grep -q '@claude' "$TMP/review.html" && ok "the banner carries four comment steps, with comment mode in them and @claude in none" || fail "banner steps missing"
   grep -q 'What went wrong?' "$TMP/review.html" && ok "the gate's question is in the banner" || fail "question missing"
   grep -q '<div class="table-wrap"><table>' "$TMP/review.html" && ok "tables scroll in their own container" || fail "table wrapper missing"
 else
@@ -289,7 +311,8 @@ section "13. Gallery renderer"
 if python3 scripts/render-gallery.py --in tests/fixtures/gallery/brand.json --out "$TMP/gallery.html" >/dev/null 2>"$TMP/rg.err"; then
   ok "render-gallery.py renders the brand fixture from one JSON file"
   [[ $(grep -c 'class="variant"' "$TMP/gallery.html") -eq 2 ]] && grep -q 'id="variant-A"' "$TMP/gallery.html" && grep -q 'id="variant-B"' "$TMP/gallery.html" && ok "two variants, labeled A and B, with matching ids" || fail "variant sections or ids missing"
-  grep -q 'comment mode' "$TMP/gallery.html" && grep -q 'Do not send the comment to Claude' "$TMP/gallery.html" && ! grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries the four comment steps" || fail "banner steps missing"
+  # As in section 12: what the steps say, and the check for the old third step, are in P1-S2.sh.
+  [[ $(banner_steps "$TMP/gallery.html" 2>/dev/null | wc -l) -eq 4 ]] && grep -q 'comment mode' "$TMP/gallery.html" && ! grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries four comment steps, with comment mode in them and @claude in none" || fail "banner steps missing"
   parts_ok=1
   for part in 'class="mark"' 'class="swatches"' 'class="specimen"' 'class="frame"' '<h3>Rationale</h3>' '<h3>Trade-off</h3>' '<h3>Satisfies</h3>'; do
     [[ $(grep -o "$part" "$TMP/gallery.html" | wc -l | tr -d ' ') -eq 2 ]] || { fail "each variant should have $part once"; parts_ok=0; }
@@ -721,8 +744,149 @@ while IFS=$'\t' read -r verdict message; do
 done < "$TMP/plan-cases.out"
 if [[ $rc -ne 0 || $pc_lines -eq 0 ]]; then fail "tests/plan-cases.py did not run to the end: exit $rc, $(head -3 "$TMP/plan-cases.err" | tr '\n' ' ')"; fi
 
+# ─── 20. Lint ────────────────────────────────────────────────────────────────
+section "20. Lint"
+# Ruff reads ruff.toml: pyflakes and bugbear over the Python in scripts/ and tests/, and any syntax
+# newer than the Python macOS ships. An undefined name is found here without a check that happens
+# to run the line. The Python inside the heredocs of this file and of the check files is not linted.
+if [[ -f ruff.toml ]]; then ok "ruff.toml is present"; else fail "ruff.toml is missing"; fi
+if command -v ruff >/dev/null 2>&1; then
+  ruff check --no-cache --output-format concise scripts tests > "$TMP/ruff.out" 2>&1; rc=$?
+  # A lint that checks no file is clean too, so each file is looked for in the list Ruff works from.
+  ruff check --no-cache --show-files scripts tests > "$TMP/ruff.files" 2>/dev/null
+  unlinted=()
+  for f in scripts/*.py tests/*.py; do
+    [[ -f "$f" ]] || continue
+    grep -q "/$f\$" "$TMP/ruff.files" || unlinted+=("$f")
+  done
+  if [[ $rc -ne 0 && $rc -ne 1 ]]; then
+    fail "ruff check could not run (exit $rc): $(head -2 "$TMP/ruff.out" | tr '\n' ' ')"
+  elif (( ${#unlinted[@]} > 0 )); then
+    fail "Ruff does not check ${unlinted[*]}: ruff.toml or an ignore rule leaves it out"
+  elif [[ $rc -eq 0 ]]; then
+    ok "ruff check scripts tests is clean ($(wc -l < "$TMP/ruff.files" | tr -d ' ') files)"
+  else
+    fail "ruff check scripts tests: $(grep -cE '^[^ ]+:[0-9]+:[0-9]+: ' "$TMP/ruff.out") finding(s), the first: $(grep -m1 -E '^[^ ]+:[0-9]+:[0-9]+: ' "$TMP/ruff.out")"
+  fi
+elif [[ -n "${CI:-}" ]]; then
+  # On a developer's machine a missing Ruff is a note. In CI nobody reads a note, so it is a failure.
+  fail "Ruff is not installed, and CI is set: the lint must run here (pipx install ruff)"
+else
+  note "Ruff is not installed, so the Python is not linted on this machine (pipx install ruff)"
+fi
+
+# ─── 21. Stage checks that count ─────────────────────────────────────────────
+# A stage of a staged plan can have its checks written before its work. They are one Bash file,
+# named for the stage, of checks written like the ones above: each calls ok or fail once.
+#
+#   tests/checks/<stage>.sh    The work is done. Its checks count like any other check.
+#   tests/pending/<stage>.sh   The work is not done. Its checks are run and listed as waiting.
+#                              They do not count, and the suite still passes.
+#
+# A stage finishes by making every check in its file pass and moving the file to tests/checks/.
+# So a waiting file whose checks all pass fails the suite: its stage is done and its file was not
+# moved. A stage may tighten the checks in its file. It never loosens one.
+#
+# This file reads a check file inside a subshell, from the repository's root. The check file has
+# ok, fail, banner_steps, and $TMP, and these three. Nothing it sets or changes comes back.
+#   $SCRATCH        an empty folder of its own, removed with $TMP
+#   $LOOP_SKILL     the loop skill
+#   $PAGE_RENDERER  the page renderer
+# No check file spells those two paths, so a rename changes the two lines below and no check file.
+# A check file must run to its last line: one that stops early, or holds no check, fails the suite
+# in either folder.
+LOOP_SKILL=skills/review-page/SKILL.md
+PAGE_RENDERER=scripts/render-review.py
+WAITING=0
+WAITING_FILES=0
+
+run_check_file() {  # <file> <counted|waiting>
+  local file=$1 mode=$2 stage verdict message passed failed ended=0
+  stage=$(basename "$file" .sh)
+  local scratch="$TMP/stage/$mode/$stage"
+  rm -rf "$scratch"; mkdir -p "$scratch"
+  # The file runs from a copy with one more line after its last. A file that stops early (an exit,
+  # a return, a line that does not parse, a name that is not set) never reaches that line.
+  { cat "$file"; printf '\nreached_the_last_line\n'; } > "$scratch.sh"
+  (
+    SCRATCH=$scratch
+    ok()   { printf 'ok\t%s\n' "${1//[$'\t\n']/ }" >&3; }
+    fail() { printf 'fail\t%s\n' "${1//[$'\t\n']/ }" >&3; }
+    reached_the_last_line() { printf 'end\t\n' >&3; }
+    # shellcheck disable=SC1090
+    source "$scratch.sh"
+  ) 3> "$scratch.results" > "$scratch.log" 2>&1 < /dev/null
+  passed=$(grep -c $'^ok\t' "$scratch.results")
+  failed=$(grep -c $'^fail\t' "$scratch.results")
+  grep -q $'^end\t' "$scratch.results" && ended=1
+  if [[ $mode == waiting ]]; then
+    WAITING_FILES=$((WAITING_FILES + 1))
+    printf "  %s: %d waiting" "$file" "$failed"
+    if (( passed > 0 )); then printf ", %d passing already" "$passed"; fi
+    printf "\n"
+  fi
+  while IFS=$'\t' read -r verdict message; do
+    case "$mode:$verdict" in
+      counted:ok)   ok "$stage: $message" ;;
+      counted:fail) fail "$stage: $message" ;;
+      waiting:ok)   printf "    \033[2m✓ passes already: %s\033[0m\n" "$message" ;;
+      waiting:fail) WAITING=$((WAITING + 1)); printf "    \033[33m…\033[0m %s\n" "$message" ;;
+    esac
+  done < "$scratch.results"
+  if [[ $ended -eq 0 ]]; then
+    fail "$file did not run to its last line: $(tail -1 "$scratch.log")"
+  elif (( passed + failed == 0 )); then
+    fail "$file holds no check"
+  elif [[ $mode == waiting && $failed -eq 0 ]]; then
+    fail "every check in $file passes, so its stage is done: move the file to tests/checks/"
+  fi
+}
+
+section "21. Stage checks that count (tests/checks/)"
+# First the runner itself, on throwaway files: what one file adds to the suite's three counts.
+# counts_for <counted|waiting> <a line of a check file>...: prints "<passed> <failed> <waiting>".
+counts_for() {
+  local mode=$1; shift
+  printf '%s\n' "$@" > "$TMP/throwaway.sh"
+  ( PASS=0; FAIL=0; WAITING=0; ERRORS=()
+    run_check_file "$TMP/throwaway.sh" "$mode" > "$TMP/throwaway.out" 2>&1
+    printf '%s %s %s' "$PASS" "$FAIL" "$WAITING" )
+}
+got=$(counts_for waiting 'fail "the work is not built"' 'ok "this part is"')
+[[ "$got" == "0 0 1" ]] && grep -q 'the work is not built' "$TMP/throwaway.out" && ok "a failing check in a waiting file is listed as waiting, and neither passes nor fails the suite" || fail "a waiting file with one failing and one passing check added '$got' to passed, failed, waiting (expected '0 0 1')"
+got=$(counts_for waiting 'ok "built"' 'ok "and this"')
+[[ "$got" == "0 1 0" ]] && grep -q 'move the file to tests/checks/' "$TMP/throwaway.out" && ok "a waiting file whose checks all pass fails the suite and says to move the file" || fail "a waiting file whose checks all pass added '$got' (expected '0 1 0')"
+got=$(counts_for counted 'ok "built"' 'fail "not built"')
+[[ "$got" == "1 1 0" ]] && ok "the same checks under tests/checks/ pass and fail the suite like any other" || fail "a counted file with one passing and one failing check added '$got' (expected '1 1 0')"
+stops=()
+for early in 'exit 0' 'return 0' 'if then' 'printf "%s" "$never_set"'; do
+  [[ "$(counts_for waiting 'fail "before"' "$early" 'fail "after"')" == "0 1 1" && "$(counts_for counted 'ok "before"' "$early" 'ok "after"')" == "1 1 0" ]] || stops+=("$early")
+done
+(( ${#stops[@]} == 0 )) && ok "a check file that stops before its last line fails the suite in either folder (an exit, a return, a line that does not parse, a name that is not set)" || fail "a check file that stops early is not caught when it stops with: ${stops[*]}"
+[[ "$(counts_for waiting ': no check here')" == "0 1 0" && "$(counts_for counted ': no check here')" == "0 1 0" ]] && ok "a check file that holds no check fails the suite in either folder" || fail "a check file with no check in it is not caught"
+# A rename that changes the two names above to a path that is not there would leave every check
+# file reading nothing, and its checks waiting for good.
+[[ -f "$LOOP_SKILL" && -f "$PAGE_RENDERER" ]] && ok "the loop skill and the page renderer are where the check files are told to find them" || fail "the check files are told to find the loop skill at $LOOP_SKILL and the page renderer at $PAGE_RENDERER, and one of them is not there"
+
+counted_files=0
+for f in tests/checks/*.sh; do
+  [[ -f "$f" ]] || continue
+  counted_files=$((counted_files + 1)); run_check_file "$f" counted
+done
+(( counted_files > 0 )) || note "no stage has moved its check file to tests/checks/ yet"
+
+# ─── 22. Stage checks that wait ──────────────────────────────────────────────
+section "22. Stage checks waiting for their stage (tests/pending/)"
+for f in tests/pending/*.sh; do
+  [[ -f "$f" ]] || continue
+  run_check_file "$f" waiting
+done
+(( WAITING_FILES > 0 )) || note "nothing is waiting: tests/pending/ holds no check file"
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
-printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
+printf "\n%d passed, %d failed" "$PASS" "$FAIL"
+if (( WAITING_FILES > 0 )); then printf ", %d waiting for their stage (check files under tests/pending/: %d)" "$WAITING" "$WAITING_FILES"; fi
+printf "\n"
 if (( FAIL > 0 )); then
   printf "\nFailures:\n"
   for e in "${ERRORS[@]}"; do printf "  - %s\n" "$e"; done
