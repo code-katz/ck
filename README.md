@@ -12,6 +12,9 @@ Phase one, first release in progress. What runs today:
 |---|---|---|
 | `/ck:next` | Shows the whole pipeline as a table (each step in order, what it does, the document it writes, and where your project stands), then says what to run next in one sentence | Built |
 | `/ck:brief <idea>` | Toni runs a short market pass, River writes `docs/brief.md` (from your sentence, or from `docs/opportunity.md`), a checker validates it; you review on a page you can comment on | Built; drilled 2026-10-04 on a real project |
+| `/ck:plan [work]` | Quinn lays the work out as a staged plan: phases, then stages, one job and one owner per row, each with its state. With nothing after it, the whole release from the roadmap (`docs/build-plan.md`); with a piece of work after it, that one item (`docs/plan/`). You review it on a page you can comment on | Built; not yet run on a real project |
+| `/ck:start [stage]` | Opens the plan's sessions and keeps its board. For a stage it offers a card that starts a session for that one job, named from the row, such as `[A31-P2-S1] [Akira Fable] Make the creature tables`; with nothing after it, it updates the State column from the sessions and their pull requests and offers every row that could start now. With `fix <stage> <what is wrong>` it offers a card for a session that fixes one fault in a stage that is done, named such as `[A31-P1-S5 fix] [Akira Fable] Mend the scan's natural 1`; the stage stays done. Every new session checks its own model before it works. You click each card | Built; not yet run on a real project |
+| `/ck:do <task>` | The quick path, all in the chat: a plan of a few lines (who does what and the rough cost), you say go, the right personas work in the background on their own tiers, a mockup comes back as a link when you ask for one first, and a build waits on its own branch until you say merge. No documents and no review pages | Built; not yet run on a real task. Its cost line is an estimate |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd [--panel]` | River drafts `docs/PRD.md` from the brief, a checker validates, River adds a premortem; with `--panel`, three specialists on three models challenge it first and River rewrites; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
 | `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md`; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
@@ -83,7 +86,10 @@ Where things go, inside your repository:
 | Architecture | `docs/ARCHITECTURE.md` |
 | Brand guide and assets | `docs/brand-guide.md`, `brand/` |
 | Design gallery and spec | `docs/design/<feature>/` |
+| Staged build plan | `docs/build-plan.md` |
 | Decision memos | `docs/decisions/` |
+
+A staged plan for one piece of work, written by `/ck:plan <work>`, goes under `docs/plan/`.
 
 `.ck/runs/` is a cache for in-progress runs. Nothing depends on it, and `ck` excludes it from git locally without touching your `.gitignore`.
 
