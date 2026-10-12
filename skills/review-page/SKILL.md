@@ -24,7 +24,7 @@ Every document or gallery that needs a decision is reviewed on a page in Claude'
 
 Propose first, change nothing until the author agrees.
 
-1. Read every comment thread on the page.
+1. Read every comment thread on the page with the ArtifactComments tool (load it with ToolSearch when it is listed and not loaded; reading the page with the Artifact tool does not return comments). When there are no threads, say "There are no comments on the page.", change nothing, and continue to the skill's next step.
 2. For each thread, in the order they appear in the document, write one line in chat: the passage it is on (a few words), what the comment says, and what you propose to change, in a sentence. When the comment is ambiguous, ask instead of proposing: name the two readings and ask which. When you would not change anything, say why. Number the lines.
 3. Ask the author to answer by number: yes, no, or a correction. Wait.
 4. Apply only the changes the author approved, to the file on disk (the document is the state), each as the smallest edit that does what was agreed. Record every thread in `<runDir>/review.md`: the comment, what was proposed, the author's answer, and what changed.

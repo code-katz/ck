@@ -44,7 +44,7 @@ Fill Status with the first of these that applies to the row:
 | `in review` | The last run record for the step's command has a `status` that starts with `review`. |
 | `stopped partway` | The last run record for the step's command has any other `status` except `final`. |
 | `done` | The step's document exists. |
-| `next` | The sentence in section 3 names the step. |
+| `next` | The sentence in section 3 starts by telling the author to run this step's command. A command it only mentions later does not count. |
 | `skipped` | The step is 1 or 2, it has no document, and a later step has one. |
 | `not started` | Everything else. |
 

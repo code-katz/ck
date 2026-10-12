@@ -5,6 +5,40 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-11] 0.1.10: /ck:do, the quick path; /ck:plan and /ck:start, a staged plan and one named session per stage
+
+**Category:** `feature`
+**Tags:** `ck`, `do`, `plan`, `start`, `sessions`, `phase-two`
+**Risk Level:** `medium`
+**Breaking Change:** `no`
+
+### Summary
+Three commands that take ck past the definition pipeline, each shaped by Will on 2026-10-11. `/ck:do` gets one small task done in the chat: a plan of a few lines, "go", the right personas as background agents, a mockup link he OKs when he asks for one first, and a build on its own branch until he says merge ("do is meant to be more quick and scrappy in the chat"). `/ck:plan` writes a staged plan and `/ck:start` opens one named session per stage and keeps the plan's board ("CK should always arrived at a detailed staged plan like the one attached then it can open sessions with the naming convention", then, of a second table, "another example, better one", then "build it, and yes this sits besides do"). **None of the three has been run for real**: the `claude` command's sign-in on the development machine had expired, so the scripted trial could not start. They were checked by tests and by fresh readers walking scripted conversations.
+
+### Detail
+
+- **The staged plan** (`skills/plan-artifact`): phases, and under each a table `| Stage | What | Who | State |`. One row is one job for one owner, so one row is one session. Who is `<Persona>, <Model>`, `You`, or `Open`. State is one of four forms: `done (279)`, `running in its session`, `not started; could start now`, `not started; follows S1 and S2`. Each row has an entry (Kind, Does, Files, Reads, Follows, Done when, Hands back) that a session knowing nothing else can work from. The release plan is `docs/build-plan.md`; an item plan is under `docs/plan/`.
+- **`scripts/plan.py`** is the one reader and writer of a plan's state: `find`, `check`, `rows`, `ready`, `refresh`, `set`, `approve`, `board`, `card`. It was built tests-first by two agents working from one specification without seeing each other's work (90 cases, all passing on the first run), then attacked by two more, who found 24 faults (a bar inside a cell made `set` overwrite the Who cell; a wrapped Follows freed a row early; a long line took quadratic time). Each is fixed with a case; 111 cases now. It only ever rewrites a State cell or the Status, and never prints a traceback.
+- **`/ck:plan`** (`skills/plan`, `workflows/plan-draft.js`): Quinn writes the release plan from the roadmap, the architecture document, and the team document; an item plan's author is the area's lead, akira by default. A Haiku checker runs `plan.py refresh` and `check` and reads for what a script cannot (hours, dates, the roster's total). The author reviews on a page, approves, and is asked to commit the plan, because a session in a worktree sees only committed files. An existing plan is never overwritten unasked: a copy goes to the run folder, and a replanned plan keeps every stage's id and what is done or running.
+- **`/ck:start`** (`skills/start`): for a stage, `plan.py card` prints the session's name, `[A31-P2-S1] [Akira Fable] Make the creature tables`, and its opening message, and the session offers them as a card through the desktop app's suggested-task tool. The author clicks; ck never starts a session. With no stage it first brings the board up to date from the app's session list: a session counts for a row only inside this project and only when its title starts with the row's id and owner, a merged pull request marks the row done and the session `[done]`, and a session whose title merely mentions an id, or reads as an instruction, changes nothing. "merge", "done", "running", "back", and "save" are the author's words for a stage. In a terminal it prints the message to paste.
+- **`/ck:do`** (`skills/do`): the coordinator plans in chat, runs each step as a background agent on the persona's tier, publishes a mockup as a private link, and has the build run in an isolated worktree. Two faults were caught in review before any run: an isolated worktree starts from the remote's default branch, not the author's last commit, so the builder resets to the recorded commit first; and the branch and files in the report come from the session's own look, not the builder's word.
+- **`/ck:next`** gains step 10, the build plan, and once one exists its one sentence is `/ck:start`. It no longer says that building is the next release of ck.
+- **Tests**: sections 18 and 19, the plan script's cases, and the new skills in the house-style, gate, and pipeline-table checks. 380 checks.
+
+### How they were checked, and what that is worth
+Three review rounds, each a workflow: fresh readers given only a skill's text walked scripted conversations (five for `/ck:do`, eight and then five for `/ck:plan` and `/ck:start`), really running the shell commands and the plan script on sample projects, and judges compared each walk with what must happen; reviewers with a lens each (git and the shell, the tools' own contracts, fit to what Will asked for) hunted for holes and a skeptic tried to refute each finding. That is evidence about how the text reads and whether the commands run. It is not a run: no agent was launched, no page published, no card clicked.
+
+### Open
+- The first real use is the first run. Costs in `/ck:do`'s plan line are estimates.
+- Will's own sessions include follow-ups named `[A31-P1-S5 fix] ...`. `/ck:start` cannot open one yet; the board ignores them.
+- A new session's model can only be set after its first turn, so the card tells the author which to pick.
+- The card is the desktop app's suggested-task tool, whose own description is about side findings. Will's coordinator on another project uses it this way already.
+- `/ck:proof`, planned in another session, has a document contract in which "a plan" has a steps table. That and the staged plan are two shapes with one name; they need reconciling before `/ck:proof` is built.
+- The older gate skills write `.ck/` into `.git/info/exclude` by path, which fails inside a linked worktree. The new skills use `git rev-parse --git-path`. The older ones are not changed here.
+- The PRD in `code-katz/.github` does not describe these three commands yet.
+
+---
+
 ## [2026-10-07] 0.1.9: /ck:next shows the whole pipeline as a table with each step's status; every pipeline command closes with it
 
 **Category:** `feature`
