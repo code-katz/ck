@@ -408,7 +408,7 @@ class Plan:
             with open(self.path, 'wb') as handle:
                 handle.write(text.encode('utf-8'))
         except (OSError, ValueError) as error:
-            raise Fail('cannot write %s: %s' % (self.path, getattr(error, 'strerror', None) or 'it is not a file'))
+            raise Fail('cannot write %s: %s' % (self.path, getattr(error, 'strerror', None) or 'it is not a file')) from None
 
 
 def read_refs(text, phase):
@@ -440,9 +440,9 @@ def read_text(path):
         with open(path, 'rb') as handle:
             return handle.read().decode('utf-8')
     except UnicodeDecodeError:
-        raise Fail('cannot read %s: it is not UTF-8 text' % path)
+        raise Fail('cannot read %s: it is not UTF-8 text' % path) from None
     except (OSError, ValueError) as error:
-        raise Fail('cannot read %s: %s' % (path, getattr(error, 'strerror', None) or 'it is not a file'))
+        raise Fail('cannot read %s: %s' % (path, getattr(error, 'strerror', None) or 'it is not a file')) from None
 
 
 def load(path):
@@ -788,7 +788,7 @@ def cmd_approve(args, opts):
                 raise ValueError
             datetime.date(int(date[:4]), int(date[5:7]), int(date[8:]))
         except ValueError:
-            raise usage('approve')
+            raise usage('approve') from None
     plan = load(args[0])
     if plan.status is None:
         raise Refuse('%s has no "Status: " on a line that starts "Date: ", so there is nothing to set' % args[0])
@@ -830,7 +830,7 @@ def read_stdin():
     try:
         return sys.stdin.buffer.read()
     except (AttributeError, OSError, ValueError) as error:   # closed, or not a thing that can be read
-        raise Fail('cannot read standard input: %s' % (getattr(error, 'strerror', None) or 'it is not open'))
+        raise Fail('cannot read standard input: %s' % (getattr(error, 'strerror', None) or 'it is not open')) from None
 
 
 def fix_asked(opts):
