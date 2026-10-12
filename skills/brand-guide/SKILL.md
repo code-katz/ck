@@ -86,7 +86,7 @@ Never write a gallery, an SVG, or either document yourself in this step or the n
 
 ## 5. The two reviews
 
-After `proposals`, set `status` to `review-1` and review `brand/proposals/gallery.html` per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, section 3 (galleries), with this question at the top of the chat message: "Which two or three directions should go forward, and what should change in them?" After `finalists`, set `status` to `review-2` and review `brand/finalists/gallery.html` the same way, with the question: "Which one is the brand, and what are the final changes?"
+After `proposals`, set `status` to `review-1` and review `brand/proposals/gallery.html` per `${CLAUDE_PLUGIN_ROOT}/skills/proof-loop/SKILL.md`, section 3 (galleries), with this question at the top of the chat message: "Which two or three directions should go forward, and what should change in them?" After `finalists`, set `status` to `review-2` and review `brand/finalists/gallery.html` the same way, with the question: "Which one is the brand, and what are the final changes?"
 
 That skill publishes the gallery as it is (the workflow wrote it to the gallery contract), waits for "done", reads the comments, and records the picks. Write `<runDir>/review-1.md` or `review-2.md` with two lines first, then the comment record: `chosen: A, C` (the labels, from the comments) and `changes: <every requested change, in one paragraph>`.
 

@@ -4,7 +4,7 @@
 
 ## Current State Snapshot
 
-The skeleton is committed: the full persona roster as subagents and switch commands on three tiers, four of nine workflow scripts (`panel`, `brief`, `draft`, `team`), the `prd`, `next`, and `review-page` skills, five of ten document contracts, two hooks, and the static test suite. Nothing has run end to end on a real project yet. Phase 0 answered seven of eight spikes (see the PRD's §8.0).
+The skeleton is committed: the full persona roster as subagents and switch commands on three tiers, four of nine workflow scripts (`panel`, `brief`, `draft`, `team`), the `prd`, `next`, and `proof-loop` skills, five of ten document contracts, two hooks, and the static test suite. Nothing has run end to end on a real project yet. Phase 0 answered seven of eight spikes (see the PRD's §8.0).
 
 ## Opportunities — Prioritized
 
@@ -13,7 +13,7 @@ The skeleton is committed: the full persona roster as subagents and switch comma
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
 | 1 | End-to-end drill of `/ck:next`, `/ck:brief`, `/ck:panel` on the fixtures, then on a real project | These three exercise every mechanism Phase 0 proved; nothing else is trusted until they run | PRD §9 test 13 log committed under `tests/drill/` |
-| 2 | `/ck:prd` drill, including the review page and a `startAt` resume (done 2026-09-09 and 2026-10-01: $8.05 per PRD, down from $16.33; Will kept Fable for the rewrite and finalize stages on 2026-10-01, because the PRD is the most important step of a product kickoff and $8 is an accepted cost) | The flagship document | Test 13's `/ck:prd` rows pass; a review page with two applied comments |
+| 2 | `/ck:prd` drill, including the proof and a `startAt` resume (done 2026-09-09 and 2026-10-01: $8.05 per PRD, down from $16.33; Will kept Fable for the rewrite and finalize stages on 2026-10-01, because the PRD is the most important step of a product kickoff and $8 is an accepted cost) | The flagship document | Test 13's `/ck:prd` rows pass; a proof with two applied comments |
 | 3 | The remaining contracts: `opportunity`, `market-research`, `roadmap`, `brand`, `design`, `gallery` (written 2026-10-01) | Every script needs its contract before it is written | Test 7 passes for every workflow once its script exists |
 | 4 | The remaining scripts: `opportunity-draft`, `market-research`, `roadmap`, `brand`, `design-round`, and the gate-owning skills `opportunity`, `architecture`, `brand-guide`, `design` (all built, drilled, and merged 2026-10-01; every command measured in `tests/drill/2026-10-01.md`) | Phase one is the whole pipeline | Test 9 passes for nine scripts; J1 and J2 drills complete |
 | 5 | Marketplace entry in `code-katz/claude-plugins` (merged 2026-10-02; installed and run from it on Will's Mac the same day, drill 20) and the install drill on Clare's machine | Distribution | `/plugin install ck@code-katz` then `/ck:next` on a second machine |
