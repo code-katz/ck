@@ -21,7 +21,7 @@ Say so in one line and stop, naming the command to type, when the task is really
 
 - A pipeline document. Its own command writes it: `/ck:opportunity <idea>`, `/ck:market-research [focus]`, `/ck:brief <idea>`, `/ck:prd`, `/ck:team`, `/ck:roadmap`, `/ck:architecture`, `/ck:brand-guide`, or `/ck:design <feature>` for a feature's full design round (variants to choose from, every screen state, and a design spec; one mockup of one change is a draw step here). Put the author's subject after the command when it takes one.
 - A decision between options: `/ck:panel <the question>`.
-- Several separate jobs in one sentence, or one job that plainly needs more than three steps: too big for one `/ck:do`. Offer the first job the author named as a task they can type.
+- Several separate jobs in one sentence, or one job that plainly needs more than three steps: too big for one `/ck:do`. Name `/ck:plan <the work>`, which stages it for several sessions, or offer the first job the author named as a task they can type.
 
 ## 2. Look
 

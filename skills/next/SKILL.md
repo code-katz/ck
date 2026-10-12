@@ -11,7 +11,7 @@ Look at the project, show the table, then say exactly one thing under it. Plain 
 Run this in the repository Claude Code was opened in, exactly as written, and trust its output over any other listing:
 
 ```bash
-ls docs/opportunity.md docs/market-research.md docs/brief.md docs/TEAM.md docs/PRD.md ROADMAP.md docs/ARCHITECTURE.md docs/brand-guide.md 2>/dev/null
+ls docs/opportunity.md docs/market-research.md docs/brief.md docs/TEAM.md docs/PRD.md ROADMAP.md docs/ARCHITECTURE.md docs/brand-guide.md docs/build-plan.md 2>/dev/null
 find docs/design -maxdepth 2 \( -name gallery.html -o -name spec.md \) 2>/dev/null
 grep -rHoE --include=run.json '"(command|status)" *: *"[^"]*"' .ck/runs 2>/dev/null | sort
 ```
@@ -33,6 +33,7 @@ Print this table with the Status column filled in for this project. Keep the col
 | 7 | Architecture: `/ck:architecture` | Recommends how to build it, with the alternatives it turned down. | `docs/ARCHITECTURE.md` | |
 | 8 | Brand guide: `/ck:brand-guide` | Builds the brand identity (mark, colors, type) over two rounds of your picks, and writes the guide and the assets. | `docs/brand-guide.md`, `brand/` | |
 | 9 | Design, once per feature: `/ck:design <feature>` | Draws three variants of one feature's screens, then finishes the one you pick with a design spec. | `docs/design/<feature>/` | |
+| 10 | Build plan: `/ck:plan` | Lays the work out in phases and stages, one job and one owner per row, each ready to open as its own session with `/ck:start`. | `docs/build-plan.md` | |
 | any | Panel: `/ck:panel <question>` | Three specialists argue one question, and a memo shows where they disagree. | `docs/decisions/` | |
 
 Fill Status with the first of these that applies to the row:
@@ -68,7 +69,8 @@ Then say the first line that applies. "The newest run record" is the last one th
 | PRD, no roadmap | "Run `/ck:roadmap`. It orders the work and writes `ROADMAP.md`." |
 | Roadmap, no architecture | "Run `/ck:architecture`. It recommends how to build it and writes `docs/ARCHITECTURE.md`." |
 | Architecture, no brand guide | "Run `/ck:brand-guide`. It takes two rounds of your review and writes the brand guide and assets." |
-| Everything above | "The definition is complete. Run `/ck:design <feature>` for any feature in the PRD, or `/ck:panel <question>` for a decision. Building features is the next release of ck." |
+| Brand guide, no build plan | "Run `/ck:plan`. It lays the work out in phases and stages, with one owner for each, and writes `docs/build-plan.md`." |
+| Everything above | "The definition and the build plan are complete. Type `/ck:start` to see the board and open the stages that could start now, `/ck:design <feature>` for a feature's screens, or `/ck:panel <question>` for a decision." |
 
 Do not run any agent. Do not explain how the tool works unless asked.
 

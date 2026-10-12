@@ -138,7 +138,7 @@ def js_list(text):
     return re.findall(r"'((?:[^'\\]|\\.)*)'", text)
 problems = []
 # brief.js and team.js declare SECTIONS
-for script, contract in (('workflows/brief-draft.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team-draft.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md'), ('workflows/market-research-draft.js', 'skills/market-research-artifact/SKILL.md')):
+for script, contract in (('workflows/brief-draft.js', 'skills/brief-artifact/SKILL.md'), ('workflows/team-draft.js', 'skills/team-artifact/SKILL.md'), ('workflows/opportunity-draft.js', 'skills/opportunity-artifact/SKILL.md'), ('workflows/market-research-draft.js', 'skills/market-research-artifact/SKILL.md'), ('workflows/plan-draft.js', 'skills/plan-artifact/SKILL.md')):
     js = pathlib.Path(script).read_text()
     m = re.search(r'const SECTIONS = \[(.*?)\]', js, re.S)
     got = js_list(m.group(1)) if m else []
@@ -171,7 +171,7 @@ then ok "brief, team, opportunity, market-research, prd, architecture, brand, an
 
 # ─── 8. Gate-owning skills reference review-page ─────────────────────────────
 section "8. Gate mechanics live in one place"
-for f in skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
+for f in skills/plan/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
   if grep -q 'review-page/SKILL.md' "$f"; then ok "$f references skills/review-page/SKILL.md"; else fail "$f does not reference review-page"; fi
   if grep -qi 'comment mode' "$f"; then fail "$f restates the comment steps"; else ok "$f does not restate the comment steps"; fi
 done
@@ -246,7 +246,7 @@ out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/do/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/do/SKILL.md skills/plan/SKILL.md skills/start/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
@@ -487,7 +487,7 @@ def table(src, header):
 def ticks(cell):
     return re.findall(r'`([^`]+)`', cell)
 problems = []
-steps = ['opportunity', 'market-research', 'brief', 'team', 'prd', 'roadmap', 'architecture', 'brand-guide', 'design']
+steps = ['opportunity', 'market-research', 'brief', 'team', 'prd', 'roadmap', 'architecture', 'brand-guide', 'design', 'plan']
 rows = table(text, '| # | Step | What it does | Writes | Status |')
 # One row per step, in the pipeline's order, then the panel.
 got = [(r[0], (re.search(r'`/ck:([a-z-]+)', r[1]) or [None, None])[1]) for r in rows]
@@ -518,7 +518,7 @@ for s in steps:
 for p in problems: print(p, file=sys.stderr)
 sys.exit(1 if problems else 0)
 EOF
-then ok "nine steps in order and the panel, one sentence each, paths match the README, seven statuses, every step can be next"; else fail "skills/next/SKILL.md pipeline table (see above)"; fi
+then ok "ten steps in order and the panel, one sentence each, paths match the README, seven statuses, every step can be next"; else fail "skills/next/SKILL.md pipeline table (see above)"; fi
 
 # The look runs as written in the shells Claude Code uses: nothing matched is no error and no output.
 awk '/^```bash$/ { f = 1; next } /^```$/ { if (f) exit } f' skills/next/SKILL.md > "$TMP/look.sh"
@@ -547,7 +547,7 @@ for sh in bash zsh; do
 done
 
 # Every gate-owning skill closes with the table by reference, and none restates it.
-for f in skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
+for f in skills/plan/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md; do
   if grep -q 'close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`' "$f"; then ok "$f closes per skills/next/SKILL.md"; else fail "$f does not close per skills/next/SKILL.md"; fi
   if grep -qF '| # | Step |' "$f" || grep -q 'run `/ck:next`' "$f"; then fail "$f restates the pipeline table or sends the reader to /ck:next for it"; else ok "$f does not restate the table or add a hop to /ck:next"; fi
 done
@@ -569,7 +569,7 @@ named = set(re.findall(r'/ck:([a-z-]+)', t)) - {'do'}
 for n in sorted(named):
     if not (pathlib.Path(f'skills/{n}/SKILL.md').exists() or pathlib.Path(f'workflows/{n}.js').exists()):
         problems.append(f'names /ck:{n}, which is not a command')
-for n in ('opportunity', 'market-research', 'brief', 'prd', 'team', 'roadmap', 'architecture', 'brand-guide', 'design', 'panel'):
+for n in ('opportunity', 'market-research', 'brief', 'prd', 'team', 'roadmap', 'architecture', 'brand-guide', 'design', 'panel', 'plan'):
     if n not in named: problems.append(f'does not name /ck:{n} for work that belongs to it')
 # Every owner in the step table is on the roster.
 personas = {p.stem for p in pathlib.Path('profiles').glob('*.md')} - {'ROSTER'}
@@ -644,6 +644,66 @@ for sh in bash zsh; do
     ok "$sh: the look back prints the branch, the base it grew from, the commit, the files, and a clean count"
   else fail "$sh: the look back: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
 done
+
+# ─── 19. The staged plan ─────────────────────────────────────────────────────
+section "19. The staged plan: /ck:plan, /ck:start, and scripts/plan.py"
+if python3 - > "$TMP/plan-static.out" 2>&1 <<'EOF'
+import re, sys, pathlib
+problems = []
+def front(path):
+    return pathlib.Path(path).read_text().split('---', 2)[1]
+plan, start = pathlib.Path('skills/plan/SKILL.md').read_text(), pathlib.Path('skills/start/SKILL.md').read_text()
+contract = pathlib.Path('skills/plan-artifact/SKILL.md').read_text()
+script = pathlib.Path('scripts/plan.py').read_text() if pathlib.Path('scripts/plan.py').exists() else ''
+if not script: problems.append('scripts/plan.py is missing')
+for name in ('plan', 'start'):
+    f = front(f'skills/{name}/SKILL.md')
+    for key, pat in ((f'name: {name}', rf'^name: {name}$'), ('disable-model-invocation: true', r'^disable-model-invocation: true$'), ('an argument hint', r'^argument-hint: ')):
+        if not re.search(pat, f, re.M): problems.append(f'skills/{name}: frontmatter lacks {key}')
+if not re.search(r'^user-invocable: false$', front('skills/plan-artifact/SKILL.md'), re.M): problems.append('skills/plan-artifact is not marked as not for typing')
+# Every plan.py command a skill or the workflow runs is one the script has.
+used = set(re.findall(r'<plan\.py> ([a-z]+)', plan + start)) | set(re.findall(r'plan\.py" ([a-z]+)', pathlib.Path('workflows/plan-draft.js').read_text()))
+for c in sorted(used):
+    if not re.search(rf"['\"]{c}['\"]", script): problems.append(f'a skill or the workflow runs plan.py {c}, which the script does not have')
+for c in ('find', 'rows', 'ready', 'set', 'board', 'card'):
+    if c not in used: problems.append(f'/ck:start or /ck:plan never runs plan.py {c}')
+# The words the contract fixes are the words the script knows.
+for word in ('running in its session', 'not started; could start now', 'not started; follows', 'design round', 'yours', 'Fable', 'Opus', 'Sonnet', 'Haiku', '| Stage | What | Who | State |'):
+    if word not in contract: problems.append(f'the contract lacks "{word}"')
+    # The script reads the header by its four cells, so aligned columns still count; it need not hold the row as text.
+    if script and not word.startswith('|') and word not in script: problems.append(f'scripts/plan.py lacks "{word}", which the contract fixes')
+# /ck:plan: the workflow it launches exists, it reviews on the page, and it approves with the script.
+if 'name: "ck:plan-draft"' not in plan or not pathlib.Path('workflows/plan-draft.js').exists(): problems.append('skills/plan does not launch ck:plan-draft, or the workflow is missing')
+for need in ('<plan.py> approve', '<plan.py> refresh', '<plan.py> check', 'docs/build-plan.md', 'docs/plan/', 'Run `/ck:roadmap` first'):
+    if need not in plan: problems.append(f'skills/plan lacks: {need}')
+# /ck:start: cards through the app's tool, a way without it, and its limits.
+for need in ('mcp__ccd_session__spawn_task', 'mcp__ccd_session_mgmt__list_sessions', 'mcp__ccd_session_mgmt__set_session_title', 'mcp__ccd_session_mgmt__set_session_model',
+             'paste this as its first message', 'you never start one', 'Never mark a row done without a merged pull request or the author', 'Never merge without the author'):
+    if need not in start: problems.append(f'skills/start lacks: {need}')
+for word in ('review-page', 'run.json', 'Workflow('):
+    if word in start: problems.append(f'skills/start mentions {word}; it launches nothing and reviews nothing')
+for p in problems: print(p)
+sys.exit(1 if problems else 0)
+EOF
+then ok "skills/plan and skills/start: typed only; every plan.py command they run exists; the contract's fixed words are the script's; cards, the paste fallback, and the limits are there"
+else while IFS= read -r l; do fail "the staged plan: $l"; done < "$TMP/plan-static.out"; fi
+for row in '| `/ck:plan [work]`' '| `/ck:start [stage]`' '| Staged build plan | `docs/build-plan.md` |'; do
+  if grep -qF -- "$row" README.md; then ok "README.md has: $row"; else fail "README.md lacks: $row"; fi
+done
+for f in tests/fixtures/plan/project/docs/build-plan.md tests/fixtures/plan/project/docs/plan/2026-10-11-encounter-refactor.md; do
+  python3 scripts/plan.py check "$f" > "$TMP/plan-check.out" 2>&1; rc=$?
+  if [[ $rc -eq 0 && "$(grep -vc '^words: ' "$TMP/plan-check.out")" == 0 ]]; then ok "plan.py check passes $f"; else fail "plan.py check on $f: exit $rc, $(head -3 "$TMP/plan-check.out" | tr '\n' ' ')"; fi
+done
+# tests/plan-cases.py was written from the specification by someone who did not write the script.
+python3 tests/plan-cases.py > "$TMP/plan-cases.out" 2> "$TMP/plan-cases.err"; rc=$?
+pc_lines=0
+while IFS=$'\t' read -r verdict message; do
+  case "$verdict" in
+    ok)   ok "plan.py: $message"; pc_lines=$((pc_lines + 1)) ;;
+    fail) fail "plan.py: $message"; pc_lines=$((pc_lines + 1)) ;;
+  esac
+done < "$TMP/plan-cases.out"
+if [[ $rc -ne 0 || $pc_lines -eq 0 ]]; then fail "tests/plan-cases.py did not run to the end: exit $rc, $(head -3 "$TMP/plan-cases.err" | tr '\n' ' ')"; fi
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
