@@ -1,8 +1,8 @@
-# tests/pending/P1-S1.sh: the checks for stage P1-S1, Build the publish guard.
+# tests/checks/P1-S1.sh: the checks for stage P1-S1, Build the publish guard.
 #
-# Written in stage P0-S1, before the work. Section 21 of tests/run.sh says how this file is run
-# and what it may use. The stage is done when every check here passes and this file has moved to
-# tests/checks/. Tighten a check when the work shows it is too weak. Never loosen one.
+# Written in stage P0-S1, before the work, and moved here when the work was done. Section 21 of
+# tests/run.sh says how this file is run and what it may use. Tighten a check when the work shows
+# it is too weak. Never loosen one.
 #
 # The guard, as these checks read it. It is one command, run inside the project, on one file:
 #     python3 scripts/proof-guard.py <file>
@@ -104,8 +104,9 @@ check "a file outside the repository is refused, however the path is written and
   "$(refused "$outside/notes.md" "$in_repo")" "$(refused ../outside/notes.md "$in_repo")" \
   "$(refused ../../outside/notes.md "$in_repo" "$repo/docs")" "$(accepted ../README.md "$repo/docs")"
 
+# The pattern was any reason; the stage that built the guard made it the reason at the link's end.
 check "a link inside the repository is refused when it leads out of it, or to a file git ignores" \
-  "$(refused docs/note/linked-out.md .)" "$(refused docs/note/linked-ignored.md .)"
+  "$(refused docs/note/linked-out.md "$in_repo")" "$(refused docs/note/linked-ignored.md ignore)"
 
 check "a file that is not markdown is refused" \
   "$(refused docs/note/notes.txt 'markdown|\.md')" "$(refused docs/note/page.html 'markdown|\.md')"
@@ -151,3 +152,64 @@ check "every document /ck:next looks for is refused, and the sentence names the 
 doc twenty-one > "$repo/docs/build-plan.md"
 check "a staged plan is refused, and the sentence names /ck:plan" \
   "$(refused docs/build-plan.md '/ck:plan([^a-z-]|$)')" "$(refused docs/plan/2026-10-12-pricing.md '/ck:plan([^a-z-]|$)')"
+
+# ─── Added by the stage that built the guard ─────────────────────────────────
+# Each check below pins a choice the guard made that the checks above leave open, so that a
+# later change to it is seen here.
+
+# A path that is not there, and a folder, are refused like any other file: status 1 and one
+# sentence, so the command can say it. The guard fails, with neither a yes nor a refusal, only
+# when it was not given one file.
+no_answer() {  # <arguments>...: prints nothing when the guard stops with a status other than 0 and 1.
+  local rc
+  [[ -f "$guard" ]] || { printf 'scripts/proof-guard.py is not written'; return; }
+  (cd "$repo" && python3 "$guard" "$@") > "$SCRATCH/said" 2>&1; rc=$?
+  [[ $rc -ne 0 && $rc -ne 1 ]] || printf 'given "%s" the guard stops with status %s, which is an answer' "$*" "$rc"
+}
+check "a path that is not there, and a folder, are refused with one sentence, and the guard fails only when it is not given one file" \
+  "$(refused docs/note/missing.md 'not there')" "$(refused docs/note folder)" \
+  "$(no_answer)" "$(no_answer README.md docs/note/draft.md)" "$(no_answer --help)"
+
+# Where a path leads counts: an absolute path, and one that wanders, lead to the same file as the
+# plain one; a link to a folder is followed like a link to a file; and a link is judged by the
+# file at its end, whatever the link itself is named.
+ln -s ../../private "$repo/docs/note/linked-folder"
+ln -s notes.txt "$repo/docs/note/linked-txt.md"
+ln -s nowhere.md "$repo/docs/note/linked-gone.md"
+check "a file inside the repository is accepted by an absolute path, and by one that wanders" \
+  "$(accepted "$repo/README.md")" "$(accepted ./docs/../README.md)"
+check "a link is followed wherever it stands on the path, and judged by the file at its end" \
+  "$(refused docs/note/linked-folder/plan.md ignore)" "$(refused docs/note/linked-txt.md 'markdown|\.md')" \
+  "$(refused docs/note/linked-gone.md 'not there')"
+
+# A byte order mark is not a word. And the sentence is one line whatever the path holds, so a
+# name with a line break in it is shown on one.
+printf '\xef\xbb\xbf' > "$repo/docs/note/bom.md"
+: > "$repo/docs/note/two"$'\n'"lines.md"
+check "a file that holds only a byte order mark is empty, and the sentence stays one line when the path holds a line break" \
+  "$(refused docs/note/bom.md 'empty|no words|nothing')" "$(refused "docs/note/two"$'\n'"lines.md" 'empty|no words|nothing')"
+
+# docs/plan/ belongs to /ck:plan whole, so a plan deeper inside it is refused too.
+mkdir -p "$repo/docs/plan/old"; doc twenty-two > "$repo/docs/plan/old/2026-01-01-pricing.md"
+check "a plan anywhere under docs/plan/ is refused, and the sentence names /ck:plan" \
+  "$(refused docs/plan/old/2026-01-01-pricing.md '/ck:plan([^a-z-]|$)')"
+
+# On a file system that ignores case, docs/prd.md leads to docs/PRD.md, and where a path leads
+# counts. On one that tells case apart, the other spelling leads nowhere.
+spelled() {  # <a path in another case> <the reason when it leads to the file>: like refused.
+  if [[ -e "$repo/$1" ]]; then refused "$1" "$2"; else refused "$1" 'not there'; fi
+}
+check "a path in another case is judged by where it leads on this file system" \
+  "$(spelled docs/prd.md '/ck:prd([^a-z-]|$)')" "$(spelled Docs/Plan/2026-10-12-pricing.md '/ck:plan([^a-z-]|$)')" \
+  "$(spelled .CK/runs/20261012T000000Z-pricing-proof/review.md '\.ck|cache')"
+
+# .git/ is never published, and git itself does not report a file inside it as ignored.
+mkdir -p "$repo/.git/note"; doc twenty-three > "$repo/.git/note/plan.md"
+check "a file inside .git/ is refused" "$(refused .git/note/plan.md '\.git')"
+
+# The guard opens a file only to see whether it has words: a file it refuses for where it is, or
+# for its name, is never read. These cannot be read at all, and are refused all the same.
+doc twenty-four > "$repo/private/sealed.md"; doc twenty-five > "$repo/docs/note/sealed.txt"; doc twenty-six > "$outside/sealed.md"
+chmod 000 "$repo/private/sealed.md" "$repo/docs/note/sealed.txt" "$outside/sealed.md"
+check "a file refused for where it is, or for its name, is never opened" \
+  "$(refused private/sealed.md ignore)" "$(refused docs/note/sealed.txt 'markdown|\.md')" "$(refused ../outside/sealed.md "$in_repo")"
