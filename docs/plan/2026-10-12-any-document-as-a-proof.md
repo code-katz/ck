@@ -17,9 +17,9 @@ The names and the checks are put in place before anything is built. When it ends
 | Stage | What | Who | State |
 |---|---|---|---|
 | P0-S0 | The staged-plan release merged, pull request 25 | You | done (25) |
-| P0-S1 | The lint gate, a waiting state for the suite, and the checks for every later stage | Robin, Opus | running in its session |
-| P0-S2 | The review page renamed to the proof, everywhere | Sasha, Sonnet | not started; follows S1 |
-| P0-S3 | A check that runs the suite on every pull request | Alex, Sonnet | not started; follows S1 |
+| P0-S1 | The lint gate, a waiting state for the suite, and the checks for every later stage | Robin, Opus | done (26) |
+| P0-S2 | The review page renamed to the proof, everywhere | Sasha, Sonnet | done (27) |
+| P0-S3 | A check that runs the suite on every pull request | Alex, Sonnet | done (28) |
 
 Ends when: a proof you open says "proof" above its title, and the suite passes while it lists the checks still waiting.
 
@@ -29,12 +29,12 @@ The page is made safer and the command is written. When it ends, typing `/ck:pro
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P1-S0 | The page renderer: two faults mended, a check for keys, the new comment steps on a proof | Sasha, Sonnet | not started; follows P0-S2 |
-| P1-S1 | The guard that refuses a file a proof must not publish | Akira, Fable | not started; follows P0-S2 |
-| P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | not started; follows P0-S2 |
-| P1-S3 | The contract every document from the command follows | Kai, Opus | not started; follows P0-S2 |
-| P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | not started; follows S1, S2 and S3 |
-| P1-S5 | The documentation, the line under the pipeline table, and the version | Quinn, Sonnet | not started; follows S0 and S4 |
+| P1-S0 | The page renderer: two faults mended, a check for keys, the new comment steps on a proof | Sasha, Sonnet | done (30) |
+| P1-S1 | The guard that refuses a file a proof must not publish | Akira, Fable | done (32) |
+| P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | not started; could start now |
+| P1-S3 | The contract every document from the command follows | Kai, Opus | done (31) |
+| P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | not started; follows S2 |
+| P1-S5 | The documentation, the line under the pipeline table, and the version | Quinn, Sonnet | not started; follows S4 |
 
 Ends when: in a test project, `/ck:proof` with a request gives you a proof, and pointed at a file that git ignores it refuses.
 
