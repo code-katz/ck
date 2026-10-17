@@ -1,4 +1,4 @@
-# tests/pending/P1-S2.sh: the checks for stage P1-S2, Write the loop's rules.
+# tests/checks/P1-S2.sh: the checks for stage P1-S2, Write the loop's rules.
 #
 # Written in stage P0-S1, before the work. Section 21 of tests/run.sh says how this file is run
 # and what it may use. The stage is done when every check here passes and this file has moved to
@@ -12,7 +12,8 @@
 #     wording of it holds, in one item of a list or one paragraph of the loop skill. The words
 #     are a floor. Whether the rule says what the proposal means is for the readers in phase 2.
 #
-# One check here passes today, on purpose: the one for the old third comment step. It says so.
+# One check here passed before the stage, on purpose: the one for the old third comment step. The
+# stage reversed it, as its comment says.
 
 steps=tests/fixtures/proof/comment-steps.txt
 
@@ -38,13 +39,12 @@ else
 fi
 
 # This check stood in section 13 of tests/run.sh, inside "the banner carries the four comment
-# steps". It passes today, and it is the one check in this file that does: it looks for the old
-# third step, which this stage replaces. When the four new steps are on the page, reverse it, so
-# that it fails a gallery that still tells the reviewer not to send the comment.
+# steps". Before stage P1-S2 it looked for the old third step; that stage reversed it, so it now
+# fails a gallery that still tells the reviewer not to send the comment.
 if grep -q 'Do not send the comment to Claude' "$SCRATCH/gallery.html" 2> /dev/null; then
-  ok "the gallery's banner still carries the old third step, Do not send the comment to Claude (until this stage reverses this check)"
+  fail "the gallery's banner no longer tells the reviewer not to send the comment: the old third step, Do not send the comment to Claude, is still on the page"
 else
-  fail "the gallery's banner still carries the old third step: it is gone, so reverse this check as the comment above it says"
+  ok "the gallery's banner no longer tells the reviewer not to send the comment"
 fi
 
 python3 - "$steps" "$SCRATCH/gallery.html" <<'EOF' | relay "the gallery contract and the two workflows"

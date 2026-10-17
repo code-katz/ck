@@ -13,8 +13,8 @@ One page shape for brand galleries and design galleries, so a review is the same
 1. **Banner**: the product name; what is being reviewed and the round or revision; the four comment steps, verbatim:
    1. Open this link signed in to your Claude account.
    2. Switch the page to comment mode from the bar at the top.
-   3. Click the variant or the passage you want to comment on and type. Do not send the comment to Claude; your session reads it.
-   4. Say "done" in your Claude Code session when you have finished.
+   3. Click the passage, type your comment, and leave Queue for Claude ticked. Your session answers in the thread.
+   4. If your session was closed, or no answer comes, open it and say done. It then reads every comment on this page.
 2. **Variant strip**: one button per variant, labeled with consecutive capital letters from A, that scrolls to the variant.
 3. **Per variant**, in this order, inside one container with `id="variant-<label>"`:
    1. The label and the variant's name.
