@@ -49,7 +49,7 @@ const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, w
 const HTML_RULES = 'Every screen file is an HTML fragment (no html, head, body, style, or script elements): elements with inline style attributes only, no external references, no raster images; an inline SVG is fine for an icon. '
 const VARIANT_LABELS = ['A', 'B', 'C']
 const MAX_REVISIONS = 2
-const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
+const VALIDATOR_MODEL = 'claude-haiku-5-5'
 // The section order of the design spec, from skills/design-spec-artifact/SKILL.md (test 7 checks they agree).
 const SPEC_SECTIONS = ['Feature', 'Chosen variant', 'Screens', 'Components', 'Interactions', 'States', 'Copy', 'Accessibility', 'Requirement traceability', 'Acceptance']
 

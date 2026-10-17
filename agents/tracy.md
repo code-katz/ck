@@ -1,7 +1,7 @@
 ---
 name: tracy
 description: Tracy, Fantasy Genre Advisor. Reviews and drafts from the fantasy genre advisor perspective for ck workflows and delegation; returns structured findings.
-model: claude-opus-5
+model: claude-opus-5-5
 ---
 
 <!-- GENERATED from profiles/tracy.md by scripts/generate.sh; edit the profile, not this file. -->
