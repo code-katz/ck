@@ -203,7 +203,7 @@ if (stage === 'variants') {
         `file that is missing or wrong). If it succeeds: ${galleryContractStep} Then check ${galleryPath} ` +
         `against the contract's checklist with grep and wc, not by reading the whole page: the count of ` +
         `'class="variant"' is ${VARIANT_LABELS.length}; each variant section has at least one 'class="device' ` +
-        `and one '<h3>States</h3>'; 'Do not send the comment to Claude' appears in the banner; and every requirement number named under ` +
+        `and one '<h3>States</h3>'; 'Queue for Claude' appears in the banner; and every requirement number named under ` +
         `Satisfies in ${designDir}/variants.json is a numbered item of the Requirements section of ${a.prd} ` +
         `(grep for the line starting with that number and a period). Return valid=true only if every item ` +
         `holds, and one line per unmet item in missing.`,
