@@ -20,6 +20,7 @@ The names and the checks are put in place before anything is built. When it ends
 | P0-S1 | The lint gate, a waiting state for the suite, and the checks for every later stage | Robin, Opus | done (26) |
 | P0-S2 | The review page renamed to the proof, everywhere | Sasha, Sonnet | done (27) |
 | P0-S3 | A check that runs the suite on every pull request | Alex, Sonnet | done (28) |
+| P0-S4 | The tier file and every model id moved to the current models | Alex, Sonnet | not started; could start now |
 
 Ends when: a proof you open says "proof" above its title, and the suite passes while it lists the checks still waiting.
 
@@ -31,10 +32,10 @@ The page is made safer and the command is written. When it ends, typing `/ck:pro
 |---|---|---|---|
 | P1-S0 | The page renderer: two faults mended, a check for keys, the new comment steps on a proof | Sasha, Sonnet | done (30) |
 | P1-S1 | The guard that refuses a file a proof must not publish | Akira, Fable | done (32) |
-| P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | not started; could start now |
+| P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | not started; follows P0-S4 |
 | P1-S3 | The contract every document from the command follows | Kai, Opus | done (31) |
 | P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | not started; follows S2 |
-| P1-S5 | The documentation, the line under the pipeline table, and the version | Quinn, Sonnet | not started; follows S4 |
+| P1-S5 | The documentation, the line under the pipeline table, and the version | Quinn, Sonnet | not started; follows S4 and P0-S4 |
 
 Ends when: in a test project, `/ck:proof` with a request gives you a proof, and pointed at a file that git ignores it refuses.
 
@@ -95,6 +96,16 @@ Ends when: you have used `/ck:proof` on a real document, and the drill's log sho
 - Done when: a pull request shows the suite's result as a check, and a deliberate failure on a scratch branch turns it red.
 - Hands back: a draft pull request
 
+### P0-S4. Move tiers to current models
+
+- Kind: build
+- Does: Moves every model id ck sets to the current models: `claude-opus-5` to `claude-opus-5-5`, `claude-sonnet-5` to `claude-sonnet-5-5`, and the validators' `claude-haiku-4-5-20251001` to `claude-haiku-5-5`. Fable stays `claude-fable-5-1`. Edits `tiers.conf` and the ids written into the workflows and skills, regenerates the agents and the roster, and updates the README's Models table and the suite's tier checks to match. The panel keeps three different models. Changes no prompt, no persona's tier, and no stage of this plan.
+- Files: `tiers.conf`, `workflows/*.js`, `skills/architecture/SKILL.md`, `skills/start/SKILL.md`, `agents/`, `skills/roster/SKILL.md`, `profiles/ROSTER.md`, `README.md`, `tests/run.sh`, `tests/pending/P0-S4.sh`, `tests/checks/P0-S4.sh`
+- Reads: `tests/pending/P0-S4.sh`, `scripts/generate.sh`, `workflows/panel.js`, `workflows/draft.js`
+- Follows: nothing
+- Done when: its check file passes and is moved to `tests/checks/`, and the suite passes.
+- Hands back: a draft pull request
+
 ### P1-S0. Mend and guard the renderer
 
 - Kind: build
@@ -123,7 +134,7 @@ Ends when: you have used `/ck:proof` on a real document, and the drill's log sho
 - Does: Writes the loop's rules into the loop skill: the six for a queued comment, one published file, the proof's link saved in the run record, a document locked only by "approved" typed in the session, and the Claude Code version a queued comment needs. Writes the four new comment steps for a gallery, letter for letter from the fixture: its renderer's banner, the gallery contract, and the two workflow checks.
 - Files: `skills/proof-loop/SKILL.md`, `skills/gallery-artifact/SKILL.md`, `scripts/render-gallery.py`, `workflows/brand.js`, `workflows/design-round.js`, `tests/pending/P1-S2.sh`, `tests/checks/P1-S2.sh`
 - Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `tests/pending/P1-S2.sh`, `tests/fixtures/proof/`, `tests/drill/2026-10-03.md`
-- Follows: P0-S2
+- Follows: P0-S2 and P0-S4
 - Done when: its check file passes and is moved to `tests/checks/`, and the suite passes.
 - Hands back: a draft pull request
 
@@ -153,7 +164,7 @@ Ends when: you have used `/ck:proof` on a real document, and the drill's log sho
 - Does: Adds the command to the documentation, as one row in the command table and one paragraph, and to the line under the pipeline table, and names in the README the same Claude Code version the loop skill names. Sets the plugin's next version and names `/ck:proof` in its description.
 - Files: `README.md`, `skills/next/SKILL.md`, `.claude-plugin/plugin.json`, `tests/pending/P1-S5.sh`, `tests/checks/P1-S5.sh`
 - Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `tests/pending/P1-S5.sh`, `skills/proof/SKILL.md`, `skills/proof-loop/SKILL.md`
-- Follows: S0 and S4
+- Follows: S0, S4 and P0-S4
 - Done when: its check file passes and is moved to `tests/checks/`, and the suite passes.
 - Hands back: a draft pull request
 
