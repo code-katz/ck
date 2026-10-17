@@ -32,9 +32,9 @@ The page is made safer and the command is written. When it ends, typing `/ck:pro
 |---|---|---|---|
 | P1-S0 | The page renderer: two faults mended, a check for keys, the new comment steps on a proof | Sasha, Sonnet | done (30) |
 | P1-S1 | The guard that refuses a file a proof must not publish | Akira, Fable | done (32) |
-| P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | running in its session |
+| P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | done (35) |
 | P1-S3 | The contract every document from the command follows | Kai, Opus | done (31) |
-| P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | not started; follows S2 |
+| P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | not started; could start now |
 | P1-S5 | The documentation, the line under the pipeline table, and the version | Quinn, Sonnet | not started; follows S4 |
 
 Ends when: in a test project, `/ck:proof` with a request gives you a proof, and pointed at a file that git ignores it refuses.
