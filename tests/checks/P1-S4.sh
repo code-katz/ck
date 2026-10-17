@@ -1,8 +1,8 @@
-# tests/pending/P1-S4.sh: the checks for stage P1-S4, Write the proof command.
+# tests/checks/P1-S4.sh: the checks for stage P1-S4, Write the proof command.
 #
-# Written in stage P0-S1, before the work. Section 21 of tests/run.sh says how this file is run
-# and what it may use. The stage is done when every check here passes and this file has moved to
-# tests/checks/. Tighten a check when the work shows it is too weak. Never loosen one.
+# Written in stage P0-S1, before the work, and moved here when the work was done. Section 21 of
+# tests/run.sh says how this file is run and what it may use. Tighten a check when the work shows
+# it is too weak. Never loosen one.
 #
 # The command is skills/proof/SKILL.md. Its words are the stage's. A check finds a rule by a few
 # words that any wording of it holds, in one item of a list or one paragraph of the skill. The
