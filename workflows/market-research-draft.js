@@ -3,7 +3,7 @@ export const meta = {
   description: 'Market research as a fan-out: Toni plans four to six questions across market size and trends, competitors, customers and channels, pricing, and constraints; neutral researchers answer them in parallel from the web with a source per claim; a cross-check marks unsourced claims and contradictions; Toni writes docs/market-research.md to the market research contract; a checker validates it. Normally launched by /ck:market-research, which mints the run directory and owns the review, with an object: runId, runDir, projectRoot, pluginRoot, timestamp, focus, inputs (absolute paths of docs/opportunity.md and docs/brief.md when they exist), outputPath (optional; default <projectRoot>/docs/market-research.md), startAt (optional: plan | research | crosscheck | write | validate). A direct /ck:market-research-draft [focus] works too, with everything defaulted to the current project and no run record.',
   phases: [
     { title: 'Plan', detail: 'ck:toni writes four to six research questions, each with what a good answer contains' },
-    { title: 'Research', detail: 'one neutral Sonnet 5 researcher per question, in parallel, with web search; a source per claim' },
+    { title: 'Research', detail: 'one neutral Sonnet 5.5 researcher per question, in parallel, with web search; a source per claim' },
     { title: 'Cross-check', detail: 'one neutral agent: every claim sourced or marked unverified; contradictions listed with both sources; stale sources flagged' },
     { title: 'Write', detail: 'ck:toni writes docs/market-research.md to the contract' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the contract; ck:toni revises at most twice' },
@@ -30,9 +30,9 @@ const contractStep = a.pluginRoot
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. '
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
-const RESEARCH_MODEL = 'claude-sonnet-5'
+const RESEARCH_MODEL = 'claude-sonnet-5-5'
 const MAX_REVISIONS = 2
-const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
+const VALIDATOR_MODEL = 'claude-haiku-5-5'
 const MIN_QUESTIONS = 4
 const MAX_QUESTIONS = 6
 const SECTIONS = ['Summary', 'Market size and trends', 'Competitors and substitutes', 'Customers, segments, and channels', 'Pricing and business models', 'Constraints', 'Contradictions and unknowns', 'Implications for positioning', 'Sources']

@@ -1,7 +1,7 @@
 ---
 name: rez
 description: Rez, Cyberpunk Genre Advisor. Reviews and drafts from the cyberpunk genre advisor perspective for ck workflows and delegation; returns structured findings.
-model: claude-opus-5
+model: claude-opus-5-5
 ---
 
 <!-- GENERATED from profiles/rez.md by scripts/generate.sh; edit the profile, not this file. -->

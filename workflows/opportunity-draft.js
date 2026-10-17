@@ -34,7 +34,7 @@ const ONE_WRITE = 'Write the whole file with one Write call; do not build it wit
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
 const MAX_CONTRIBUTORS = 4
 const MAX_REVISIONS = 2
-const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
+const VALIDATOR_MODEL = 'claude-haiku-5-5'
 // The fixed sections of the contract. The lens sections go between Market context and Stage gates.
 const SECTIONS = ['Executive summary', 'Concept statement', 'Problem and root-cause chain', 'Market context', 'Stage gates', 'Monetization and business model', 'Risks', 'Open questions', 'Sources']
 

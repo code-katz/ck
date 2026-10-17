@@ -44,7 +44,7 @@ const HTML_RULES = 'Every HTML file is a fragment (no html, head, or body tags, 
 const MIN_DIRECTIONS = 4
 const MAX_DIRECTIONS = 6
 const MAX_REVISIONS = 2
-const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
+const VALIDATOR_MODEL = 'claude-haiku-5-5'
 // The section order of the two brand documents, from skills/brand-artifact/SKILL.md (test 7 checks they agree).
 const RECORD_SECTIONS = ['Decision', 'Locked layout system', 'House tokens', 'Theme lineup', 'Rationale', 'Open items', 'Asset list']
 const GUIDE_SECTIONS = ['Brand overview and personality', 'Brand architecture', 'Logo system', 'Color system', 'Typography', 'UI surface system', 'Art direction', 'Product-specific sections', 'App icon', 'Publisher credit and legal']
