@@ -1,12 +1,12 @@
 # Staged plan: Any document as a proof
 
-Date: 2026-10-12. Status: approved 2026-10-12.
+Date: 2026-10-17. Status: approved 2026-10-17.
 Item: PROOF
-Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `skills/review-page/SKILL.md`, `skills/plan-artifact/SKILL.md`, `scripts/render-review.py`, `scripts/render-gallery.py`, `tests/run.sh`
+Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `docs/proposal/2026-10-17-the-smallest-proof.md`, `docs/plan/2026-10-12-any-document-as-a-proof.md` (the plan of 2026-10-12), `skills/proof-loop/SKILL.md`, `skills/doc-artifact/SKILL.md`, `skills/plan-artifact/SKILL.md`, `skills/roster/SKILL.md`, `tests/pending/P1-S4.sh`, `tests/pending/P1-S5.sh`, `tests/run.sh`
 
 ## What this covers
 
-The `/ck:proof` command, and what every proof gains with it: the new name, two faults mended in the page renderer, a check for keys before a page is made, and the rules for a comment queued for Claude. It is built from the approved proposal, `docs/proposal/2026-10-11-any-document-as-a-proof.md`, as changed on 2026-10-12 so that a plan is always a staged plan. The checks are written first. Each later stage's checks are one file of that stage's own under `tests/pending/`: the suite runs it, reports it as waiting, and still passes after every merge. A stage is done when its checks pass and it has moved its file to `tests/checks/`, where the suite counts them. A stage may tighten the checks it was given and never loosen them. The highlighting of changes on a revised proof is a separate item and is not in this plan.
+The `/ck:proof` command, and what every proof gains with it: the new name, two faults mended in the page renderer, a check for keys before a page is made, and the rules for a comment queued for Claude. It was built from the approved proposal of 2026-10-11, and is cut down here by the approved proposal of 2026-10-17, the smallest proof: the command shrinks to four steps, the publish guard goes, a proof keeps no run record, and what was left of the plan becomes one build stage, one documentation stage with the devlog entry folded in, and your first real use. Phase 2 of the plan of 2026-10-12 is struck: the check against the proposal, the security read, the drill, and the drill log do not run; the suite is the check, and your first real use is the drill. Every stage before this revision keeps its id and its state. A stage is done when its checks pass and it has moved its file from `tests/pending/` to `tests/checks/`, where the suite counts them. The highlighting of changes on a revised proof is a separate item and is not in this plan.
 
 ## Phases
 
@@ -26,7 +26,7 @@ Ends when: a proof you open says "proof" above its title, and the suite passes w
 
 ### Phase 1. Build
 
-The page is made safer and the command is written. When it ends, typing `/ck:proof` with a request gives you a proof, and a file that should not be published is refused.
+The page is made safer, the command is written at its smallest size, and you use it. When it ends, typing `/ck:proof` with a request gives you a proof in one turn, with no question asked before the link.
 
 | Stage | What | Who | State |
 |---|---|---|---|
@@ -34,24 +34,12 @@ The page is made safer and the command is written. When it ends, typing `/ck:pro
 | P1-S1 | The guard that refuses a file a proof must not publish | Akira, Fable | done (32) |
 | P1-S2 | The loop's rules, and the new comment steps on a gallery | Akira, Fable | done (35) |
 | P1-S3 | The contract every document from the command follows | Kai, Opus | done (31) |
-| P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | not started; could start now |
-| P1-S5 | The documentation, the line under the pipeline table, and the version | Quinn, Sonnet | not started; follows S4 |
+| P1-S4 | The proof command itself, for a new document and for a file that exists | Akira, Fable | running in its session |
+| P1-S5 | The command cut to four steps, the guard gone, the loop and the contract trimmed | Akira, Fable | not started; could start now |
+| P1-S6 | The documentation, the version, and the release's entry in the development log | Quinn, Sonnet | not started; follows S5 |
+| P1-S7 | Your first real proof, and the plan-mode plan as a page | You | not started; follows S6 |
 
-Ends when: in a test project, `/ck:proof` with a request gives you a proof, and pointed at a file that git ignores it refuses.
-
-### Phase 2. Prove
-
-The change is checked by two people who did not build it, and a fault either of them names is mended as a fix to its stage, or accepted under Open points, before the drill. When it ends, you have used `/ck:proof` on a real document and the release has its record.
-
-| Stage | What | Who | State |
-|---|---|---|---|
-| P2-S0 | The whole change checked against the approved proposal | Robin, Sonnet | not started; follows P1-S5 |
-| P2-S1 | A security read of the key check, the guard, and the loop's rules | Morgan, Fable | not started; follows P1-S4 |
-| P2-S2 | The drill: one real proof, a review round, and five live checks | You | not started; follows S0 and S1 |
-| P2-S3 | The drill's log | Robin, Sonnet | not started; follows S2 |
-| P2-S4 | The release's entry in the development log | Quinn, Opus | not started; follows S3 |
-
-Ends when: you have used `/ck:proof` on a real document, and the drill's log shows a result for each of the five live checks.
+Ends when: in a test project, `/ck:proof` with a request gives you a page in one turn, `/ck:proof` after a plan-mode plan gives you that plan as a page, and the suite passes with no check file left under `tests/pending/`.
 
 ## Stage by stage
 
@@ -151,73 +139,45 @@ Ends when: you have used `/ck:proof` on a real document, and the drill's log sho
 ### P1-S4. Write the proof command
 
 - Kind: build
-- Does: Writes `/ck:proof`: for a request it reads without changing anything, writes one document to the contract, counts its words, and publishes its proof; for a file that exists, or with nothing after it for the plan this session wrote in plan mode, it runs the guard, asks once, and publishes. Asked for a plan it writes nothing and names `/ck:plan`, and it locks a document only when the author types approved.
+- Does: Wrote `/ck:proof` as pull request 36, with a run record, a resume listing, a word count, and the guard, as the proposal of 2026-10-11 asked. Decision D5 of the smallest proof closes that pull request unmerged, and S5 replaces this stage; see Open points for its row.
 - Files: `skills/proof/SKILL.md`, `tests/pending/P1-S4.sh`, `tests/checks/P1-S4.sh`
 - Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `tests/pending/P1-S4.sh`, `skills/proof-loop/SKILL.md`, `skills/doc-artifact/SKILL.md`, `skills/brief/SKILL.md`, `scripts/proof-guard.py`
 - Follows: S1, S2 and S3
-- Done when: its check file passes and is moved to `tests/checks/`, and the suite passes.
+- Done when: pull request 36 is closed unmerged, and nothing from it is on main.
 - Hands back: a draft pull request
 
-### P1-S5. Update README and version
+### P1-S5. Cut the proof to four steps
 
 - Kind: build
-- Does: Adds the command to the documentation, as one row in the command table and one paragraph, and to the line under the pipeline table, and names in the README the same Claude Code version the loop skill names. Sets the plugin's next version and names `/ck:proof` in its description.
-- Files: `README.md`, `skills/next/SKILL.md`, `.claude-plugin/plugin.json`, `tests/pending/P1-S5.sh`, `tests/checks/P1-S5.sh`
-- Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `tests/pending/P1-S5.sh`, `skills/proof/SKILL.md`, `skills/proof-loop/SKILL.md`
-- Follows: S0, S4 and P0-S4
-- Done when: its check file passes and is moved to `tests/checks/`, and the suite passes.
+- Does: Writes the command in four steps, under 300 words, naming only the loop skill and the document contract: take the file or write the document, render, review per the loop, lock at approved; it refuses only a plan, which it sends to `/ck:plan`, and with nothing after it renders the plan this session wrote in plan mode where it is. Deletes the guard with its fixtures, checks, and suite lines, rewrites the command's checks for the four steps and the plan refusal, says in the loop skill what a skill with no run record does, and drops the size column and its check from the document contract.
+- Files: `skills/proof/SKILL.md`, `scripts/proof-guard.py`, `tests/fixtures/guard/`, `tests/checks/P1-S1.sh`, `tests/pending/P1-S4.sh`, `tests/checks/P1-S4.sh`, `skills/proof-loop/SKILL.md`, `skills/doc-artifact/SKILL.md`, `tests/checks/P1-S3.sh`, `tests/run.sh`
+- Reads: `docs/proposal/2026-10-17-the-smallest-proof.md`, `tests/pending/P1-S4.sh`, `skills/proof-loop/SKILL.md`, `skills/doc-artifact/SKILL.md`, `skills/brief/SKILL.md`
+- Follows: nothing
+- Done when: the skill is under 300 words by `wc -w` and names the loop skill and the contract; no file in the repository names `proof-guard.py`; `tests/checks/P1-S4.sh` reads the skill for the four steps and the plan refusal and nothing about a run, a guard, or a word count; the contract has no size column; and the suite passes with `P1-S4.sh` moved to `tests/checks/`.
+- Hands back: a draft pull request
+- Serves: C1, C2, C3, C4, and C6 of the smallest proof
+
+### P1-S6. Update README and version
+
+- Kind: build
+- Does: Adds the command to the README as one row in the command table and one paragraph that says where its document goes, adds the line under the pipeline table, names in the README the same Claude Code version the loop skill names, and sets the plugin's next version with `/ck:proof` in its description. Writes the release's entry in the development log: what shipped, the decisions of both proposals, what was turned down, and what is still open.
+- Files: `README.md`, `skills/next/SKILL.md`, `.claude-plugin/plugin.json`, `DEVLOG.md`, `tests/pending/P1-S5.sh`, `tests/checks/P1-S5.sh`
+- Reads: `docs/proposal/2026-10-17-the-smallest-proof.md`, `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `tests/pending/P1-S5.sh`, `skills/proof/SKILL.md`, `skills/proof-loop/SKILL.md`, `DEVLOG.md`
+- Follows: S5
+- Done when: its check file passes and is moved to `tests/checks/`, the suite passes with no check file left under `tests/pending/`, and the devlog entry names the four decisions of 2026-10-11 and the five of 2026-10-17.
 - Hands back: a draft pull request
 
-### P2-S0. Check against the proposal
-
-- Kind: check
-- Does: Reads the merged change against the proposal's ten steps and every Done when in this plan, and runs the suite on the merged tree. Changes nothing.
-- Files: none
-- Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `docs/plan/2026-10-12-any-document-as-a-proof.md`, `tests/run.sh`
-- Follows: P1-S5
-- Done when: the report lists each of the ten steps as met or not met with the check that shows it, names any check a stage loosened, and names the stage that owes each file still under `tests/pending/`.
-- Hands back: a report in the session
-
-### P2-S1. Read it for security
-
-- Kind: check
-- Does: Tries to get a file that should not be published past the guard and the key check, and reads the loop's rules for a comment that could steer the session. Changes nothing.
-- Files: none
-- Reads: `scripts/proof-guard.py`, `scripts/render-proof.py`, `skills/proof-loop/SKILL.md`, `skills/proof/SKILL.md`
-- Follows: P1-S4
-- Done when: the report names each attempt and whether it was refused, and names a fix for every hole it found.
-- Hands back: a report in the session
-
-### P2-S2. Run the drill
+### P1-S7. Use it on one real document
 
 - Kind: yours
-- Does: With the plugin installed at the new version, types `/ck:proof` for one real document in a test project, queues comments on its proof, carries the review into a second session, and tries the five live checks the proposal lists. Leaves rough notes of what happened under `tests/drill/`.
-- Files: `tests/drill/`
-- Reads: `docs/proposal/2026-10-11-any-document-as-a-proof.md`
-- Follows: S0 and S1
-- Done when: each of the five checks has a result you can say in a sentence, and the notes name the plugin's version.
+- Does: With the plugin installed at the new version, types `/ck:proof` with a real request in a test project and gets a page in one turn, then types `/ck:proof` after a plan-mode plan and gets that plan as a page, uncopied. Queues one comment on the first page and, in a second session, says done and sees whether that session finds the page by its title.
+- Files: none
+- Reads: `docs/proposal/2026-10-17-the-smallest-proof.md`
+- Follows: S6
+- Done when: both pages exist, and you can say in a sentence whether the second session republished to the first page's link or opened a new one.
 - Hands back: nothing
-
-### P2-S3. Write the drill log
-
-- Kind: words
-- Does: Writes the drill's log from the notes: each of the five checks with its result, what broke, and the cost of the run in dollars.
-- Files: `tests/drill/`
-- Reads: `tests/drill/`, `docs/proposal/2026-10-11-any-document-as-a-proof.md`
-- Follows: S2
-- Done when: the log holds a result for each of the five checks, the plugin's version, and the cost.
-- Hands back: a draft pull request
-
-### P2-S4. Write the devlog entry
-
-- Kind: words
-- Does: Writes the release's entry in the development log: what shipped, the four decisions, what was turned down, and what is still open.
-- Files: `DEVLOG.md`
-- Reads: `DEVLOG.md`, `docs/proposal/2026-10-11-any-document-as-a-proof.md`, `tests/drill/`
-- Follows: S3
-- Done when: the entry names the four decisions, the alternatives turned down, and every open point that is left.
-- Hands back: a draft pull request
 
 ## Open points
 
-None.
+- P1-S4: pull request 36 is closed unmerged, per D5 of the smallest proof. The contract has no state for a stage closed without a merge, so the row keeps `running in its session` until you say how to record it: `done` with no number, or a fifth state in the contract. Holds up nothing; S5 does not wait on it.
+- D3 of the smallest proof: whether the Artifact tool's listing finds a page by title reliably enough for a second session to republish to it is assumed yes until P1-S7 shows it. If it does not, D3 flips, and a stage that saves the proof's link in a run record is added after S7. Holds up nothing today.
