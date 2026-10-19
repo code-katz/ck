@@ -127,8 +127,8 @@ skills/<persona>/            generated switch commands, /ck:<name>
 skills/opportunity, prd, architecture, brand-guide, design, next, review-page
 skills/*-artifact/           the ten document contracts
 workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft, market-research, roadmap, brand, design-round
-hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
-scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh
+hooks/hooks.json             usage log on SubagentStart; old-tool check and the question rule on SessionStart
+scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh, session-rules.sh
 tests/                       run.sh, workflows.mjs (the workflow scripts run with stub agents), two fixture projects, the gallery fixtures, and the drill logs
 ```
 

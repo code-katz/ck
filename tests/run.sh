@@ -243,6 +243,8 @@ out=$(HOME="$TMP/home" bash scripts/check-prereqs.sh </dev/null); rc=$?
 mkdir -p "$TMP/home2"
 out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 [[ $rc -eq 0 && -z "$out" ]] && ok "check-prereqs.sh is silent when it is absent" || fail "check-prereqs.sh with a clean home: exit $rc, output '$out'"
+out=$(bash scripts/session-rules.sh </dev/null); rc=$?
+[[ $rc -eq 0 && -n "$out" ]] && ok "session-rules.sh prints the house rules and exits 0" || fail "session-rules.sh: exit $rc, output '$out'"
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
