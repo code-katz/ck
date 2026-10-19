@@ -1,6 +1,6 @@
 {
   "name": "ck",
   "description": "Code Katz personas and workflows for Claude Code: the product-definition pipeline (/ck:opportunity, market-research, brief, prd, team, roadmap, architecture, brand-guide, design), /ck:panel (three lenses on three models), /ck:plan and /ck:start (a staged plan, then one named session per stage), /ck:do (one small task, quick and in the chat), /ck:next, and the full persona roster, a complete cross-domain team, as ck:<name> subagents and /ck:<name> switch commands.",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "author": { "name": "Code Katz" }
 }
