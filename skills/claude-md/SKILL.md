@@ -39,7 +39,7 @@ Read these when they exist, and nothing else: `README.md`; every file in `.githu
 
 - The project's name and what it is, in one line, from the README.
 - The checks: each command a workflow runs, word for word, with the folder it runs from and the environment the workflow gives it. A test or lint script the build settings name and no workflow runs is a check too, marked as not run in CI.
-- The main folder and the default branch, from step 1.
+- The main folder and the default branch, from step 1. The template says `main`; when the default branch has another name, that is a project line.
 - The records: which of `DEVLOG.md`, `ROADMAP.md`, and `plans/` exist, and what each holds.
 - The persona owners: from `docs/TEAM.md`, or the existing file's lanes line.
 - The secrets, by name only: each `secrets.<NAME>` a workflow uses, and each secret the existing file names. Never open a `.env` file and never print a value.
@@ -85,7 +85,6 @@ Write the proposed file to `<runDir>/CLAUDE.md` in this shape:
 ## This project
 
 - Main folder: `<path>`
-- Default branch: `<name>`
 - Records: <each file or folder that exists, and what it holds>
 - Persona owners: <persona (what it owns), ...>
 - Secrets: <names only>
