@@ -1,5 +1,5 @@
 {
-  "description": "ck: persona usage log, a check that the old team tool is gone, and the house rule for questions",
+  "description": "ck: persona usage log, and a check that the old team tool is gone",
   "hooks": {
     "SubagentStart": [
       {
@@ -12,8 +12,7 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/check-prereqs.sh\"" },
-          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/session-rules.sh\"" }
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/check-prereqs.sh\"" }
         ]
       }
     ]

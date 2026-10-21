@@ -243,8 +243,6 @@ out=$(HOME="$TMP/home" bash scripts/check-prereqs.sh </dev/null); rc=$?
 mkdir -p "$TMP/home2"
 out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 [[ $rc -eq 0 && -z "$out" ]] && ok "check-prereqs.sh is silent when it is absent" || fail "check-prereqs.sh with a clean home: exit $rc, output '$out'"
-out=$(bash scripts/session-rules.sh </dev/null); rc=$?
-[[ $rc -eq 0 && -n "$out" ]] && ok "session-rules.sh prints the house rules and exits 0" || fail "session-rules.sh: exit $rc, output '$out'"
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
@@ -277,6 +275,9 @@ if python3 scripts/render-review.py --in "$TMP/bold.md" --out "$TMP/bold.html" -
 else
   fail "render-review.py leaves literal ** around a bold phrase with a code span"
 fi
+printf '# T\n\n- ~~A line the template now covers.~~\n' > "$TMP/del.md"
+python3 scripts/render-review.py --in "$TMP/del.md" --out "$TMP/del.html" --title "Del" >/dev/null 2>&1 \
+  && grep -q '<del>A line the template now covers.</del>' "$TMP/del.html" && ok "render-review.py strikes out ~~text~~" || fail "render-review.py does not strike out ~~text~~"
 printf '# T\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n' > "$TMP/mm.md"
 if python3 scripts/render-review.py --in "$TMP/mm.md" --out "$TMP/mm.html" --title "MM" >/dev/null 2>&1 \
    && grep -q '<pre class="mermaid">' "$TMP/mm.html" && grep -q 'cdnjs.cloudflare.com/ajax/libs/mermaid' "$TMP/mm.html"; then
@@ -722,6 +723,66 @@ while IFS=$'\t' read -r verdict message; do
   esac
 done < "$TMP/plan-cases.out"
 if [[ $rc -ne 0 || $pc_lines -eq 0 ]]; then fail "tests/plan-cases.py did not run to the end: exit $rc, $(head -3 "$TMP/plan-cases.err" | tr '\n' ' ')"; fi
+
+# ─── 20. /ck:claude-md's script ──────────────────────────────────────────────
+section "20. /ck:claude-md: scripts/claude-md.py"
+CM="python3 scripts/claude-md.py"
+mkdir -p "$TMP/cm"
+state_of() { $CM status "$1" "${@:2}" | sed -n 's/^state: //p'; }
+
+# A new file: the block goes in under a heading, and the file is then current.
+$CM write "$TMP/cm/new.md" >/dev/null; rc=$?
+if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat templates/how-we-work.md)" && "$(state_of "$TMP/cm/new.md")" == current ]]; then
+  ok "a new file gets the heading and the template, and is current"
+else
+  fail "a new file: exit $rc, state $(state_of "$TMP/cm/new.md")"
+fi
+
+# A second run changes nothing, byte for byte.
+cp "$TMP/cm/new.md" "$TMP/cm/new.before"
+out=$($CM write "$TMP/cm/new.md"); rc=$?
+if [[ $rc -eq 0 && "$out" == unchanged:* ]] && cmp -s "$TMP/cm/new.md" "$TMP/cm/new.before"; then ok "a second run changes nothing"; else fail "a second run: exit $rc, '$out'"; fi
+
+# Broken markers are refused, the line is named, and the file is left as it was.
+printf '# P\n\n<!-- ck:how-we-work 0.1.12 -->\n- a rule\n' > "$TMP/cm/open.md"
+cat templates/how-we-work.md templates/how-we-work.md > "$TMP/cm/two.md"
+printf '<!-- /ck:how-we-work -->\n<!-- ck:how-we-work 0.1.12 -->\n' > "$TMP/cm/order.md"
+broken_ok=1
+for f in open two order; do
+  cp "$TMP/cm/$f.md" "$TMP/cm/$f.before"
+  out=$($CM write "$TMP/cm/$f.md"); rc=$?
+  [[ "$(state_of "$TMP/cm/$f.md")" == broken && $rc -eq 1 && "$out" == *"line "[0-9]* ]] && cmp -s "$TMP/cm/$f.md" "$TMP/cm/$f.before" || { fail "broken markers ($f): exit $rc, '$out'"; broken_ok=0; }
+done
+[[ $broken_ok -eq 1 ]] && ok "an opening with no end, two pairs, and an end before the opening are refused with the line named"
+printf '# P\n\nNo markers here.\n' > "$TMP/cm/plain.md"; cp "$TMP/cm/plain.md" "$TMP/cm/plain.before"
+out=$($CM write "$TMP/cm/plain.md"); rc=$?
+[[ $rc -eq 1 && "$(state_of "$TMP/cm/plain.md")" == none ]] && cmp -s "$TMP/cm/plain.md" "$TMP/cm/plain.before" && ok "a file with no markers is refused and left as it was" || fail "a file with no markers: exit $rc, '$out'"
+
+# Text outside the markers is kept byte for byte, whatever the block held.
+printf '# P\r\n\r\nAbove, with CRLF and no rule.\n\n' > "$TMP/cm/head"
+printf '\n## This project\n\n- Main folder: /x\n- trailing line with no newline' > "$TMP/cm/tail"
+for body in '' $'- **Writing.** Edited here.\n'; do
+  { cat "$TMP/cm/head"; printf '<!-- ck:how-we-work -->\n%s<!-- /ck:how-we-work -->\n' "$body"; cat "$TMP/cm/tail"; } > "$TMP/cm/outside.md"
+  $CM write "$TMP/cm/outside.md" >/dev/null
+  { cat "$TMP/cm/head" templates/how-we-work.md "$TMP/cm/tail"; } > "$TMP/cm/outside.want"
+  label=${body%$'\n'}
+  cmp -s "$TMP/cm/outside.md" "$TMP/cm/outside.want" || { fail "text outside the markers changed (block: ${label:-an empty pair})"; continue; }
+  ok "text outside the markers is untouched (block: ${label:-an empty pair})"
+done
+
+# A newer template: a block from the older one is behind, the diff shows the change, and a write brings it current.
+sed -e 's/ck:how-we-work 0.1.12/ck:how-we-work 0.1.13/' -e 's/^- \*\*Drawings first\.\*\* .*/- **Drawings first.** Changed in 0.1.13./' templates/how-we-work.md > "$TMP/cm/newer.md"
+cp "$TMP/cm/new.before" "$TMP/cm/old.md"
+d=$($CM diff "$TMP/cm/old.md" --template "$TMP/cm/newer.md")
+if [[ "$(state_of "$TMP/cm/old.md" --template "$TMP/cm/newer.md")" == behind && "$d" == *'+- **Drawings first.** Changed in 0.1.13.'* && "$d" == *'+<!-- ck:how-we-work 0.1.13 -->'* ]]; then
+  ok "a block from an older template is behind, and the diff shows the new lines"
+else
+  fail "a newer template: state $(state_of "$TMP/cm/old.md" --template "$TMP/cm/newer.md"), diff '$d'"
+fi
+$CM write "$TMP/cm/old.md" --template "$TMP/cm/newer.md" >/dev/null
+[[ "$(state_of "$TMP/cm/old.md" --template "$TMP/cm/newer.md")" == current ]] && ok "a write takes the newer template" || fail "a write did not take the newer template"
+sed 's/^- \*\*Records\.\*\* .*/- **Records.** Edited in the project./' "$TMP/cm/new.before" > "$TMP/cm/edited.md"
+[[ "$(state_of "$TMP/cm/edited.md")" == edited ]] && ok "a block edited in the project, at the template's version, is edited" || fail "an edited block is $(state_of "$TMP/cm/edited.md")"
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
