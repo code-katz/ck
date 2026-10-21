@@ -47,9 +47,19 @@ Read these when they exist, and nothing else: `README.md`; every file in `.githu
 
 ## 3. Read the project's memory
 
-The memory folder is the one this session's own instructions name. When they name none, it is `~/.claude/projects/<the main folder's path, with each / and . written as ->/memory/`. When there is no such folder, as in a cloud session, skip this step and say so on the page.
+This step is never skipped while the folder exists, and the page always reports it (step 7). Run this exact command and trust its output:
 
-Read `MEMORY.md` and every other `.md` file in the folder, not `retired/`. A memory that reads as a rule for every session in this project becomes a proposed project line, drafted in the file's words, with the memory's file name as its source. A memory about one task, one past event, or a fact that no session needs at the start is not proposed.
+```bash
+main="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)")"; mem="$HOME/.claude/projects/$(printf '%s' "$main" | sed 's#[/.]#-#g')/memory"; echo "memory: $mem"; echo "files: $(find "$mem" -maxdepth 1 -name '*.md' ! -name MEMORY.md 2>/dev/null | wc -l | tr -d ' ')"; find "$mem" -maxdepth 1 -name '*.md' ! -name MEMORY.md 2>/dev/null | sort | while read -r f; do echo "=== $(basename "$f")"; cat "$f"; done
+```
+
+When this session's own instructions name a different memory folder, run it again with that folder as `mem`. When `files:` is 0, as in a cloud session, there is no memory to read: say so on the page. Otherwise read the whole output, every memory in it; when the output is saved to a file instead of shown, read that file to its end. `MEMORY.md` is only the index, and `retired/` is not read.
+
+Sort every memory into one of three groups, by its file name:
+
+- **Proposed as a project line**: it reads as a rule for every session in this project and neither the template nor the file says it yet. Draft the line in the file's words, with the memory's file name as its source.
+- **Already said**: the template or a line of the file says it. It goes to the repeats (step 4).
+- **Not proposed**: it is about one task, one past event, or a fact no session needs at the start.
 
 ## 4. Check for repeats
 
@@ -101,22 +111,25 @@ Start the draft from a copy of the existing file and change only this:
 - **The block.** Under the file's own "How we work" heading, or a new one before "This project" when it has none, put the empty pair of markers after any text that sits between the heading and its first bullet, then run `<cm> write` as in step 5.
 - **Lines the template now covers.** A line in the old file that a template rule says is taken out, and listed on the page struck out (`~~the line~~`) with the rule that covers it. A line that only partly overlaps a rule is kept, and listed as a repeat.
 - **Values.** The values inside the old general lines (the lanes and their owners, the main folder, the secrets' names, the records' files) move to "This project".
-- **Project bullets** in the old "How we work" that no rule covers move, word for word, to the project sections.
+- **Project bullets** in the old "How we work" that no rule covers move, word for word, to a project section of their own before "How we work", under a heading named for what they cover (for example `## Deploys and the phone`). "This project" holds only its four value lines.
+- **Pointers.** A line elsewhere that names a rule by its old place ("How we work, One owner of the phone") is changed to name the new place, and listed on the page under "Lines moved".
 - **Everything else** is kept word for word, in its order.
 
 Never leave a second "How we work" in the file.
 
 ## 7. The page
 
-Write `<runDir>/proof.md` with these sections, leaving out any that would be empty:
+Write `<runDir>/proof.md` with these sections, leaving out any that would be empty, except the two marked always:
 
 1. `## What changes`: a new file, a merge, or a later run, and what the run found, in three lines at most.
 2. `## The file`: the whole proposed file, in one fence marked `markdown`, exactly as it would be written.
 3. `## Where each line comes from`: a table, one row per project line, with its source.
 4. `## The template`: "Lines <a> to <b> are ck's template <version>, copied by the script, word for word. They are the same in every project; a change to them is made in ck." For a later run, the change instead (step 9).
 5. `## Lines the template now covers` and `## Lines moved`: for a merge.
-6. `## Memories proposed as project lines`: numbered; the memory's file, the line drafted from it.
-7. `## Repeats`: numbered, from step 4.
+6. `## Memories`: always present. Its first line is "Read <files> memories in `<memory>`." from the step 3 command, or "No memory folder." Then the proposed project lines, numbered, each with its memory's file and the line drafted from it; then the memories already said, by file name; then the ones not proposed, by file name, in one line.
+7. `## Repeats`: always present, numbered, from step 4; "None found." when there are none.
+
+Before you publish, check that every memory file the step 3 command printed is named once in `## Memories` or `## Repeats`; when one is missing, sort it first.
 
 Review it per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, with the title `<project>: CLAUDE.md`, the meta line `Revision <n>, <today>`, and this question: "Is any line here wrong for this project, or missing?" Apply approved changes to `<runDir>/CLAUDE.md` and to `proof.md`, never inside the block. Set `status` to `review` in `run.json` while the page is out.
 
