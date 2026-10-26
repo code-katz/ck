@@ -810,6 +810,27 @@ else
   fail "two templates: diff '$d'"
 fi
 
+# ─── 21. The memory gate ─────────────────────────────────────────────────────
+section "21. The memory gate: scripts/memory-gate.py"
+MG="python3 scripts/memory-gate.py check"
+MEM="$HOME/.claude/projects/x/memory"
+gate() { printf '%s' "$1" | $MG; }
+call() { python3 -c 'import json,sys; print(json.dumps({"tool_name": sys.argv[1], "tool_input": {sys.argv[2]: sys.argv[3]}, "cwd": "/tmp"}))' "$@"; }
+asks=1
+for c in "Write file_path $MEM/a.md" "Edit file_path $MEM/MEMORY.md"; do
+  read -r tool key path <<<"$c"
+  gate "$(call "$tool" "$key" "$path")" | grep -q '"permissionDecision": "ask"' || { fail "the gate does not ask for a $tool to $path"; asks=0; }
+done
+for cmd in 'echo hi >> ~/.claude/projects/x/memory/MEMORY.md' 'mv /tmp/a.md "$HOME/.claude/projects/x/memory/"' 'mem=~/.claude/projects/x/memory; echo y > "$mem/b.md"'; do
+  gate "$(call Bash command "$cmd")" | grep -q '"permissionDecision": "ask"' || { fail "the gate does not ask for: $cmd"; asks=0; }
+done
+[[ $asks -eq 1 ]] && ok "the gate asks for a Write, an Edit, an append, a mv, and a write through a variable into a memory folder"
+step3=$(python3 -c 'import re; s=open("skills/claude-md/SKILL.md").read(); print(re.search(r"## 3\. Read the project.s memory.*?```bash\n(.*?)\n```", s, re.S).group(1))')
+out="$(gate "$(call Write file_path /tmp/x.md)")$(gate "$(call Bash command 'cat ~/.claude/projects/x/memory/a.md')")$(gate "$(call Bash command "$step3")")"
+[[ -z "$out" ]] && ok "the gate passes a write elsewhere, a cat of a memory, and /ck:claude-md's read command, with no output" || fail "the gate asked for a call that writes no memory: $out"
+python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("memory-gate.py\" check" in x["command"] for e in h["PreToolUse"] for x in e["hooks"]); assert any("memory-gate.py\" rule" in x["command"] for e in h["SessionStart"] for x in e["hooks"])' \
+  && ok "hooks.json runs the gate before tool calls and prints its rule at session start" || fail "hooks.json does not wire the memory gate"
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then
