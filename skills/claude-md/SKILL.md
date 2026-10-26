@@ -82,6 +82,8 @@ Copy the template to `<runDir>/section.md` and fill it as step 2 says. Keep the 
 
 Then build the whole proposed file as `<runDir>/CLAUDE.md`: a copy of the existing file (or a new file with `# <project name>` and the README's one line), with an empty pair of markers where the section goes (under its "How we work" heading; a new heading at the end when it has none) and the lines after the closing marker in place. Run `<cm> write "<runDir>/CLAUDE.md" --section "<runDir>/section.md"` and check that `<cm> status "<runDir>/CLAUDE.md"` says `stamped`. Lines outside "How we work" stay as they are.
 
+For a merge or a later run, then run `<cm> kept CLAUDE.md "<runDir>/CLAUDE.md"`. It lists every rule of the file's own "How we work" and where it is in the draft. Each `missing:` line is a rule the draft dropped: put it back after the closing marker, word for word, or, when a template rule under another name now says it, list it struck out on the page with that rule. Run it again until no `missing:` line is left unexplained. Never publish the page before that.
+
 ## 6. The page
 
 Write `<runDir>/proof.md` with these sections, in this order:

@@ -784,6 +784,19 @@ for body in '' $'- **Writing.** Edited here.\n'; do
   ok "text outside the markers is untouched (section: ${label:-an empty pair})"
 done
 
+# Every rule of the old "How we work" is accounted for: among the template's rules, after the marker, or missing.
+printf '# P\n\n## How we work\n\n- **Questions.** Old words.\n- **Our own rule.** Kept by the project.\n\n## Next\n' > "$TMP/cm/old.md"
+{ printf '# P\n\n## How we work\n\n'; cat "$TMP/cm/draft.md"; } > "$TMP/cm/dropped.md"
+{ printf '# P\n\n## How we work\n\n'; cat "$TMP/cm/draft.md"; printf -- '- **Our own rule.** Kept by the project.\n\n## Next\n'; } > "$TMP/cm/kept.md"
+out=$($CM kept "$TMP/cm/old.md" "$TMP/cm/dropped.md"); rc=$?
+out2=$($CM kept "$TMP/cm/old.md" "$TMP/cm/kept.md"); rc2=$?
+if [[ $rc -eq 1 && "$out" == *'missing: our own rule'* && "$out" == *"kept: questions (among the template's rules)"* \
+   && $rc2 -eq 0 && "$out2" == *'kept: our own rule (after the closing marker)'* ]]; then
+  ok "a rule the draft drops is named as missing; kept after the marker, it passes"
+else
+  fail "the kept check: exit $rc '$out'; exit $rc2 '$out2'"
+fi
+
 # Two shipped templates: the diff shows the change, and a section from the older one is behind.
 mkdir -p "$TMP/cm/templates"
 cp templates/how-we-work/0.1.12.md "$TMP/cm/templates/0.1.12.md"

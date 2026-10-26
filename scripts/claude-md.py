@@ -6,6 +6,7 @@ Usage:
   claude-md.py template [--templates DIR]
   claude-md.py diff FROM TO [--templates DIR]
   claude-md.py write FILE --section DRAFT [--templates DIR]
+  claude-md.py kept FILE DRAFT
 
 The section is every line from the opening marker, <!-- ck:how-we-work VERSION -->, to the
 closing marker, <!-- /ck:how-we-work -->, both included. VERSION names the template it was
@@ -21,7 +22,9 @@ shipped templates. write puts DRAFT, a tailored section with both markers and a 
 place of the file's section: a missing file is created with a "## How we work" heading and the
 section, a file whose section is already DRAFT is left alone, and every byte outside the
 section is kept as it was. write refuses a broken file, a file with no markers, and a draft
-with a blank still in it ({{...}}), and names why.
+with a blank still in it ({{...}}), and names why. kept lists each rule of FILE's "How we work"
+(a bullet that opens with a bold name) and where it is in DRAFT's: among the template's rules,
+after the closing marker, or missing; any missing rule makes the exit status 1.
 
 Standard library only. A usage error or an unreadable file is one plain line on stderr and
 exit status 2, never a traceback. A refusal is one plain line on stdout and exit status 1.
@@ -36,9 +39,10 @@ CLOSE_RE = re.compile(r'<!-- /ck:how-we-work -->')
 VERSION_RE = re.compile(r'[0-9]{1,6}(?:\.[0-9]{1,6}){0,3}')
 BLANK_RE = re.compile(r'\{\{[^{}\n]*\}\}')
 HEADING_RE = re.compile(r'##\s+How we work\s*')
+RULE_RE = re.compile(r'\s*[-*]\s+\*\*(.+?)\*\*')
 TEMPLATES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'how-we-work')
 USAGE = ('usage: claude-md.py status FILE | template | diff FROM TO | write FILE --section DRAFT'
-         ' [--templates DIR]')
+         ' | kept FILE DRAFT [--templates DIR]')
 
 
 class Fail(Exception):
@@ -187,6 +191,51 @@ def write(path, draft_path, folder):
     return ['wrote: %s, section stamped %s (%s)' % (path, stamp, was)]
 
 
+def how_we_work(path):
+    """The lines of the file's "How we work", from its heading to the next ## heading."""
+    lines = read(path).splitlines()
+    starts = [i for i, l in enumerate(lines) if HEADING_RE.fullmatch(l)]
+    if not starts:
+        return []
+    out = []
+    for line in lines[starts[0] + 1:]:
+        if line.startswith('## '):
+            break
+        out.append(line)
+    return out
+
+
+def rule_name(line):
+    m = RULE_RE.match(line)
+    return m.group(1).strip().rstrip('.:').strip().lower() if m else None
+
+
+def kept(old_path, draft_path):
+    old = [n for n in map(rule_name, how_we_work(old_path)) if n]
+    if not old:
+        raise Refuse('%s has no "How we work" rules to follow' % old_path)
+    inside, after, where = set(), set(), None
+    for line in how_we_work(draft_path):
+        if marker(line, OPEN_RE):
+            where = inside
+        elif marker(line, CLOSE_RE):
+            where = after
+        else:
+            name = rule_name(line)
+            if name:
+                (where if where is not None else after).add(name)
+    lines, missing = [], 0
+    for name in old:
+        if name in inside:
+            lines.append('kept: %s (among the template\'s rules)' % name)
+        elif name in after:
+            lines.append('kept: %s (after the closing marker)' % name)
+        else:
+            lines.append('missing: %s' % name)
+            missing += 1
+    return (1 if missing else 0), lines
+
+
 def run(argv):
     args, opts = [], {'--templates': TEMPLATES, '--section': None}
     i = 0
@@ -207,6 +256,8 @@ def run(argv):
         return 0, ['template: %s' % newest, 'path: %s' % path]
     if args[:1] == ['diff'] and len(args) == 3:
         return 0, diff(args[1], args[2], folder)
+    if args[:1] == ['kept'] and len(args) == 3:
+        return kept(args[1], args[2])
     if args[:1] == ['write'] and len(args) == 2 and opts['--section']:
         return 0, write(args[1], opts['--section'], folder)
     raise Fail(USAGE)
