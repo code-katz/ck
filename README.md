@@ -16,6 +16,7 @@ Phase one, first release in progress. What runs today:
 | `/ck:start [stage]` | Opens the plan's sessions and keeps its board. For a stage it offers a card that starts a session for that one job, named from the row, such as `[A31-P2-S1] [Akira Fable] Make the creature tables`; with nothing after it, it updates the State column from the sessions and their pull requests and offers every row that could start now. With `fix <stage> <what is wrong>` it offers a card for a session that fixes one fault in a stage that is done, named such as `[A31-P1-S5 fix] [Akira Fable] Mend the scan's natural 1`; the stage stays done. Every new session checks its own model before it works. You click each card | Built; not yet run on a real project |
 | `/ck:do <task>` | The quick path, all in the chat: a plan of a few lines (who does what and the rough cost), you say go, the right personas work in the background on their own tiers, a mockup comes back as a link when you ask for one first, and a build waits on its own branch until you say merge. No documents and no review pages | Built; not yet run on a real task. Its cost line is an estimate |
 | `/ck:claude-md` | Writes or updates the "How we work" section of this project's `CLAUDE.md` from ck's template (`templates/how-we-work/`), tailored to the project: its lanes, main folder, records and secrets filled in, a rule that does not fit changed or left out. It sorts the project's memory into keep, retire, or move. You review the section on a page you can comment on; it is written on a branch with a draft pull request only when you approve. The rest of `CLAUDE.md` is left as it is, and nothing runs unless you type the command | Built; not yet run on a real project |
+| The memory gate | Not a command: it runs on its own. Before a session saves anything to memory, it shows you the text, whether it belongs in memory or in the project's `CLAUDE.md` and why, and any memory or `CLAUDE.md` line that already says it or says the opposite. You pick save to memory, add to `CLAUDE.md` (written at once on a branch with a draft pull request), or don't save. A hook makes Claude Code ask you before every write to a memory folder, in auto mode too | Built; not yet run on a real project |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd [--panel]` | River drafts `docs/PRD.md` from the brief, a checker validates, River adds a premortem; with `--panel`, three specialists on three models challenge it first and River rewrites; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
 | `/ck:team` | Who is on this product, who owns what, which seat is missing: `docs/TEAM.md`; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
@@ -125,12 +126,12 @@ profiles/                    persona source of truth, plus the generated ROSTER.
 tiers.conf                   persona -> model
 agents/                      generated subagents, ck:<name>
 skills/<persona>/            generated switch commands, /ck:<name>
-skills/opportunity, prd, architecture, brand-guide, design, next, review-page, claude-md
+skills/opportunity, prd, architecture, brand-guide, design, next, review-page, claude-md, memory-gate
 skills/*-artifact/           the ten document contracts
 templates/how-we-work/       one "How we work" template per release, which /ck:claude-md tailors into a project's CLAUDE.md
 workflows/                   panel, brief, draft (PRD and architecture), team, opportunity-draft, market-research, roadmap, brand, design-round
-hooks/hooks.json             usage log on SubagentStart; old-tool check on SessionStart
-scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh, plan.py, claude-md.py
+hooks/hooks.json             usage log on SubagentStart; old-tool check and the memory gate's rule on SessionStart; the memory gate on PreToolUse
+scripts/                     generate.sh, render-review.py, render-gallery.py, usage-log.sh, check-prereqs.sh, plan.py, claude-md.py, memory-gate.py
 tests/                       run.sh, workflows.mjs (the workflow scripts run with stub agents), two fixture projects, the gallery fixtures, and the drill logs
 ```
 
