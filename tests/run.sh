@@ -243,8 +243,6 @@ out=$(HOME="$TMP/home" bash scripts/check-prereqs.sh </dev/null); rc=$?
 mkdir -p "$TMP/home2"
 out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 [[ $rc -eq 0 && -z "$out" ]] && ok "check-prereqs.sh is silent when it is absent" || fail "check-prereqs.sh with a clean home: exit $rc, output '$out'"
-out=$(bash scripts/session-rules.sh </dev/null); rc=$?
-[[ $rc -eq 0 && -n "$out" ]] && ok "session-rules.sh prints the house rules and exits 0" || fail "session-rules.sh: exit $rc, output '$out'"
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
@@ -277,6 +275,9 @@ if python3 scripts/render-review.py --in "$TMP/bold.md" --out "$TMP/bold.html" -
 else
   fail "render-review.py leaves literal ** around a bold phrase with a code span"
 fi
+printf '# T\n\n- ~~A line the template now covers.~~\n' > "$TMP/del.md"
+python3 scripts/render-review.py --in "$TMP/del.md" --out "$TMP/del.html" --title "Del" >/dev/null 2>&1 \
+  && grep -q '<del>A line the template now covers.</del>' "$TMP/del.html" && ok "render-review.py strikes out ~~text~~" || fail "render-review.py does not strike out ~~text~~"
 printf '# T\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n' > "$TMP/mm.md"
 if python3 scripts/render-review.py --in "$TMP/mm.md" --out "$TMP/mm.html" --title "MM" >/dev/null 2>&1 \
    && grep -q '<pre class="mermaid">' "$TMP/mm.html" && grep -q 'cdnjs.cloudflare.com/ajax/libs/mermaid' "$TMP/mm.html"; then
@@ -722,6 +723,92 @@ while IFS=$'\t' read -r verdict message; do
   esac
 done < "$TMP/plan-cases.out"
 if [[ $rc -ne 0 || $pc_lines -eq 0 ]]; then fail "tests/plan-cases.py did not run to the end: exit $rc, $(head -3 "$TMP/plan-cases.err" | tr '\n' ' ')"; fi
+
+# ─── 20. /ck:claude-md ───────────────────────────────────────────────────────
+section "20. /ck:claude-md: scripts/claude-md.py and the command"
+CM="python3 scripts/claude-md.py"
+mkdir -p "$TMP/cm"
+state_of() { $CM status "$@" | sed -n 's/^state: //p'; }
+# A tailored draft: the current template with every blank filled.
+sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.12.md > "$TMP/cm/draft.md"
+
+# The command runs only when the User types it, and ships no hook of its own.
+if grep -qx 'disable-model-invocation: true' skills/claude-md/SKILL.md && ! grep -q 'claude-md' hooks/hooks.json; then
+  ok "/ck:claude-md runs only when typed, and no hook starts it"
+else
+  fail "/ck:claude-md can be started by Claude or by a hook"
+fi
+
+# A new section: the file is made with the heading and the draft, stamped with the template's version.
+$CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md" >/dev/null; rc=$?
+if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat "$TMP/cm/draft.md")" && "$(state_of "$TMP/cm/new.md")" == stamped ]] \
+   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.12' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
+  ok "a new section is written under the heading, stamped 0.1.12, not behind"
+else
+  fail "a new section: exit $rc, state $(state_of "$TMP/cm/new.md")"
+fi
+cp templates/how-we-work/0.1.12.md "$TMP/cm/blank.md"
+out=$($CM write "$TMP/cm/blank2.md" --section "$TMP/cm/blank.md"); rc=$?
+[[ $rc -eq 1 && "$out" == *'{{lanes}}'* && ! -e "$TMP/cm/blank2.md" ]] && ok "a draft with a blank left in it is refused, and the blank is named" || fail "a draft with a blank: exit $rc, '$out'"
+
+# A second run changes nothing, byte for byte.
+cp "$TMP/cm/new.md" "$TMP/cm/new.before"
+out=$($CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md"); rc=$?
+if [[ $rc -eq 0 && "$out" == unchanged:* ]] && cmp -s "$TMP/cm/new.md" "$TMP/cm/new.before"; then ok "a second run changes nothing"; else fail "a second run: exit $rc, '$out'"; fi
+
+# Broken markers are refused, the line is named, and the file is left as it was.
+printf '# P\n\n<!-- ck:how-we-work 0.1.12 -->\n- a rule\n' > "$TMP/cm/open.md"
+cat "$TMP/cm/draft.md" "$TMP/cm/draft.md" > "$TMP/cm/two.md"
+printf '<!-- /ck:how-we-work -->\n<!-- ck:how-we-work 0.1.12 -->\n' > "$TMP/cm/order.md"
+broken_ok=1
+for f in open two order; do
+  cp "$TMP/cm/$f.md" "$TMP/cm/$f.before"
+  out=$($CM write "$TMP/cm/$f.md" --section "$TMP/cm/draft.md"); rc=$?
+  [[ "$(state_of "$TMP/cm/$f.md")" == broken && $rc -eq 1 && "$out" == *"line "[0-9]* ]] && cmp -s "$TMP/cm/$f.md" "$TMP/cm/$f.before" || { fail "broken markers ($f): exit $rc, '$out'"; broken_ok=0; }
+done
+[[ $broken_ok -eq 1 ]] && ok "an opening with no end, two sections, and an end before the opening are refused with the line named"
+printf '# P\n\n## How we work\n\n- A rule.\n' > "$TMP/cm/plain.md"; cp "$TMP/cm/plain.md" "$TMP/cm/plain.before"
+out=$($CM write "$TMP/cm/plain.md" --section "$TMP/cm/draft.md"); rc=$?
+[[ $rc -eq 1 && "$(state_of "$TMP/cm/plain.md")" == none ]] && $CM status "$TMP/cm/plain.md" | grep -qx 'heading: yes' && cmp -s "$TMP/cm/plain.md" "$TMP/cm/plain.before" \
+  && ok "a file with a How we work heading and no markers is refused, left as it was, and its heading is seen" || fail "a file with no markers: exit $rc, '$out'"
+
+# Text outside the markers is kept byte for byte, whatever the section held.
+printf '# P\r\n\r\nAbove, with CRLF.\n\n## How we work\n\n' > "$TMP/cm/head"
+printf '\n- The project'"'"'s own rule, after the section.\n\n## Other\n\n- trailing line with no newline' > "$TMP/cm/tail"
+for body in '' $'- **Writing.** Edited here.\n'; do
+  { cat "$TMP/cm/head"; printf '<!-- ck:how-we-work -->\n%s<!-- /ck:how-we-work -->\n' "$body"; cat "$TMP/cm/tail"; } > "$TMP/cm/outside.md"
+  $CM write "$TMP/cm/outside.md" --section "$TMP/cm/draft.md" >/dev/null
+  { cat "$TMP/cm/head" "$TMP/cm/draft.md" "$TMP/cm/tail"; } > "$TMP/cm/outside.want"
+  label=${body%$'\n'}
+  cmp -s "$TMP/cm/outside.md" "$TMP/cm/outside.want" || { fail "text outside the markers changed (section: ${label:-an empty pair})"; continue; }
+  ok "text outside the markers is untouched (section: ${label:-an empty pair})"
+done
+
+# Every rule of the old "How we work" is accounted for: among the template's rules, after the marker, or missing.
+printf '# P\n\n## How we work\n\n- **Questions.** Old words.\n- **Our own rule.** Kept by the project.\n\n## Next\n' > "$TMP/cm/old.md"
+{ printf '# P\n\n## How we work\n\n'; cat "$TMP/cm/draft.md"; } > "$TMP/cm/dropped.md"
+{ printf '# P\n\n## How we work\n\n'; cat "$TMP/cm/draft.md"; printf -- '- **Our own rule.** Kept by the project.\n\n## Next\n'; } > "$TMP/cm/kept.md"
+out=$($CM kept "$TMP/cm/old.md" "$TMP/cm/dropped.md"); rc=$?
+out2=$($CM kept "$TMP/cm/old.md" "$TMP/cm/kept.md"); rc2=$?
+if [[ $rc -eq 1 && "$out" == *'missing: our own rule'* && "$out" == *"kept: questions (among the template's rules)"* \
+   && $rc2 -eq 0 && "$out2" == *'kept: our own rule (after the closing marker)'* ]]; then
+  ok "a rule the draft drops is named as missing; kept after the marker, it passes"
+else
+  fail "the kept check: exit $rc '$out'; exit $rc2 '$out2'"
+fi
+
+# Two shipped templates: the diff shows the change, and a section from the older one is behind.
+mkdir -p "$TMP/cm/templates"
+cp templates/how-we-work/0.1.12.md "$TMP/cm/templates/0.1.12.md"
+sed -e 's/ck:how-we-work 0.1.12/ck:how-we-work 0.1.13/' -e 's/^- \*\*Drawings first\.\*\* .*/- **Drawings first.** Changed in 0.1.13./' templates/how-we-work/0.1.12.md > "$TMP/cm/templates/0.1.13.md"
+d=$($CM diff 0.1.12 0.1.13 --templates "$TMP/cm/templates")
+if [[ "$d" == *'+- **Drawings first.** Changed in 0.1.13.'* && "$d" == *'-- **Drawings first.** A screen is drawn'* ]] \
+   && $CM template --templates "$TMP/cm/templates" | grep -qx 'template: 0.1.13' \
+   && $CM status "$TMP/cm/new.md" --templates "$TMP/cm/templates" | grep -qx 'behind: yes'; then
+  ok "the diff between two templates shows the change, 0.1.13 is current, and a section stamped 0.1.12 is behind"
+else
+  fail "two templates: diff '$d'"
+fi
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
