@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
-"""claude-md.py: read and write the general block of a project's CLAUDE.md, ck's "How we work" rules.
+"""claude-md.py: read and write the "How we work" section that /ck:claude-md tailors for a project.
 
 Usage:
-  claude-md.py status FILE [--template PATH]
-  claude-md.py diff FILE [--template PATH]
-  claude-md.py write FILE [--template PATH]
+  claude-md.py status FILE [--templates DIR]
+  claude-md.py template [--templates DIR]
+  claude-md.py diff FROM TO [--templates DIR]
+  claude-md.py write FILE --section DRAFT [--templates DIR]
 
-The block is every line from the opening marker, <!-- ck:how-we-work VERSION -->, to the
-closing marker, <!-- /ck:how-we-work -->, both included. The template (by default
-templates/how-we-work.md beside this script) is that block as ck ships it, markers and all.
+The section is every line from the opening marker, <!-- ck:how-we-work VERSION -->, to the
+closing marker, <!-- /ck:how-we-work -->, both included. VERSION names the template it was
+tailored from. ck ships one template per version, as templates/how-we-work/VERSION.md beside
+this script's folder; the newest is the current one.
 
 status prints the file's state, one of:
-  none     no file, or a file with no markers
-  current  the block is the template, byte for byte
-  behind   the block's stamp is older than the template's, or it has none
-  edited   the block differs from the template and its stamp is not older
-  broken   an opening with no end, an end with no opening, or two of either
-and the lines it found. diff prints the change from the block to the template. write puts
-the template in place of the block; a file that is current is left alone, a missing file is
-created with a "## How we work" heading and the block, and every byte outside the block is
-kept as it was. write refuses a broken file and a file with no markers, and names why.
+  none     no file, or a file with no markers (and whether it has a "## How we work" heading)
+  stamped  a section with its version, and whether a newer template has shipped since
+  broken   an opening with no end, an end with no opening, two of either, or a missing version
+template prints the current template's version and path. diff prints the change between two
+shipped templates. write puts DRAFT, a tailored section with both markers and a version, in
+place of the file's section: a missing file is created with a "## How we work" heading and the
+section, a file whose section is already DRAFT is left alone, and every byte outside the
+section is kept as it was. write refuses a broken file, a file with no markers, and a draft
+with a blank still in it ({{...}}), and names why.
 
 Standard library only. A usage error or an unreadable file is one plain line on stderr and
 exit status 2, never a traceback. A refusal is one plain line on stdout and exit status 1.
@@ -32,8 +34,11 @@ import sys
 OPEN_RE = re.compile(r'<!-- ck:how-we-work(?: (\S+))? -->')
 CLOSE_RE = re.compile(r'<!-- /ck:how-we-work -->')
 VERSION_RE = re.compile(r'[0-9]{1,6}(?:\.[0-9]{1,6}){0,3}')
-TEMPLATE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'how-we-work.md')
-USAGE = 'usage: claude-md.py status|diff|write FILE [--template PATH]'
+BLANK_RE = re.compile(r'\{\{[^{}\n]*\}\}')
+HEADING_RE = re.compile(r'##\s+How we work\s*')
+TEMPLATES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'how-we-work')
+USAGE = ('usage: claude-md.py status FILE | template | diff FROM TO | write FILE --section DRAFT'
+         ' [--templates DIR]')
 
 
 class Fail(Exception):
@@ -55,7 +60,7 @@ def read(path):
 
 
 def version(text):
-    """A stamp as a tuple of numbers, or None when it is missing or not a version."""
+    """A version as a tuple of numbers, or None when it is missing or not a version."""
     if text is None or not VERSION_RE.fullmatch(text):
         return None
     return tuple(int(part) for part in text.split('.'))
@@ -65,19 +70,8 @@ def marker(line, pattern):
     return pattern.fullmatch(line.rstrip('\r\n').rstrip())
 
 
-def load_template(path):
-    text = read(path)
-    lines = text.splitlines(keepends=True)
-    opening = marker(lines[0], OPEN_RE) if lines else None
-    if not opening or version(opening.group(1)) is None or not marker(lines[-1], CLOSE_RE):
-        raise Fail('%s is not a ck:how-we-work block with a version on its opening line' % path)
-    if not text.endswith('\n'):
-        text += '\n'
-    return text, opening.group(1)
-
-
 def find(lines):
-    """The block's first and last line indexes, or None when there are no markers.
+    """The section's first and last line indexes, or None when there are no markers.
 
     Raises Refuse with the line to look at when the markers are broken."""
     opens = [i for i, line in enumerate(lines) if marker(line, OPEN_RE)]
@@ -85,118 +79,143 @@ def find(lines):
     if not opens and not closes:
         return None
     if len(opens) > 1:
-        raise Refuse('line %d opens a second ck:how-we-work block; the first opens on line %d' % (opens[1] + 1, opens[0] + 1))
+        raise Refuse('line %d opens a second ck:how-we-work section; the first opens on line %d' % (opens[1] + 1, opens[0] + 1))
     if len(closes) > 1:
-        raise Refuse('line %d closes a second ck:how-we-work block; the first closes on line %d' % (closes[1] + 1, closes[0] + 1))
+        raise Refuse('line %d closes a second ck:how-we-work section; the first closes on line %d' % (closes[1] + 1, closes[0] + 1))
     if not closes:
-        raise Refuse('line %d opens the ck:how-we-work block and no line closes it' % (opens[0] + 1))
+        raise Refuse('line %d opens the ck:how-we-work section and no line closes it' % (opens[0] + 1))
     if not opens:
-        raise Refuse('line %d closes a ck:how-we-work block that no line opens' % (closes[0] + 1))
+        raise Refuse('line %d closes a ck:how-we-work section that no line opens' % (closes[0] + 1))
     if closes[0] < opens[0]:
-        raise Refuse('line %d closes the ck:how-we-work block before line %d opens it' % (closes[0] + 1, opens[0] + 1))
+        raise Refuse('line %d closes the ck:how-we-work section before line %d opens it' % (closes[0] + 1, opens[0] + 1))
     return opens[0], closes[0]
 
 
-def inspect(path, template_path):
-    """Everything status, diff, and write need: a dict with the state and what was found."""
-    template, template_version = load_template(template_path)
-    found = {'path': path, 'template': template, 'template_version': template_version}
-    if not os.path.exists(path):
-        return dict(found, state='none', present=False)
-    text = read(path)
+def shipped(folder):
+    """Every shipped template, as {version text: path}."""
+    try:
+        names = os.listdir(folder)
+    except OSError:
+        raise Fail('cannot read the templates folder %s' % folder)
+    found = {n[:-3]: os.path.join(folder, n) for n in names if n.endswith('.md') and version(n[:-3])}
+    if not found:
+        raise Fail('no template in %s' % folder)
+    return found
+
+
+def current(folder):
+    found = shipped(folder)
+    newest = max(found, key=version)
+    return newest, found[newest]
+
+
+def section(text, what):
+    """Check that text is one whole section with a version, and return the version and the text."""
+    if not text.endswith('\n'):
+        text += '\n'
     lines = text.splitlines(keepends=True)
-    found.update(present=True, text=text, lines=lines)
+    opening = marker(lines[0], OPEN_RE) if lines else None
+    try:
+        whole = find(lines) == (0, len(lines) - 1)
+    except Refuse:
+        whole = False
+    if not opening or version(opening.group(1)) is None or not whole:
+        raise Fail('%s is not one ck:how-we-work section with a version on its opening line' % what)
+    return opening.group(1), text
+
+
+def status(path, folder):
+    newest, _ = current(folder)
+    if not os.path.exists(path):
+        return ['state: none', 'file: absent', 'heading: no', 'template: %s' % newest]
+    lines = read(path).splitlines(keepends=True)
+    heading = 'yes' if any(HEADING_RE.fullmatch(l.rstrip('\r\n')) for l in lines) else 'no'
     try:
         span = find(lines)
     except Refuse as broken:
-        return dict(found, state='broken', reason=str(broken))
+        return ['state: broken', 'file: present', 'reason: %s' % broken, 'template: %s' % newest]
     if span is None:
-        return dict(found, state='none')
+        return ['state: none', 'file: present', 'heading: %s' % heading, 'template: %s' % newest]
     first, last = span
-    block = ''.join(lines[first:last + 1])
-    if not block.endswith('\n'):
-        block += '\n'
     stamp = marker(lines[first], OPEN_RE).group(1)
-    if block == template:
-        state = 'current'
-    elif version(stamp) is None or version(stamp) < version(template_version):
-        state = 'behind'
-    else:
-        state = 'edited'
-    return dict(found, state=state, first=first, last=last, block=block, stamp=stamp)
+    if version(stamp) is None:
+        return ['state: broken', 'file: present', 'reason: line %d opens the section with no version' % (first + 1), 'template: %s' % newest]
+    return ['state: stamped', 'file: present', 'section: lines %d-%d' % (first + 1, last + 1), 'stamp: %s' % stamp,
+            'template: %s' % newest, 'behind: %s' % ('yes' if version(stamp) < version(newest) else 'no')]
 
 
-def report(found):
-    out = ['state: %s' % found['state'], 'file: %s' % ('present' if found['present'] else 'absent')]
-    if found['state'] == 'broken':
-        out.append('reason: %s' % found['reason'])
-    if 'first' in found:
-        out.append('block: lines %d-%d' % (found['first'] + 1, found['last'] + 1))
-        out.append('stamp: %s' % (found['stamp'] or 'none'))
-    out.append('template: %s' % found['template_version'])
-    return out
-
-
-def diff(found):
-    if found['state'] == 'broken':
-        raise Refuse('%s: %s' % (found['path'], found['reason']))
-    if 'block' not in found:
-        raise Refuse('%s has no ck:how-we-work block to compare' % found['path'])
+def diff(old, new, folder):
+    found = shipped(folder)
+    for v in (old, new):
+        if v not in found:
+            raise Refuse('ck has no template %s; it has %s' % (v, ', '.join(sorted(found, key=version))))
+    a, b = read(found[old]), read(found[new])
     return [line.rstrip('\n') for line in difflib.unified_diff(
-        found['block'].splitlines(keepends=True), found['template'].splitlines(keepends=True),
-        'in %s' % found['path'], 'ck template %s' % found['template_version'])]
+        a.splitlines(keepends=True), b.splitlines(keepends=True), 'template %s' % old, 'template %s' % new)]
 
 
-def write(found):
-    path, template = found['path'], found['template']
-    if found['state'] == 'broken':
-        raise Refuse('not written: %s: %s' % (path, found['reason']))
-    if found['state'] == 'current':
-        return ['unchanged: %s already has template %s' % (path, found['template_version'])]
-    if not found['present']:
-        text = '## How we work\n\n' + template
-    elif 'first' not in found:
-        raise Refuse('not written: %s has no ck:how-we-work markers; put an empty pair, '
-                     '<!-- ck:how-we-work --> and <!-- /ck:how-we-work -->, where the block goes' % path)
+def write(path, draft_path, folder):
+    stamp, draft = section(read(draft_path), draft_path)
+    if stamp not in shipped(folder):
+        raise Refuse('not written: %s is stamped %s, and ck has no template %s' % (draft_path, stamp, stamp))
+    blanks = BLANK_RE.findall(draft)
+    if blanks:
+        raise Refuse('not written: %s still has a blank to fill: %s' % (draft_path, ', '.join(sorted(set(blanks)))))
+    if not os.path.exists(path):
+        text = '## How we work\n\n' + draft
+        was = 'new file'
     else:
-        lines = found['lines']
-        text = ''.join(lines[:found['first']]) + template + ''.join(lines[found['last'] + 1:])
+        lines = read(path).splitlines(keepends=True)
+        try:
+            span = find(lines)
+        except Refuse as broken:
+            raise Refuse('not written: %s: %s' % (path, broken))
+        if span is None:
+            raise Refuse('not written: %s has no ck:how-we-work markers; put an empty pair, '
+                         '<!-- ck:how-we-work --> and <!-- /ck:how-we-work -->, where the section goes' % path)
+        first, last = span
+        old = ''.join(lines[first:last + 1])
+        if old == draft or old + '\n' == draft:
+            return ['unchanged: %s already has this section' % path]
+        text = ''.join(lines[:first]) + draft + ''.join(lines[last + 1:])
+        was = 'was stamped %s' % (marker(lines[first], OPEN_RE).group(1) or 'none')
     try:
         with open(path, 'w', encoding='utf-8', newline='') as f:
             f.write(text)
     except OSError as error:
         raise Fail('cannot write %s: %s' % (path, error.strerror or type(error).__name__))
-    was = 'new file' if not found['present'] else 'was %s, stamp %s' % (found['state'], found['stamp'] or 'none')
-    return ['wrote: %s, template %s (%s)' % (path, found['template_version'], was)]
+    return ['wrote: %s, section stamped %s (%s)' % (path, stamp, was)]
 
 
 def run(argv):
-    args, template = [], TEMPLATE
+    args, opts = [], {'--templates': TEMPLATES, '--section': None}
     i = 0
     while i < len(argv):
-        if argv[i] == '--template' and i + 1 < len(argv):
-            template = argv[i + 1]
+        if argv[i] in opts and i + 1 < len(argv):
+            opts[argv[i]] = argv[i + 1]
             i += 2
             continue
         if argv[i].startswith('--'):
             raise Fail(USAGE)
         args.append(argv[i])
         i += 1
-    if len(args) != 2 or args[0] not in ('status', 'diff', 'write'):
-        raise Fail(USAGE)
-    command, path = args
-    found = inspect(path, template)
-    if command == 'status':
-        return 0, report(found)
-    if command == 'diff':
-        return 0, diff(found)
-    return 0, write(found)
+    folder = opts['--templates']
+    if args[:1] == ['status'] and len(args) == 2:
+        return 0, status(args[1], folder)
+    if args == ['template']:
+        newest, path = current(folder)
+        return 0, ['template: %s' % newest, 'path: %s' % path]
+    if args[:1] == ['diff'] and len(args) == 3:
+        return 0, diff(args[1], args[2], folder)
+    if args[:1] == ['write'] and len(args) == 2 and opts['--section']:
+        return 0, write(args[1], opts['--section'], folder)
+    raise Fail(USAGE)
 
 
 def main(argv):
     try:
         try:
-            status, lines = run(argv)
+            status_code, lines = run(argv)
         except Fail as failure:
             print(str(failure).replace('\n', ' '), file=sys.stderr)
             return 2
@@ -208,7 +227,7 @@ def main(argv):
             return 2
         for line in lines:
             print(line)
-        return status
+        return status_code
     except KeyboardInterrupt:
         return 130
     except Exception:
