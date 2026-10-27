@@ -77,30 +77,32 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 Made from 2026-10-12 to 10-17, before the release scheme. None is in a release. Most were rebuilt in ck2, so each overlaps a candidate above.
 
-| # | Commit | Date | What it is | Kind | Same as ck2 candidate |
-|---|---|---|---|---|---|
-| 1 | `81bfa62` | 10-12 | Plan: any document as a proof, with its proposal | Plan | 2 |
-| 2 | `42b821a` | 10-12 | Ruff lint rules, and six findings cleared | Code | 14 |
-| 3 | `6d3f523` | 10-12 | The lint gate, and a check file for every later stage | Code | 14 (the per-stage checks were dropped in ck2) |
-| 4 | `5901660` | 10-12 | The comment page renamed the proof, with a new renderer, `render-proof.py` | Code | 2 |
-| 5 | `603b080` | 10-12 | Plan status: P0-S1 running | Bookkeeping | None |
-| 6 | `60f379b` | 10-12 | CI: run the suite on every pull request and on main | Code | 14 |
-| 7 | `4d147f4` | 10-12 | Renderer fixes, a refusal of seven key shapes, the four comment steps | Code | 2 (ck2 kept the key check) |
-| 8 | `d719e2d` | 10-12 | The document contract for a proposal, an analysis, and a note | Code | 2 |
-| 9 | `0659e5f` | 10-12 | The publish guard | Code | None (dropped in ck2) |
-| 10 | `3e4b155` | 10-13 | Proposal: ck V2, lanes under personas | Proposal | 4 |
-| 11 | `7786c0c` | 10-13 | Plan status: save the proof plan's changes | Bookkeeping | None |
-| 12 | `72608ce` | 10-16 | Plan status, and the proposal for a team per project | Proposal | 1 |
-| 13 | `e3141ec` | 10-16 | Move the tiers to current models | Code | 15 |
-| 14 | `6e64f85` | 10-17 | Plan status: P0-S4 done | Bookkeeping | None |
-| 15 | `2b5fdbb` | 10-17 | The proof loop's rules, and the comment steps on a gallery | Code | 2 |
-| 16 | `8da98bb` | 10-17 | Proposal: the smallest proof | Proposal | 2 |
-| 17 | `2d25800` | 10-17 | Plan status: P1-S2 running | Bookkeeping | None |
-| 18 | `6a90361` | 10-17 | Plan: a team per project | Plan | 1 |
-| 19 | `a0acd8f` | 10-17 | Plan status: P1-S2 done | Bookkeeping | None |
-| 20 | `9175df4` | 10-17 | Plan: the smallest proof, replanned | Plan | 2 |
+| # | Commit | Date | What it is | Kind | Same as ck2 candidate | Decided |
+|---|---|---|---|---|---|---|
+| 1 | `81bfa62` | 10-12 | Plan: any document as a proof, with its proposal | Plan | 2 | Plan removed (2026-10-26); its proposal waits on candidate 2 |
+| 2 | `42b821a` | 10-12 | Ruff lint rules, and six findings cleared | Code | 14 | Open |
+| 3 | `6d3f523` | 10-12 | The lint gate, and a check file for every later stage | Code | 14 (the per-stage checks were dropped in ck2) | Open |
+| 4 | `5901660` | 10-12 | The comment page renamed the proof, with a new renderer, `render-proof.py` | Code | 2 | Open |
+| 5 | `603b080` | 10-12 | Plan status: P0-S1 running | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
+| 6 | `60f379b` | 10-12 | CI: run the suite on every pull request and on main | Code | 14 | Open |
+| 7 | `4d147f4` | 10-12 | Renderer fixes, a refusal of seven key shapes, the four comment steps | Code | 2 (ck2 kept the key check) | Open |
+| 8 | `d719e2d` | 10-12 | The document contract for a proposal, an analysis, and a note | Code | 2 | Open |
+| 9 | `0659e5f` | 10-12 | The publish guard | Code | None (dropped in ck2) | Removed: the guard and its check are deleted (2026-10-26) |
+| 10 | `3e4b155` | 10-13 | Proposal: ck V2, lanes under personas | Proposal | 4 | Open |
+| 11 | `7786c0c` | 10-13 | Plan status: save the proof plan's changes | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
+| 12 | `72608ce` | 10-16 | Plan status, and the proposal for a team per project | Proposal | 1 | Open |
+| 13 | `e3141ec` | 10-16 | Move the tiers to current models | Code | 15 | Open |
+| 14 | `6e64f85` | 10-17 | Plan status: P0-S4 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
+| 15 | `2b5fdbb` | 10-17 | The proof loop's rules, and the comment steps on a gallery | Code | 2 | Open |
+| 16 | `8da98bb` | 10-17 | Proposal: the smallest proof | Proposal | 2 | Open |
+| 17 | `2d25800` | 10-17 | Plan status: P1-S2 running | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
+| 18 | `6a90361` | 10-17 | Plan: a team per project | Plan | 1 | Open |
+| 19 | `a0acd8f` | 10-17 | Plan status: P1-S2 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
+| 20 | `9175df4` | 10-17 | Plan: the smallest proof, replanned | Plan | 2 | Open |
 
 In short: 9 code commits, 3 plans, 3 proposals, 5 bookkeeping. The code is all proof, CI, lint, or model work.
+
+A commit on main is never cut out of its history: that would rebuild every later commit and force-push main. Removing a commit here means removing what it changed, in a new commit.
 
 ---
 
@@ -168,6 +170,24 @@ Later: global CLAUDE.md, CI on release/0.1, cost report
 ---
 
 ## Revision History
+
+## [2026-10-26] Six of main's unreleased commits removed
+
+**Change Type:** `remove`
+**Triggered by:** `planning-session`
+**Items Affected:** Unreleased commits on main, rows 1, 5, 9, 11, 14, 17, 19
+
+### What Changed
+The six commits that match no ck2 candidate are decided. The five plan status commits (rows 5, 11, 14, 17, 19) are removed by deleting the plan they edited, "Any document as a proof", which also takes the plan from row 1. The publish guard (row 9) is deleted with its check. The table gains a Decided column; the other 13 rows are open.
+
+### Why
+The plan stopped on 2026-10-17 and still said a stage was running. The guard was dropped from the rewrite on 2026-10-17 (ck is for productivity, not security), and no command calls it.
+
+### Open Questions Resolved / Added
+- Resolved: what to do with the commits that match no ck2 candidate → remove what they changed, keep the history.
+- Added: the two check files left under `tests/pending/` (P1-S4, P1-S5) wait for stages of the deleted plan.
+
+---
 
 ## [2026-10-26] ck2 abandoned; the releases from 0.1.1 to 0.1.13; ck2's candidates and main's unreleased commits
 
