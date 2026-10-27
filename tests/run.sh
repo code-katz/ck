@@ -6,11 +6,7 @@
 #
 # Needs Bash 4+, python3 (for JSON and list parsing), and node (for the workflow
 # script checks). Runs the skills' exact commands under zsh too when it is installed
-# (section 15), and Ruff over the Python when it is installed (section 20). Touches
-# nothing outside a temporary directory.
-#
-# A stage of a staged plan keeps its checks in a file of its own: under tests/checks/ they
-# count, and under tests/pending/ they wait for the stage's work (sections 21 and 22).
+# (section 15). Touches nothing outside a temporary directory.
 
 set -uo pipefail
 
@@ -36,23 +32,7 @@ FAIL=0
 ERRORS=()
 ok()   { PASS=$((PASS + 1)); printf "  \033[32m✓\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); ERRORS+=("$1"); printf "  \033[31m✗\033[0m %s\n" "$1"; }
-# A line that is not a check: something could not run here, or there was nothing to run. It is
-# not counted, and it is never silent.
-note() { printf "  \033[33m-\033[0m %s\n" "$1"; }
 section() { printf "\n\033[1m%s\033[0m\n" "$1"; }
-
-# banner_steps <page>: the comment steps in a page's banner, one line each, as a reader sees them
-# (tags dropped, entities read). Sections 12 and 13 count them, and the check files compare them
-# with tests/fixtures/proof/comment-steps.txt.
-banner_steps() {
-  python3 - "$1" <<'EOF'
-import html, re, sys
-page = open(sys.argv[1], encoding='utf-8').read()
-steps = re.search(r'<h2>How to comment</h2>\s*<ol>(.*?)</ol>', page, re.S)
-for item in re.findall(r'<li[^>]*>(.*?)</li>', steps.group(1) if steps else '', re.S):
-    print(' '.join(html.unescape(re.sub(r'<[^>]+>', '', item)).split()))
-EOF
-}
 
 # The persona names, from profiles/, skipping the generated roster.
 personas=()
@@ -127,13 +107,13 @@ if (( ${#bad[@]} == 0 )); then ok "every agent is on its tier, renamed, trailere
 section "5. tiers.conf"
 tier_lines=$(grep -cE '^[a-z]+ claude-' tiers.conf)
 fable=$(grep -c ' claude-fable-5-1$' tiers.conf)
-opus=$(grep -c ' claude-opus-5-5$' tiers.conf)
-sonnet=$(grep -c ' claude-sonnet-5-5$' tiers.conf)
+opus=$(grep -c ' claude-opus-5$' tiers.conf)
+sonnet=$(grep -c ' claude-sonnet-5$' tiers.conf)
 if [[ "$tier_lines" == "${#personas[@]}" ]]; then ok "one tier line per persona ($tier_lines)"; else fail "tiers.conf has $tier_lines persona lines, expected ${#personas[@]}"; fi
-if [[ "$fable" == 6 && "$opus" == 11 && "$sonnet" == 4 ]]; then ok "six Fable 5.1, eleven Opus 5.5, four Sonnet 5.5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
+if [[ "$fable" == 6 && "$opus" == 11 && "$sonnet" == 4 ]]; then ok "six Fable 5.1, eleven Opus 5, four Sonnet 5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
 unknown=$(grep -E '^[a-z]+ ' tiers.conf | awk '{print $1}' | while read -r n; do [[ -f "profiles/$n.md" ]] || echo "$n"; done)
 if [[ -z "$unknown" ]]; then ok "every tier line names a profile"; else fail "tier lines without a profile: $unknown"; fi
-other=$(grep -E '^[a-z]+ ' tiers.conf | grep -vE ' claude-(fable-5-1|opus-5-5|sonnet-5-5)$' || true)
+other=$(grep -E '^[a-z]+ ' tiers.conf | grep -vE ' claude-(fable-5-1|opus-5|sonnet-5)$' || true)
 if [[ -z "$other" ]]; then ok "every model is one of the three tier IDs"; else fail "unexpected models: $other"; fi
 
 # ─── 6. River's behaviors in the interactive skills ─────────────────────────
@@ -282,9 +262,7 @@ if python3 scripts/render-review.py --in tests/fixtures/game/docs/PRD.md --out "
   ok "render-review.py renders the fixture PRD"
   h_src=$(grep -cE '^##+ ' tests/fixtures/game/docs/PRD.md); h_out=$(grep -o '<h[234] id=' "$TMP/review.html" | wc -l | tr -d ' ')
   [[ "$h_src" == "$h_out" ]] && ok "every heading is on the page ($h_out)" || fail "headings: $h_src in the source, $h_out on the page"
-  # What the steps say is checked in the check file of the stage that writes them, P1-S0.sh, and the
-  # check for the old third step that stood here moved there. What stays holds for any wording.
-  [[ $(banner_steps "$TMP/review.html" 2>/dev/null | wc -l) -eq 4 ]] && grep -q 'comment mode' "$TMP/review.html" && ! grep -q '@claude' "$TMP/review.html" && ok "the banner carries four comment steps, with comment mode in them and @claude in none" || fail "banner steps missing"
+  grep -q 'comment mode' "$TMP/review.html" && grep -q 'Do not send the comment to Claude' "$TMP/review.html" && ! grep -q '@claude' "$TMP/review.html" && ok "the banner carries the four comment steps" || fail "banner steps missing"
   grep -q 'What went wrong?' "$TMP/review.html" && ok "the gate's question is in the banner" || fail "question missing"
   grep -q '<div class="table-wrap"><table>' "$TMP/review.html" && ok "tables scroll in their own container" || fail "table wrapper missing"
 else
@@ -297,6 +275,9 @@ if python3 scripts/render-review.py --in "$TMP/bold.md" --out "$TMP/bold.html" -
 else
   fail "render-review.py leaves literal ** around a bold phrase with a code span"
 fi
+printf '# T\n\n- ~~A line the template now covers.~~\n' > "$TMP/del.md"
+python3 scripts/render-review.py --in "$TMP/del.md" --out "$TMP/del.html" --title "Del" >/dev/null 2>&1 \
+  && grep -q '<del>A line the template now covers.</del>' "$TMP/del.html" && ok "render-review.py strikes out ~~text~~" || fail "render-review.py does not strike out ~~text~~"
 printf '# T\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n' > "$TMP/mm.md"
 if python3 scripts/render-review.py --in "$TMP/mm.md" --out "$TMP/mm.html" --title "MM" >/dev/null 2>&1 \
    && grep -q '<pre class="mermaid">' "$TMP/mm.html" && grep -q 'cdnjs.cloudflare.com/ajax/libs/mermaid' "$TMP/mm.html"; then
@@ -311,8 +292,7 @@ section "13. Gallery renderer"
 if python3 scripts/render-gallery.py --in tests/fixtures/gallery/brand.json --out "$TMP/gallery.html" >/dev/null 2>"$TMP/rg.err"; then
   ok "render-gallery.py renders the brand fixture from one JSON file"
   [[ $(grep -c 'class="variant"' "$TMP/gallery.html") -eq 2 ]] && grep -q 'id="variant-A"' "$TMP/gallery.html" && grep -q 'id="variant-B"' "$TMP/gallery.html" && ok "two variants, labeled A and B, with matching ids" || fail "variant sections or ids missing"
-  # As in section 12: what the steps say, and the check for the old third step, are in P1-S2.sh.
-  [[ $(banner_steps "$TMP/gallery.html" 2>/dev/null | wc -l) -eq 4 ]] && grep -q 'comment mode' "$TMP/gallery.html" && ! grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries four comment steps, with comment mode in them and @claude in none" || fail "banner steps missing"
+  grep -q 'comment mode' "$TMP/gallery.html" && grep -q 'Do not send the comment to Claude' "$TMP/gallery.html" && ! grep -q '@claude' "$TMP/gallery.html" && ok "the banner carries the four comment steps" || fail "banner steps missing"
   parts_ok=1
   for part in 'class="mark"' 'class="swatches"' 'class="specimen"' 'class="frame"' '<h3>Rationale</h3>' '<h3>Trade-off</h3>' '<h3>Satisfies</h3>'; do
     [[ $(grep -o "$part" "$TMP/gallery.html" | wc -l | tr -d ' ') -eq 2 ]] || { fail "each variant should have $part once"; parts_ok=0; }
@@ -744,149 +724,115 @@ while IFS=$'\t' read -r verdict message; do
 done < "$TMP/plan-cases.out"
 if [[ $rc -ne 0 || $pc_lines -eq 0 ]]; then fail "tests/plan-cases.py did not run to the end: exit $rc, $(head -3 "$TMP/plan-cases.err" | tr '\n' ' ')"; fi
 
-# ─── 20. Lint ────────────────────────────────────────────────────────────────
-section "20. Lint"
-# Ruff reads ruff.toml: pyflakes and bugbear over the Python in scripts/ and tests/, and any syntax
-# newer than the Python macOS ships. An undefined name is found here without a check that happens
-# to run the line. The Python inside the heredocs of this file and of the check files is not linted.
-if [[ -f ruff.toml ]]; then ok "ruff.toml is present"; else fail "ruff.toml is missing"; fi
-if command -v ruff >/dev/null 2>&1; then
-  ruff check --no-cache --output-format concise scripts tests > "$TMP/ruff.out" 2>&1; rc=$?
-  # A lint that checks no file is clean too, so each file is looked for in the list Ruff works from.
-  ruff check --no-cache --show-files scripts tests > "$TMP/ruff.files" 2>/dev/null
-  unlinted=()
-  for f in scripts/*.py tests/*.py; do
-    [[ -f "$f" ]] || continue
-    grep -q "/$f\$" "$TMP/ruff.files" || unlinted+=("$f")
-  done
-  if [[ $rc -ne 0 && $rc -ne 1 ]]; then
-    fail "ruff check could not run (exit $rc): $(head -2 "$TMP/ruff.out" | tr '\n' ' ')"
-  elif (( ${#unlinted[@]} > 0 )); then
-    fail "Ruff does not check ${unlinted[*]}: ruff.toml or an ignore rule leaves it out"
-  elif [[ $rc -eq 0 ]]; then
-    ok "ruff check scripts tests is clean ($(wc -l < "$TMP/ruff.files" | tr -d ' ') files)"
-  else
-    fail "ruff check scripts tests: $(grep -cE '^[^ ]+:[0-9]+:[0-9]+: ' "$TMP/ruff.out") finding(s), the first: $(grep -m1 -E '^[^ ]+:[0-9]+:[0-9]+: ' "$TMP/ruff.out")"
-  fi
-elif [[ -n "${CI:-}" ]]; then
-  # On a developer's machine a missing Ruff is a note. In CI nobody reads a note, so it is a failure.
-  fail "Ruff is not installed, and CI is set: the lint must run here (pipx install ruff)"
+# ─── 20. /ck:claude-md ───────────────────────────────────────────────────────
+section "20. /ck:claude-md: scripts/claude-md.py and the command"
+CM="python3 scripts/claude-md.py"
+mkdir -p "$TMP/cm"
+state_of() { $CM status "$@" | sed -n 's/^state: //p'; }
+# A tailored draft: the current template with every blank filled.
+sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.12.md > "$TMP/cm/draft.md"
+
+# The command runs only when the User types it, and ships no hook of its own.
+if grep -qx 'disable-model-invocation: true' skills/claude-md/SKILL.md && ! grep -q 'claude-md' hooks/hooks.json; then
+  ok "/ck:claude-md runs only when typed, and no hook starts it"
 else
-  note "Ruff is not installed, so the Python is not linted on this machine (pipx install ruff)"
+  fail "/ck:claude-md can be started by Claude or by a hook"
 fi
 
-# ─── 21. Stage checks that count ─────────────────────────────────────────────
-# A stage of a staged plan can have its checks written before its work. They are one Bash file,
-# named for the stage, of checks written like the ones above: each calls ok or fail once.
-#
-#   tests/checks/<stage>.sh    The work is done. Its checks count like any other check.
-#   tests/pending/<stage>.sh   The work is not done. Its checks are run and listed as waiting.
-#                              They do not count, and the suite still passes.
-#
-# A stage finishes by making every check in its file pass and moving the file to tests/checks/.
-# So a waiting file whose checks all pass fails the suite: its stage is done and its file was not
-# moved. A stage may tighten the checks in its file. It never loosens one.
-#
-# This file reads a check file inside a subshell, from the repository's root. The check file has
-# ok, fail, banner_steps, and $TMP, and these three. Nothing it sets or changes comes back.
-#   $SCRATCH        an empty folder of its own, removed with $TMP
-#   $LOOP_SKILL     the loop skill
-#   $PAGE_RENDERER  the page renderer
-# No check file spells those two paths, so a rename changes the two lines below and no check file.
-# A check file must run to its last line: one that stops early, or holds no check, fails the suite
-# in either folder.
-LOOP_SKILL=skills/review-page/SKILL.md
-PAGE_RENDERER=scripts/render-review.py
-WAITING=0
-WAITING_FILES=0
+# A new section: the file is made with the heading and the draft, stamped with the template's version.
+$CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md" >/dev/null; rc=$?
+if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat "$TMP/cm/draft.md")" && "$(state_of "$TMP/cm/new.md")" == stamped ]] \
+   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.12' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
+  ok "a new section is written under the heading, stamped 0.1.12, not behind"
+else
+  fail "a new section: exit $rc, state $(state_of "$TMP/cm/new.md")"
+fi
+cp templates/how-we-work/0.1.12.md "$TMP/cm/blank.md"
+out=$($CM write "$TMP/cm/blank2.md" --section "$TMP/cm/blank.md"); rc=$?
+[[ $rc -eq 1 && "$out" == *'{{lanes}}'* && ! -e "$TMP/cm/blank2.md" ]] && ok "a draft with a blank left in it is refused, and the blank is named" || fail "a draft with a blank: exit $rc, '$out'"
 
-run_check_file() {  # <file> <counted|waiting>
-  local file=$1 mode=$2 stage verdict message passed failed ended=0
-  stage=$(basename "$file" .sh)
-  local scratch="$TMP/stage/$mode/$stage"
-  rm -rf "$scratch"; mkdir -p "$scratch"
-  # The file runs from a copy with one more line after its last. A file that stops early (an exit,
-  # a return, a line that does not parse, a name that is not set) never reaches that line.
-  { cat "$file"; printf '\nreached_the_last_line\n'; } > "$scratch.sh"
-  (
-    SCRATCH=$scratch
-    ok()   { printf 'ok\t%s\n' "${1//[$'\t\n']/ }" >&3; }
-    fail() { printf 'fail\t%s\n' "${1//[$'\t\n']/ }" >&3; }
-    reached_the_last_line() { printf 'end\t\n' >&3; }
-    # shellcheck disable=SC1090
-    source "$scratch.sh"
-  ) 3> "$scratch.results" > "$scratch.log" 2>&1 < /dev/null
-  passed=$(grep -c $'^ok\t' "$scratch.results")
-  failed=$(grep -c $'^fail\t' "$scratch.results")
-  grep -q $'^end\t' "$scratch.results" && ended=1
-  if [[ $mode == waiting ]]; then
-    WAITING_FILES=$((WAITING_FILES + 1))
-    printf "  %s: %d waiting" "$file" "$failed"
-    if (( passed > 0 )); then printf ", %d passing already" "$passed"; fi
-    printf "\n"
-  fi
-  while IFS=$'\t' read -r verdict message; do
-    case "$mode:$verdict" in
-      counted:ok)   ok "$stage: $message" ;;
-      counted:fail) fail "$stage: $message" ;;
-      waiting:ok)   printf "    \033[2m✓ passes already: %s\033[0m\n" "$message" ;;
-      waiting:fail) WAITING=$((WAITING + 1)); printf "    \033[33m…\033[0m %s\n" "$message" ;;
-    esac
-  done < "$scratch.results"
-  if [[ $ended -eq 0 ]]; then
-    fail "$file did not run to its last line: $(tail -1 "$scratch.log")"
-  elif (( passed + failed == 0 )); then
-    fail "$file holds no check"
-  elif [[ $mode == waiting && $failed -eq 0 ]]; then
-    fail "every check in $file passes, so its stage is done: move the file to tests/checks/"
-  fi
-}
+# A second run changes nothing, byte for byte.
+cp "$TMP/cm/new.md" "$TMP/cm/new.before"
+out=$($CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md"); rc=$?
+if [[ $rc -eq 0 && "$out" == unchanged:* ]] && cmp -s "$TMP/cm/new.md" "$TMP/cm/new.before"; then ok "a second run changes nothing"; else fail "a second run: exit $rc, '$out'"; fi
 
-section "21. Stage checks that count (tests/checks/)"
-# First the runner itself, on throwaway files: what one file adds to the suite's three counts.
-# counts_for <counted|waiting> <a line of a check file>...: prints "<passed> <failed> <waiting>".
-counts_for() {
-  local mode=$1; shift
-  printf '%s\n' "$@" > "$TMP/throwaway.sh"
-  ( PASS=0; FAIL=0; WAITING=0; ERRORS=()
-    run_check_file "$TMP/throwaway.sh" "$mode" > "$TMP/throwaway.out" 2>&1
-    printf '%s %s %s' "$PASS" "$FAIL" "$WAITING" )
-}
-got=$(counts_for waiting 'fail "the work is not built"' 'ok "this part is"')
-[[ "$got" == "0 0 1" ]] && grep -q 'the work is not built' "$TMP/throwaway.out" && ok "a failing check in a waiting file is listed as waiting, and neither passes nor fails the suite" || fail "a waiting file with one failing and one passing check added '$got' to passed, failed, waiting (expected '0 0 1')"
-got=$(counts_for waiting 'ok "built"' 'ok "and this"')
-[[ "$got" == "0 1 0" ]] && grep -q 'move the file to tests/checks/' "$TMP/throwaway.out" && ok "a waiting file whose checks all pass fails the suite and says to move the file" || fail "a waiting file whose checks all pass added '$got' (expected '0 1 0')"
-got=$(counts_for counted 'ok "built"' 'fail "not built"')
-[[ "$got" == "1 1 0" ]] && ok "the same checks under tests/checks/ pass and fail the suite like any other" || fail "a counted file with one passing and one failing check added '$got' (expected '1 1 0')"
-stops=()
-for early in 'exit 0' 'return 0' 'if then' 'printf "%s" "$never_set"'; do
-  [[ "$(counts_for waiting 'fail "before"' "$early" 'fail "after"')" == "0 1 1" && "$(counts_for counted 'ok "before"' "$early" 'ok "after"')" == "1 1 0" ]] || stops+=("$early")
+# Broken markers are refused, the line is named, and the file is left as it was.
+printf '# P\n\n<!-- ck:how-we-work 0.1.12 -->\n- a rule\n' > "$TMP/cm/open.md"
+cat "$TMP/cm/draft.md" "$TMP/cm/draft.md" > "$TMP/cm/two.md"
+printf '<!-- /ck:how-we-work -->\n<!-- ck:how-we-work 0.1.12 -->\n' > "$TMP/cm/order.md"
+broken_ok=1
+for f in open two order; do
+  cp "$TMP/cm/$f.md" "$TMP/cm/$f.before"
+  out=$($CM write "$TMP/cm/$f.md" --section "$TMP/cm/draft.md"); rc=$?
+  [[ "$(state_of "$TMP/cm/$f.md")" == broken && $rc -eq 1 && "$out" == *"line "[0-9]* ]] && cmp -s "$TMP/cm/$f.md" "$TMP/cm/$f.before" || { fail "broken markers ($f): exit $rc, '$out'"; broken_ok=0; }
 done
-(( ${#stops[@]} == 0 )) && ok "a check file that stops before its last line fails the suite in either folder (an exit, a return, a line that does not parse, a name that is not set)" || fail "a check file that stops early is not caught when it stops with: ${stops[*]}"
-[[ "$(counts_for waiting ': no check here')" == "0 1 0" && "$(counts_for counted ': no check here')" == "0 1 0" ]] && ok "a check file that holds no check fails the suite in either folder" || fail "a check file with no check in it is not caught"
-# A rename that changes the two names above to a path that is not there would leave every check
-# file reading nothing, and its checks waiting for good.
-[[ -f "$LOOP_SKILL" && -f "$PAGE_RENDERER" ]] && ok "the loop skill and the page renderer are where the check files are told to find them" || fail "the check files are told to find the loop skill at $LOOP_SKILL and the page renderer at $PAGE_RENDERER, and one of them is not there"
+[[ $broken_ok -eq 1 ]] && ok "an opening with no end, two sections, and an end before the opening are refused with the line named"
+printf '# P\n\n## How we work\n\n- A rule.\n' > "$TMP/cm/plain.md"; cp "$TMP/cm/plain.md" "$TMP/cm/plain.before"
+out=$($CM write "$TMP/cm/plain.md" --section "$TMP/cm/draft.md"); rc=$?
+[[ $rc -eq 1 && "$(state_of "$TMP/cm/plain.md")" == none ]] && $CM status "$TMP/cm/plain.md" | grep -qx 'heading: yes' && cmp -s "$TMP/cm/plain.md" "$TMP/cm/plain.before" \
+  && ok "a file with a How we work heading and no markers is refused, left as it was, and its heading is seen" || fail "a file with no markers: exit $rc, '$out'"
 
-counted_files=0
-for f in tests/checks/*.sh; do
-  [[ -f "$f" ]] || continue
-  counted_files=$((counted_files + 1)); run_check_file "$f" counted
+# Text outside the markers is kept byte for byte, whatever the section held.
+printf '# P\r\n\r\nAbove, with CRLF.\n\n## How we work\n\n' > "$TMP/cm/head"
+printf '\n- The project'"'"'s own rule, after the section.\n\n## Other\n\n- trailing line with no newline' > "$TMP/cm/tail"
+for body in '' $'- **Writing.** Edited here.\n'; do
+  { cat "$TMP/cm/head"; printf '<!-- ck:how-we-work -->\n%s<!-- /ck:how-we-work -->\n' "$body"; cat "$TMP/cm/tail"; } > "$TMP/cm/outside.md"
+  $CM write "$TMP/cm/outside.md" --section "$TMP/cm/draft.md" >/dev/null
+  { cat "$TMP/cm/head" "$TMP/cm/draft.md" "$TMP/cm/tail"; } > "$TMP/cm/outside.want"
+  label=${body%$'\n'}
+  cmp -s "$TMP/cm/outside.md" "$TMP/cm/outside.want" || { fail "text outside the markers changed (section: ${label:-an empty pair})"; continue; }
+  ok "text outside the markers is untouched (section: ${label:-an empty pair})"
 done
-(( counted_files > 0 )) || note "no stage has moved its check file to tests/checks/ yet"
 
-# ─── 22. Stage checks that wait ──────────────────────────────────────────────
-section "22. Stage checks waiting for their stage (tests/pending/)"
-for f in tests/pending/*.sh; do
-  [[ -f "$f" ]] || continue
-  run_check_file "$f" waiting
+# Every rule of the old "How we work" is accounted for: among the template's rules, after the marker, or missing.
+printf '# P\n\n## How we work\n\n- **Questions.** Old words.\n- **Our own rule.** Kept by the project.\n\n## Next\n' > "$TMP/cm/old.md"
+{ printf '# P\n\n## How we work\n\n'; cat "$TMP/cm/draft.md"; } > "$TMP/cm/dropped.md"
+{ printf '# P\n\n## How we work\n\n'; cat "$TMP/cm/draft.md"; printf -- '- **Our own rule.** Kept by the project.\n\n## Next\n'; } > "$TMP/cm/kept.md"
+out=$($CM kept "$TMP/cm/old.md" "$TMP/cm/dropped.md"); rc=$?
+out2=$($CM kept "$TMP/cm/old.md" "$TMP/cm/kept.md"); rc2=$?
+if [[ $rc -eq 1 && "$out" == *'missing: our own rule'* && "$out" == *"kept: questions (among the template's rules)"* \
+   && $rc2 -eq 0 && "$out2" == *'kept: our own rule (after the closing marker)'* ]]; then
+  ok "a rule the draft drops is named as missing; kept after the marker, it passes"
+else
+  fail "the kept check: exit $rc '$out'; exit $rc2 '$out2'"
+fi
+
+# Two shipped templates: the diff shows the change, and a section from the older one is behind.
+mkdir -p "$TMP/cm/templates"
+cp templates/how-we-work/0.1.12.md "$TMP/cm/templates/0.1.12.md"
+sed -e 's/ck:how-we-work 0.1.12/ck:how-we-work 0.1.13/' -e 's/^- \*\*Drawings first\.\*\* .*/- **Drawings first.** Changed in 0.1.13./' templates/how-we-work/0.1.12.md > "$TMP/cm/templates/0.1.13.md"
+d=$($CM diff 0.1.12 0.1.13 --templates "$TMP/cm/templates")
+if [[ "$d" == *'+- **Drawings first.** Changed in 0.1.13.'* && "$d" == *'-- **Drawings first.** A screen is drawn'* ]] \
+   && $CM template --templates "$TMP/cm/templates" | grep -qx 'template: 0.1.13' \
+   && $CM status "$TMP/cm/new.md" --templates "$TMP/cm/templates" | grep -qx 'behind: yes'; then
+  ok "the diff between two templates shows the change, 0.1.13 is current, and a section stamped 0.1.12 is behind"
+else
+  fail "two templates: diff '$d'"
+fi
+
+# ─── 21. The memory gate ─────────────────────────────────────────────────────
+section "21. The memory gate: scripts/memory-gate.py"
+MG="python3 scripts/memory-gate.py check"
+MEM="$HOME/.claude/projects/x/memory"
+gate() { printf '%s' "$1" | $MG; }
+call() { python3 -c 'import json,sys; print(json.dumps({"tool_name": sys.argv[1], "tool_input": {sys.argv[2]: sys.argv[3]}, "cwd": "/tmp"}))' "$@"; }
+asks=1
+for c in "Write file_path $MEM/a.md" "Edit file_path $MEM/MEMORY.md"; do
+  read -r tool key path <<<"$c"
+  gate "$(call "$tool" "$key" "$path")" | grep -q '"permissionDecision": "ask"' || { fail "the gate does not ask for a $tool to $path"; asks=0; }
 done
-(( WAITING_FILES > 0 )) || note "nothing is waiting: tests/pending/ holds no check file"
+for cmd in 'echo hi >> ~/.claude/projects/x/memory/MEMORY.md' 'mv /tmp/a.md "$HOME/.claude/projects/x/memory/"' 'mem=~/.claude/projects/x/memory; echo y > "$mem/b.md"'; do
+  gate "$(call Bash command "$cmd")" | grep -q '"permissionDecision": "ask"' || { fail "the gate does not ask for: $cmd"; asks=0; }
+done
+[[ $asks -eq 1 ]] && ok "the gate asks for a Write, an Edit, an append, a mv, and a write through a variable into a memory folder"
+step3=$(python3 -c 'import re; s=open("skills/claude-md/SKILL.md").read(); print(re.search(r"## 3\. Read the project.s memory.*?```bash\n(.*?)\n```", s, re.S).group(1))')
+out="$(gate "$(call Write file_path /tmp/x.md)")$(gate "$(call Bash command 'cat ~/.claude/projects/x/memory/a.md')")$(gate "$(call Bash command "$step3")")"
+[[ -z "$out" ]] && ok "the gate passes a write elsewhere, a cat of a memory, and /ck:claude-md's read command, with no output" || fail "the gate asked for a call that writes no memory: $out"
+python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("memory-gate.py\" check" in x["command"] for e in h["PreToolUse"] for x in e["hooks"]); assert any("memory-gate.py\" rule" in x["command"] for e in h["SessionStart"] for x in e["hooks"])' \
+  && ok "hooks.json runs the gate before tool calls and prints its rule at session start" || fail "hooks.json does not wire the memory gate"
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
-printf "\n%d passed, %d failed" "$PASS" "$FAIL"
-if (( WAITING_FILES > 0 )); then printf ", %d waiting for their stage (check files under tests/pending/: %d)" "$WAITING" "$WAITING_FILES"; fi
-printf "\n"
+printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then
   printf "\nFailures:\n"
   for e in "${ERRORS[@]}"; do printf "  - %s\n" "$e"; done

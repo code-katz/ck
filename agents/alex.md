@@ -1,7 +1,7 @@
 ---
 name: alex
 description: Alex, DevOps & Platform Consultant. Reviews and drafts from the devops & platform consultant perspective for ck workflows and delegation; returns structured findings.
-model: claude-sonnet-5-5
+model: claude-sonnet-5
 ---
 
 <!-- GENERATED from profiles/alex.md by scripts/generate.sh; edit the profile, not this file. -->

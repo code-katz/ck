@@ -1,4 +1,0 @@
-Open this link signed in to your Claude account.
-Switch the page to comment mode from the bar at the top.
-Click the passage, type your comment, and leave Queue for Claude ticked. Your session answers in the thread.
-If your session was closed, or no answer comes, open it and say done. It then reads every comment on this page.

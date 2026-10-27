@@ -25,8 +25,8 @@ const ARTIFACTS = {
     targetWords: 2500,
     lenses: [
       { persona: 'river', lens: 'product', model: 'claude-fable-5-1', reads: ['docs/brief.md', 'docs/opportunity.md', 'ROADMAP.md'] },
-      { persona: 'toni', lens: 'marketing', model: 'claude-opus-5-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
-      { persona: 'kai', lens: 'ux', model: 'claude-sonnet-5-5', reads: ['brand/', 'docs/design/'] },
+      { persona: 'toni', lens: 'marketing', model: 'claude-opus-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
+      { persona: 'kai', lens: 'ux', model: 'claude-sonnet-5', reads: ['brand/', 'docs/design/'] },
     ],
   },
   architecture: {
@@ -42,8 +42,8 @@ const ARTIFACTS = {
     targetWords: 2500,
     lenses: [
       { persona: 'morgan', lens: 'security', model: 'claude-fable-5-1', reads: ['docs/PRD.md', 'SECURITY.md'] },
-      { persona: 'alex', lens: 'platform', model: 'claude-sonnet-5-5', reads: ['infra/', 'Dockerfile', '.github/workflows/'] },
-      { persona: 'jordan', lens: 'data', model: 'claude-opus-5-5', reads: ['docs/market-research.md', 'data/', 'schema/'] },
+      { persona: 'alex', lens: 'platform', model: 'claude-sonnet-5', reads: ['infra/', 'Dockerfile', '.github/workflows/'] },
+      { persona: 'jordan', lens: 'data', model: 'claude-opus-5', reads: ['docs/market-research.md', 'data/', 'schema/'] },
     ],
   },
 }
@@ -69,9 +69,9 @@ const inputs = Array.isArray(a.inputs) && a.inputs.length ? a.inputs : [rational
 const withPanel = a.panel !== false
 const SECTIONS = A.sections
 const MAX_REVISIONS = 2
-const TRIM_MODEL = 'claude-sonnet-5-5'
+const TRIM_MODEL = 'claude-sonnet-5'
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. If an item needs a source you do not have, mark the claim unverified instead of inventing one. '
-const VALIDATOR_MODEL = 'claude-haiku-5-5'
+const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 
 const ORDER = ['draft', 'validate', 'panel', 'synthesize']
 const startAt = ORDER.includes(a.startAt) ? a.startAt : 'draft'

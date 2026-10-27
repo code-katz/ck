@@ -1,7 +1,7 @@
 ---
 name: kai
 description: Kai, UX Design & Visual Art Consultant. Reviews and drafts from the ux design & visual art consultant perspective for ck workflows and delegation; returns structured findings.
-model: claude-opus-5-5
+model: claude-opus-5
 ---
 
 <!-- GENERATED from profiles/kai.md by scripts/generate.sh; edit the profile, not this file. -->

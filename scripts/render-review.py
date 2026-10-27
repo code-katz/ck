@@ -9,7 +9,7 @@ Standard library only. The page carries the five comment steps in its banner, a 
 table of contents from the ## and ### headings, tables and code that scroll inside their
 own container, and light and dark themes. Publish the output with the Artifact tool.
 """
-import argparse, html, re, pathlib
+import argparse, html, re, sys, pathlib
 
 def slug(text):
     s = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
@@ -26,6 +26,7 @@ def inline(text):
     p = html.escape(p, quote=False)
     p = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+)\)', r'<a href="\2">\1</a>', p)
     p = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', p)
+    p = re.sub(r'~~(.+?)~~', r'<del>\1</del>', p)
     p = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'<em>\1</em>', p)
     return re.sub(r'\x00(\d+)\x00', lambda m: codes[int(m.group(1))], p)
 

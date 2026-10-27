@@ -1,5 +1,5 @@
 {
-  "description": "ck: persona usage log, and a check that the old team tool is gone",
+  "description": "ck: persona usage log, a check that the old team tool is gone, and the memory gate",
   "hooks": {
     "SubagentStart": [
       {
@@ -12,7 +12,16 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/check-prereqs.sh\"" }
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/check-prereqs.sh\"" },
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-gate.py\" rule" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit|Bash)$",
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-gate.py\" check" }
         ]
       }
     ]

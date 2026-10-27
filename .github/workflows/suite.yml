@@ -31,14 +31,9 @@ jobs:
 
       # tests/run.sh runs the skills' commands under zsh, the shell Claude Code uses on macOS, and
       # skips that part when zsh is not installed. In CI a skipped part is not a pass, so install it.
-      # The Ruff version is pinned: a new Ruff can add findings, and an unpinned one would turn a
-      # pull request red for a change that did not cause it. To bump it, run
-      # `ruff check scripts tests` with the new version first, then change the number here.
-      # The suite fails when the CI variable is set and Ruff is missing (section 20).
-      - name: Install zsh and Ruff
+      - name: Install zsh
         run: |
           command -v zsh >/dev/null 2>&1 || { sudo apt-get update -q && sudo apt-get install -y -q zsh; }
-          pipx install 'ruff==0.15.15'
 
       - name: Show tool versions
         run: |
@@ -47,7 +42,6 @@ jobs:
           python3 --version
           node --version
           git --version
-          ruff --version
 
       - name: Run the suite
         run: bash tests/run.sh

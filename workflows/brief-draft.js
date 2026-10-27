@@ -31,7 +31,7 @@ const existing = a.runDir
   ? [a.opportunityPath, a.marketResearchPath].filter(Boolean)
   : [projectRoot + '/docs/opportunity.md (if it exists)', projectRoot + '/docs/market-research.md (if it exists)']
 const ideaText = a.idea || 'Take the idea from the concept statement in ' + a.opportunityPath
-const VALIDATOR_MODEL = 'claude-haiku-5-5'
+const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
 const MAX_REVISIONS = 2
 const WORD_CAP = 1200
 const WORD_TARGET = 1000
