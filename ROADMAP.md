@@ -49,25 +49,25 @@
 
 ck2 is abandoned. These are its features, as candidates for a release on `release/0.1`. Built means it ran in ck2; planned means it was written down and never built.
 
-| # | Feature | What it does | In ck2 |
-|---|---|---|---|
-| 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built |
-| 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built |
-| 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built |
-| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built |
-| 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built |
-| 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built |
-| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built |
-| 8 | **The cost report** | The cost as a published page with filters, by stage, lane, agent, model, and token type, with the dearest turns | Planned (ck2's only roadmap item) |
-| 9 | **The outcome loop** | A lean review that runs on its own at each phase's end, and every checker risk put to the stage's owner before the pull request reaches you | Planned (a proposal, two decisions open) |
-| 10 | **One config file** | `ck.conf` holds every model id and the core team, in place of `tiers.conf` | Built |
-| 11 | **The writing rule at session start** | No em-dashes and plain technical English, in every session's context | Built |
-| 12 | **The style check** | `style.py` checks a document's headings, em-dashes, and word limits | Built |
-| 13 | **The instruction-file guard** | A hook refuses a `ck:` agent's edits to ck's own skills and profiles | Built; its Bash reader is in 0.1.13 |
-| 14 | **CI and Ruff** | The test suite and the lint check on every pull request, and a Run button when a merge is blocked | Built |
-| 15 | **Current models** | Opus 5.5 and Sonnet 5.5 for the craft and execution tiers | Built |
-| 16 | **Pipeline commands that stand alone** | Every pipeline command rebuilt on one shared loop (`pipeline.py`), each used on its own, with no required order and no pipeline table | Built |
-| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite |
+| # | Feature | What it does | In ck2 | Decided |
+|---|---|---|---|---|
+| 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Keep, Tier 2 |
+| 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Open |
+| 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built | Open |
+| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Open |
+| 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Open |
+| 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built | Open |
+| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Open |
+| 8 | **The cost report** | The cost as a published page with filters, by stage, lane, agent, model, and token type, with the dearest turns | Planned (ck2's only roadmap item) | Open |
+| 9 | **The outcome loop** | A lean review that runs on its own at each phase's end, and every checker risk put to the stage's owner before the pull request reaches you | Planned (a proposal, two decisions open) | Open |
+| 10 | **One config file** | `ck.conf` holds every model id and the core team, in place of `tiers.conf` | Built | Open |
+| 11 | **The writing rule at session start** | No em-dashes and plain technical English, in every session's context | Built | Open |
+| 12 | **The style check** | `style.py` checks a document's headings, em-dashes, and word limits | Built | Open |
+| 13 | **The instruction-file guard** | A hook refuses a `ck:` agent's edits to ck's own skills and profiles | Built; its Bash reader is in 0.1.13 | Open |
+| 14 | **CI and Ruff** | The test suite and the lint check on every pull request, and a Run button when a merge is blocked | Built | Open |
+| 15 | **Current models** | Opus 5.5 and Sonnet 5.5 for the craft and execution tiers | Built | Open |
+| 16 | **Pipeline commands that stand alone** | Every pipeline command rebuilt on one shared loop (`pipeline.py`), each used on its own, with no required order and no pipeline table | Built | Open |
+| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite | Open |
 
 Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `code-katz` marketplace.
 
@@ -90,13 +90,13 @@ Made from 2026-10-12 to 10-17, before the release scheme. None is in a release. 
 | 9 | `0659e5f` | 10-12 | The publish guard | Code | None (dropped in ck2) | Removed: the guard and its check are deleted (2026-10-26) |
 | 10 | `3e4b155` | 10-13 | Proposal: ck V2, lanes under personas | Proposal | 4 | Open |
 | 11 | `7786c0c` | 10-13 | Plan status: save the proof plan's changes | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
-| 12 | `72608ce` | 10-16 | Plan status, and the proposal for a team per project | Proposal | 1 | Open |
+| 12 | `72608ce` | 10-16 | Plan status, and the proposal for a team per project | Proposal | 1 | Kept: the proposal is candidate 1's design |
 | 13 | `e3141ec` | 10-16 | Move the tiers to current models | Code | 15 | Open |
 | 14 | `6e64f85` | 10-17 | Plan status: P0-S4 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 15 | `2b5fdbb` | 10-17 | The proof loop's rules, and the comment steps on a gallery | Code | 2 | Open |
 | 16 | `8da98bb` | 10-17 | Proposal: the smallest proof | Proposal | 2 | Open |
 | 17 | `2d25800` | 10-17 | Plan status: P1-S2 running | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
-| 18 | `6a90361` | 10-17 | Plan: a team per project | Plan | 1 | Open |
+| 18 | `6a90361` | 10-17 | Plan: a team per project | Plan | 1 | Removed: the plan is deleted (2026-10-26) |
 | 19 | `a0acd8f` | 10-17 | Plan status: P1-S2 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 20 | `9175df4` | 10-17 | Plan: the smallest proof, replanned | Plan | 2 | Open |
 
@@ -125,6 +125,7 @@ Proposed tiers. Every tier is your call.
 | 1 | **A short global CLAUDE.md** ("How we work with Will", about 400 words, replacing the old team tool's 4,150) | About 5,000 fewer tokens in every session in every project, and no roster greeting or mode menu | The lessons d20mob, ck and hireling each learned can live in one place without losing project facts |
 | 2 | **CI on `release/0.1`** (ck2 candidate 14; main commit 6) | Each pull request shows its checks before you say merge | Auto mode still refuses the tag push with CI in place; CI only helps the merge |
 | 3 | **The cost report** (ck2 candidates 7 and 8) | See where tokens go, by stage, lane, agent and model | `cost.py` can match lanes to stages reliably |
+| 4 | **A team per project** (ck2 candidate 1; design: `docs/proposal/2026-10-16-project-teams.md`) | Only the project's own personas are suggested or cast | Built from ck2's `team.py` as one release; a soft rule (invite first) is enough without a deny rule |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -170,6 +171,21 @@ Later: global CLAUDE.md, CI on release/0.1, cost report
 ---
 
 ## Revision History
+
+## [2026-10-26] ck2 candidates reviewed
+
+**Change Type:** `reprioritize`
+**Triggered by:** `planning-session`
+**Items Affected:** Candidates from ck2; Tier 2; Unreleased commits on main
+
+### What Changed
+Each ck2 candidate is kept with a tier, or removed with the files on main that hold it.
+- Candidate 1, a team per project: kept, Tier 2. Its proposal stays as the design (row 12); its plan is deleted (row 18).
+
+### Why
+Tidying the roadmap and main after ck2 was abandoned: what is kept is recorded with its priority, and what is not is deleted.
+
+---
 
 ## [2026-10-26] Six of main's unreleased commits removed
 
