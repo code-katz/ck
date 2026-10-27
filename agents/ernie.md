@@ -1,7 +1,7 @@
 ---
 name: ernie
 description: Ernie, WW2 Narrative Author. Reviews and drafts from the ww2 narrative author perspective for ck workflows and delegation; returns structured findings.
-model: claude-opus-5
+model: claude-opus-5-5
 ---
 
 <!-- GENERATED from profiles/ernie.md by scripts/generate.sh; edit the profile, not this file. -->

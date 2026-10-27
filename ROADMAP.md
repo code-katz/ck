@@ -51,6 +51,7 @@
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
 | 1 | **Test 0.1.14 and promote it to stable** | It is released, but not yet tried by hand | In d20mob, a save shows the proposal ending "Reply 1, 2 or 3" and then the approval prompt; the `code-katz` pin moves to `v0.1.14` |
+| 2 | **0.1.15: current models** | Craft runs on Opus 5, execution on Sonnet 5 and checkers on Haiku 4.5, a generation behind; Fable 5.1 stays | `tiers.conf` names `claude-opus-5-5` and `claude-sonnet-5-5`, every checker runs on `claude-haiku-5-5`, and a ck persona agent in d20mob reports the new model |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -71,6 +72,7 @@
 
 ```
 Now:   test 0.1.14 in d20mob -> promote to stable
+Next:  0.1.15 (current models) -> ck-next -> test -> stable
 Later: the proof page tables
 ```
 
@@ -95,6 +97,20 @@ Later: the proof page tables
 ---
 
 ## Revision History
+
+## [2026-10-26] 0.1.15: current models
+
+**Change Type:** `add`
+**Triggered by:** `planning-session`
+**Items Affected:** Tier 1 item 2; Recommended Sequencing
+
+### What Changed
+0.1.15 is added to Tier 1. It moves the craft seats from Opus 5 to Opus 5.5 (`claude-opus-5-5`), the execution seats from Sonnet 5 to Sonnet 5.5 (`claude-sonnet-5-5`), and every checker from Haiku 4.5 to Haiku 5.5 (`claude-haiku-5-5`). The judgment seats stay on Fable 5.1. It follows 0.1.14.
+
+### Why
+ck's personas and checkers were a model generation behind. The change is ids in `tiers.conf` and the workflows, and the files generated from them.
+
+---
 
 ## [2026-10-26] 0.1.14: questions in the message
 

@@ -48,13 +48,13 @@ TIMEOUT = 60
 # cases read profiles/ROSTER.md itself.
 ROSTER_ROWS = [
     ("akira", "Backend Engineering Consultant", "claude-fable-5-1", "APIs and databases"),
-    ("alex", "DevOps & Platform Consultant", "claude-sonnet-5", "Infrastructure as code"),
-    ("kai", "UX Design & Visual Art Consultant", "claude-opus-5", "Mockups"),
+    ("alex", "DevOps & Platform Consultant", "claude-sonnet-5-5", "Infrastructure as code"),
+    ("kai", "UX Design & Visual Art Consultant", "claude-opus-5-5", "Mockups"),
     ("reiner", "Tabletop Game Designer", "claude-fable-5-1", "Core loop and mechanics"),
-    ("robin", "QA & Testing Consultant", "claude-sonnet-5", "Test strategy"),
-    ("sasha", "Frontend Engineering Consultant", "claude-sonnet-5", "Components"),
-    ("tracy", "Fantasy Genre Advisor", "claude-opus-5", "Tabletop canon"),
-    ("travolta", "Fantasy Narrative Author", "claude-opus-5", "The narrator's voice"),
+    ("robin", "QA & Testing Consultant", "claude-sonnet-5-5", "Test strategy"),
+    ("sasha", "Frontend Engineering Consultant", "claude-sonnet-5-5", "Components"),
+    ("tracy", "Fantasy Genre Advisor", "claude-opus-5-5", "Tabletop canon"),
+    ("travolta", "Fantasy Narrative Author", "claude-opus-5-5", "The narrator's voice"),
 ]
 
 
@@ -3165,7 +3165,7 @@ def _(t):
         if len(name) != length:
             raise Setup("the name is %d characters, not %d" % (len(name), length))
         roster = t.roster(roster_text(
-            ROSTER_ROWS + [(persona.lower(), "Tabletop Game Designer", "claude-opus-5", "Rules")]))
+            ROSTER_ROWS + [(persona.lower(), "Tabletop Game Designer", "claude-opus-5-5", "Rules")]))
         path = t.plan(set_col(item_text(), "P0-S0", 3, "%s, Opus" % persona))
         res = t.run("card", path, "P0-S0", "--fix", "x", "--title", "y", "--roster", roster)
         exits(t, res, 1)

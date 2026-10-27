@@ -36,7 +36,7 @@ const rosterStep = a.pluginRoot
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. '
 const SMALLEST_EDITS = 'Make the smallest edits that satisfy each listed item, with the Edit tool on the passages concerned, in at most ten Edit calls; where the item is length, cut whole paragraphs of repetition until the document is at least five percent under the cap, so one revision settles it. Do not rewrite the document, do not re-read files you were not asked to read, do not run web searches, and do not count, grep, or check the result: the checker runs again next. '
-const VALIDATOR_MODEL = 'claude-haiku-4-5-20251001'
+const VALIDATOR_MODEL = 'claude-haiku-5-5'
 const MAX_REVISIONS = 2
 const SECTIONS = ['What this covers', 'Phases', 'Stage by stage', 'Open points']
 

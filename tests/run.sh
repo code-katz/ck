@@ -107,13 +107,13 @@ if (( ${#bad[@]} == 0 )); then ok "every agent is on its tier, renamed, trailere
 section "5. tiers.conf"
 tier_lines=$(grep -cE '^[a-z]+ claude-' tiers.conf)
 fable=$(grep -c ' claude-fable-5-1$' tiers.conf)
-opus=$(grep -c ' claude-opus-5$' tiers.conf)
-sonnet=$(grep -c ' claude-sonnet-5$' tiers.conf)
+opus=$(grep -c ' claude-opus-5-5$' tiers.conf)
+sonnet=$(grep -c ' claude-sonnet-5-5$' tiers.conf)
 if [[ "$tier_lines" == "${#personas[@]}" ]]; then ok "one tier line per persona ($tier_lines)"; else fail "tiers.conf has $tier_lines persona lines, expected ${#personas[@]}"; fi
-if [[ "$fable" == 6 && "$opus" == 11 && "$sonnet" == 4 ]]; then ok "six Fable 5.1, eleven Opus 5, four Sonnet 5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
+if [[ "$fable" == 6 && "$opus" == 11 && "$sonnet" == 4 ]]; then ok "six Fable 5.1, eleven Opus 5.5, four Sonnet 5.5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
 unknown=$(grep -E '^[a-z]+ ' tiers.conf | awk '{print $1}' | while read -r n; do [[ -f "profiles/$n.md" ]] || echo "$n"; done)
 if [[ -z "$unknown" ]]; then ok "every tier line names a profile"; else fail "tier lines without a profile: $unknown"; fi
-other=$(grep -E '^[a-z]+ ' tiers.conf | grep -vE ' claude-(fable-5-1|opus-5|sonnet-5)$' || true)
+other=$(grep -E '^[a-z]+ ' tiers.conf | grep -vE ' claude-(fable-5-1|opus-5-5|sonnet-5-5)$' || true)
 if [[ -z "$other" ]]; then ok "every model is one of the three tier IDs"; else fail "unexpected models: $other"; fi
 
 # ─── 6. River's behaviors in the interactive skills ─────────────────────────

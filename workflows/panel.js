@@ -1,6 +1,6 @@
 export const meta = {
   name: 'panel',
-  description: 'Three-lens decision panel: product (river, Fable 5.1), marketing (toni, Opus 5), and UX (kai, Sonnet 5) personas, each on a different model and each reading its own evidence, argue one question; a neutral memo surfaces where they disagree and leaves the decision to the author. Type /ck:panel followed by the question; the text is the only argument needed. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp (UTC, minted by the caller with date -u), question, contextPath (optional), rationalePath (optional; each lens reads it only after forming its view), memoPath (optional; default <projectRoot>/docs/decisions/<timestamp>-panel.md), lenses (optional [{persona, lens, model, reads}]).',
+  description: 'Three-lens decision panel: product (river, Fable 5.1), marketing (toni, Opus 5.5), and UX (kai, Sonnet 5.5) personas, each on a different model and each reading its own evidence, argue one question; a neutral memo surfaces where they disagree and leaves the decision to the author. Type /ck:panel followed by the question; the text is the only argument needed. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp (UTC, minted by the caller with date -u), question, contextPath (optional), rationalePath (optional; each lens reads it only after forming its view), memoPath (optional; default <projectRoot>/docs/decisions/<timestamp>-panel.md), lenses (optional [{persona, lens, model, reads}]).',
   phases: [
     { title: 'Lenses', detail: 'ck:river, ck:toni, ck:kai in parallel, one model each, each reading its own evidence, each forced to argue against itself' },
     { title: 'Synthesis', detail: 'one neutral agent writes the decision memo: agreement flagged as low-information, disagreement preserved, decision left to the author' },
@@ -32,13 +32,13 @@ const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run th
 
 // Three lenses, three models, three bodies of evidence. The same model in three
 // costumes is one opinion; the same evidence read three times is one reading.
-// River and Toni run on their own tiers. Kai is moved down from Opus 5 to
-// Sonnet 5 so that three lenses are three models. This is the one script in ck
+// River and Toni run on their own tiers. Kai is moved down from Opus 5.5 to
+// Sonnet 5.5 so that three lenses are three models. This is the one script in ck
 // allowed to set `model` on a persona agent, and it only ever moves a lens down.
 const DEFAULT_LENSES = [
   { persona: 'river', lens: 'product', model: 'claude-fable-5-1', reads: ['docs/PRD.md', 'docs/opportunity.md', 'ROADMAP.md'] },
-  { persona: 'toni', lens: 'marketing', model: 'claude-opus-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
-  { persona: 'kai', lens: 'ux', model: 'claude-sonnet-5', reads: ['brand/', 'docs/design/'] },
+  { persona: 'toni', lens: 'marketing', model: 'claude-opus-5-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
+  { persona: 'kai', lens: 'ux', model: 'claude-sonnet-5-5', reads: ['brand/', 'docs/design/'] },
 ]
 const lenses = Array.isArray(a.lenses) && a.lenses.length
   ? a.lenses.map((l, i) => {
