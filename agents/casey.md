@@ -1,7 +1,7 @@
 ---
 name: casey
 description: Casey, Data Analyst & Visualization Consultant. Reviews and drafts from the data analyst & visualization consultant perspective for ck workflows and delegation; returns structured findings.
-model: claude-opus-5
+model: claude-opus-5-5
 ---
 
 <!-- GENERATED from profiles/casey.md by scripts/generate.sh; edit the profile, not this file. -->

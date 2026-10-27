@@ -1,7 +1,7 @@
 ---
 name: piper
 description: Piper, Tabletop Playtester. Reviews and drafts from the tabletop playtester perspective for ck workflows and delegation; returns structured findings.
-model: claude-sonnet-5
+model: claude-sonnet-5-5
 ---
 
 <!-- GENERATED from profiles/piper.md by scripts/generate.sh; edit the profile, not this file. -->
