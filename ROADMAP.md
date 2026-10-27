@@ -52,7 +52,7 @@ ck2 is abandoned. These are its features, as candidates for a release on `releas
 | # | Feature | What it does | In ck2 | Decided |
 |---|---|---|---|---|
 | 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Keep, Tier 2 |
-| 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Open |
+| 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Removed: 0.1.13 already makes proof pages |
 | 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built | Open |
 | 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Open |
 | 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Open |
@@ -79,7 +79,7 @@ Made from 2026-10-12 to 10-17, before the release scheme. None is in a release. 
 
 | # | Commit | Date | What it is | Kind | Same as ck2 candidate | Decided |
 |---|---|---|---|---|---|---|
-| 1 | `81bfa62` | 10-12 | Plan: any document as a proof, with its proposal | Plan | 2 | Plan removed (2026-10-26); its proposal waits on candidate 2 |
+| 1 | `81bfa62` | 10-12 | Plan: any document as a proof, with its proposal | Plan | 2 | Removed: the plan and the proposal are deleted (2026-10-26) |
 | 2 | `42b821a` | 10-12 | Ruff lint rules, and six findings cleared | Code | 14 | Open |
 | 3 | `6d3f523` | 10-12 | The lint gate, and a check file for every later stage | Code | 14 (the per-stage checks were dropped in ck2) | Open |
 | 4 | `5901660` | 10-12 | The comment page renamed the proof, with a new renderer, `render-proof.py` | Code | 2 | Open |
@@ -94,11 +94,11 @@ Made from 2026-10-12 to 10-17, before the release scheme. None is in a release. 
 | 13 | `e3141ec` | 10-16 | Move the tiers to current models | Code | 15 | Open |
 | 14 | `6e64f85` | 10-17 | Plan status: P0-S4 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 15 | `2b5fdbb` | 10-17 | The proof loop's rules, and the comment steps on a gallery | Code | 2 | Open |
-| 16 | `8da98bb` | 10-17 | Proposal: the smallest proof | Proposal | 2 | Open |
+| 16 | `8da98bb` | 10-17 | Proposal: the smallest proof | Proposal | 2 | Removed: the proposal is deleted (2026-10-26) |
 | 17 | `2d25800` | 10-17 | Plan status: P1-S2 running | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 18 | `6a90361` | 10-17 | Plan: a team per project | Plan | 1 | Removed: the plan is deleted (2026-10-26) |
 | 19 | `a0acd8f` | 10-17 | Plan status: P1-S2 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
-| 20 | `9175df4` | 10-17 | Plan: the smallest proof, replanned | Plan | 2 | Open |
+| 20 | `9175df4` | 10-17 | Plan: the smallest proof, replanned | Plan | 2 | Removed: the plan it changed is deleted (2026-10-26) |
 
 In short: 9 code commits, 3 plans, 3 proposals, 5 bookkeeping. The code is all proof, CI, lint, or model work.
 
@@ -181,6 +181,7 @@ Later: global CLAUDE.md, CI on release/0.1, cost report
 ### What Changed
 Each ck2 candidate is kept with a tier, or removed with the files on main that hold it.
 - Candidate 1, a team per project: kept, Tier 2. Its proposal stays as the design (row 12); its plan is deleted (row 18).
+- Candidate 2, `/ck:proof`: removed, because 0.1.13 already makes a proof page for any document. Both proof proposals are deleted (rows 1, 16); row 20 changed the deleted plan. The proof code on main (rows 4, 7, 8, 15) is decided on its own.
 
 ### Why
 Tidying the roadmap and main after ck2 was abandoned: what is kept is recorded with its priority, and what is not is deleted.
