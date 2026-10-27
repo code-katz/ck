@@ -74,7 +74,7 @@ Never edit `docs/opportunity.md` yourself in this step or the next: the workflow
 
 ## 5. The review
 
-Set `status` to `review`. Read `docs/opportunity.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/proof-loop/SKILL.md`, with this question at the top of the page: "Imagine this was built and nobody wanted it. What did we get wrong?" That skill publishes, waits for "done", applies every comment to `docs/opportunity.md` (recording each in `<runDir>/review.md`), republishes, and resolves; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
+Set `status` to `review`. Read `docs/opportunity.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, with this question at the top of the page: "Imagine this was built and nobody wanted it. What did we get wrong?" That skill publishes, waits for "done", applies every comment to `docs/opportunity.md` (recording each in `<runDir>/review.md`), republishes, and resolves; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
 
 ## 6. Finalize
 

@@ -82,18 +82,18 @@ Made from 2026-10-12 to 10-17, before the release scheme. None is in a release. 
 | 1 | `81bfa62` | 10-12 | Plan: any document as a proof, with its proposal | Plan | 2 | Removed: the plan and the proposal are deleted (2026-10-26) |
 | 2 | `42b821a` | 10-12 | Ruff lint rules, and six findings cleared | Code | 14 | Open |
 | 3 | `6d3f523` | 10-12 | The lint gate, and a check file for every later stage | Code | 14 (the per-stage checks were dropped in ck2) | Open |
-| 4 | `5901660` | 10-12 | The comment page renamed the proof, with a new renderer, `render-proof.py` | Code | 2 | Open |
+| 4 | `5901660` | 10-12 | The comment page renamed the proof, with a new renderer, `render-proof.py` | Code | 2 | Removed: undone on main (2026-10-26) |
 | 5 | `603b080` | 10-12 | Plan status: P0-S1 running | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 6 | `60f379b` | 10-12 | CI: run the suite on every pull request and on main | Code | 14 | Open |
-| 7 | `4d147f4` | 10-12 | Renderer fixes, a refusal of seven key shapes, the four comment steps | Code | 2 (ck2 kept the key check) | Open |
-| 8 | `d719e2d` | 10-12 | The document contract for a proposal, an analysis, and a note | Code | 2 | Open |
+| 7 | `4d147f4` | 10-12 | Renderer fixes, a refusal of seven key shapes, the four comment steps | Code | 2 (ck2 kept the key check) | Undone on main (2026-10-26); the fixes and the key check are Tier 2 item 5, to copy from this commit |
+| 8 | `d719e2d` | 10-12 | The document contract for a proposal, an analysis, and a note | Code | 2 | Removed: undone on main (2026-10-26) |
 | 9 | `0659e5f` | 10-12 | The publish guard | Code | None (dropped in ck2) | Removed: the guard and its check are deleted (2026-10-26) |
 | 10 | `3e4b155` | 10-13 | Proposal: ck V2, lanes under personas | Proposal | 4 | Open |
 | 11 | `7786c0c` | 10-13 | Plan status: save the proof plan's changes | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 12 | `72608ce` | 10-16 | Plan status, and the proposal for a team per project | Proposal | 1 | Kept: the proposal is candidate 1's design |
 | 13 | `e3141ec` | 10-16 | Move the tiers to current models | Code | 15 | Open |
 | 14 | `6e64f85` | 10-17 | Plan status: P0-S4 done | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
-| 15 | `2b5fdbb` | 10-17 | The proof loop's rules, and the comment steps on a gallery | Code | 2 | Open |
+| 15 | `2b5fdbb` | 10-17 | The proof loop's rules, and the comment steps on a gallery | Code | 2 | Removed: undone on main (2026-10-26) |
 | 16 | `8da98bb` | 10-17 | Proposal: the smallest proof | Proposal | 2 | Removed: the proposal is deleted (2026-10-26) |
 | 17 | `2d25800` | 10-17 | Plan status: P1-S2 running | Bookkeeping | None | Removed: the proof plan is deleted (2026-10-26) |
 | 18 | `6a90361` | 10-17 | Plan: a team per project | Plan | 1 | Removed: the plan is deleted (2026-10-26) |
@@ -126,6 +126,7 @@ Proposed tiers. Every tier is your call.
 | 2 | **CI on `release/0.1`** (ck2 candidate 14; main commit 6) | Each pull request shows its checks before you say merge | Auto mode still refuses the tag push with CI in place; CI only helps the merge |
 | 3 | **The cost report** (ck2 candidates 7 and 8) | See where tokens go, by stage, lane, agent and model | `cost.py` can match lanes to stages reliably |
 | 4 | **A team per project** (ck2 candidate 1; design: `docs/proposal/2026-10-16-project-teams.md`) | Only the project's own personas are suggested or cast | Built from ck2's `team.py` as one release; a soft rule (invite first) is enough without a deny rule |
+| 5 | **Proof page fixes and the key check** (main commit `4d147f4`) | A `\|` inside code in a table cell breaks the table in 0.1.13's proof page; a file holding a secret key should never become a page | The fixes copy onto `render-review.py` without the rename |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -182,6 +183,7 @@ Later: global CLAUDE.md, CI on release/0.1, cost report
 Each ck2 candidate is kept with a tier, or removed with the files on main that hold it.
 - Candidate 1, a team per project: kept, Tier 2. Its proposal stays as the design (row 12); its plan is deleted (row 18).
 - Candidate 2, `/ck:proof`: removed, because 0.1.13 already makes a proof page for any document. Both proof proposals are deleted (rows 1, 16); row 20 changed the deleted plan. The proof code on main (rows 4, 7, 8, 15) is decided on its own.
+- Main's proof code (rows 4, 7, 8, 15): undone, so main's proof page, renderer and skills match 0.1.10 again; the document contract and the stage checks for these commits are deleted. Row 7's fixes and key check are Tier 2 item 5.
 
 ### Why
 Tidying the roadmap and main after ck2 was abandoned: what is kept is recorded with its priority, and what is not is deleted.

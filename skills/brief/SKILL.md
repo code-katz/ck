@@ -73,7 +73,7 @@ Never edit `docs/brief.md` yourself in this step or the next: the workflow write
 
 ## 5. The review
 
-Set `status` to `review`. Read `docs/brief.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/proof-loop/SKILL.md`, with this question at the top of the page: "Is the smaller first version under Scope the one to build, or does the idea need its full shape?" That skill publishes, waits for "done", proposes a change per comment, applies the ones the author approves to `docs/brief.md` (recording each in `<runDir>/review.md`), republishes, and reports; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
+Set `status` to `review`. Read `docs/brief.md`. Review it per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, with this question at the top of the page: "Is the smaller first version under Scope the one to build, or does the idea need its full shape?" That skill publishes, waits for "done", proposes a change per comment, applies the ones the author approves to `docs/brief.md` (recording each in `<runDir>/review.md`), republishes, and reports; or, when publishing is unavailable, prints the file-edit message and stops until the next run.
 
 ## 6. Finish
 

@@ -93,7 +93,7 @@ Never write a screen, the gallery, `chosen.html`, or the spec yourself in this s
 
 ## 5. The review
 
-After `variants`, set `status` to `review` and review `docs/design/<slug>/gallery.html` per `${CLAUDE_PLUGIN_ROOT}/skills/proof-loop/SKILL.md`, section 3 (galleries), with this question in the chat message: "Which variant, and what should change in it?"
+After `variants`, set `status` to `review` and review `docs/design/<slug>/gallery.html` per `${CLAUDE_PLUGIN_ROOT}/skills/review-page/SKILL.md`, section 3 (galleries), with this question in the chat message: "Which variant, and what should change in it?"
 
 That skill publishes the gallery as it is (the workflow wrote it to the gallery contract), waits for "done", reads the comments, and records the pick. Write `<runDir>/review.md` with two lines first, then the comment record: `chosen: B` (one label, from the comments) and `changes: <every requested change, in one paragraph>`.
 
