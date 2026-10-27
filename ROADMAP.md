@@ -82,7 +82,7 @@ Made from 2026-10-12 to 10-17, before the release scheme. None is in a release. 
 | 1 | `81bfa62` | 10-12 | Plan: any document as a proof, with its proposal | Plan | 2 |
 | 2 | `42b821a` | 10-12 | Ruff lint rules, and six findings cleared | Code | 14 |
 | 3 | `6d3f523` | 10-12 | The lint gate, and a check file for every later stage | Code | 14 (the per-stage checks were dropped in ck2) |
-| 4 | `5901660` | 10-12 | The review page renamed the proof, with its renderer `render-proof.py` | Code | 2 |
+| 4 | `5901660` | 10-12 | The comment page renamed the proof, with a new renderer, `render-proof.py` | Code | 2 |
 | 5 | `603b080` | 10-12 | Plan status: P0-S1 running | Bookkeeping | None |
 | 6 | `60f379b` | 10-12 | CI: run the suite on every pull request and on main | Code | 14 |
 | 7 | `4d147f4` | 10-12 | Renderer fixes, a refusal of seven key shapes, the four comment steps | Code | 2 (ck2 kept the key check) |
