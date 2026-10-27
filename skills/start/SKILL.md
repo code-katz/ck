@@ -11,7 +11,7 @@ Typing the command is the author's choice of how to work: send no greeting, ques
 
 `<plan.py>` is `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/plan.py"`; run it from the repository's top folder and trust what it prints over your own reading of the plan. A stage's id is `P2-S1`, or with its item, `A31-P2-S1`. Read a file in `${CLAUDE_PLUGIN_ROOT}/skills/start/` only when its case comes up:
 
-- `fix.md`: the author typed `fix` after the command, or says "fix `<id>`" or "back fix `<id>`".
+- `fix.md`: the author typed `fix` after the command (the stage is the id after it and the rest is what is wrong; steps 1 and 2 run first), or says "fix `<id>`" or "back fix `<id>`".
 - `refresh.md`: step 2 finds a session to match.
 - `state.md`: the author says "running", "done", or "back" and an id, or "save".
 - `merge.md`: the author says "merge" and an id or a pull request number.
