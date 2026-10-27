@@ -41,6 +41,7 @@
 | 0.1.12 | 2026-10-26 | `/ck:claude-md` | Tag `v0.1.12`; stable |
 | 0.1.13 | 2026-10-26 | The memory gate | Tag `v0.1.13` |
 | 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14`; ck-next, under test |
+| 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16`; ck-next |
 
 ---
 
@@ -97,6 +98,20 @@ Later: the proof page tables
 ---
 
 ## Revision History
+
+## [2026-10-27] 0.1.16: a shorter /ck:start
+
+**Change Type:** `add`
+**Triggered by:** `planning-session`
+**Items Affected:** Releases
+
+### What Changed
+0.1.16 is added to Releases. `/ck:start` reads 1,060 words on every run instead of 2,699: its rare branches (fix cards, the board refresh from sessions, merges, running/done/back/save, and the terminal fallback) move to their own files under `skills/start/`, each read only when its case comes up. The review page keeps a `|` inside a code span, or written as `\|`, in its table cell.
+
+### Why
+`/ck:start` is the command Will types most in d20mob, and all of it was read every time. The table fix mends rules such as `^(Write|Edit)$` that broke a table on the proof page.
+
+---
 
 ## [2026-10-26] 0.1.15: current models
 

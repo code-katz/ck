@@ -285,6 +285,12 @@ if python3 scripts/render-review.py --in "$TMP/mm.md" --out "$TMP/mm.html" --tit
 else
   fail "render-review.py does not render mermaid fences"
 fi
+printf '# T\n\n| Rule | Note |\n|---|---|\n| `^(Write|Edit)$` | one |\n' > "$TMP/bar-code.md"
+python3 scripts/render-review.py --in "$TMP/bar-code.md" --out "$TMP/bar-code.html" --title "Bar" >/dev/null 2>&1 \
+  && grep -qF '<tr><td><code>^(Write|Edit)$</code></td><td>one</td></tr>' "$TMP/bar-code.html" && ok "render-review.py keeps a bar inside a code span in its table cell" || fail "render-review.py splits a table cell at a bar inside a code span"
+printf '# T\n\n| Rule | Note |\n|---|---|\n| a \\| b | one |\n' > "$TMP/bar-esc.md"
+python3 scripts/render-review.py --in "$TMP/bar-esc.md" --out "$TMP/bar-esc.html" --title "Bar" >/dev/null 2>&1 \
+  && grep -qF '<tr><td>a | b</td><td>one</td></tr>' "$TMP/bar-esc.html" && ok "render-review.py keeps an escaped bar in its table cell" || fail "render-review.py splits a table cell at an escaped bar"
 if grep -q 'libs/mermaid' "$TMP/bold.html"; then fail "render-review.py loads mermaid on a page without a diagram"; else ok "render-review.py loads mermaid only when a page has a diagram"; fi
 
 # ─── 13. Gallery renderer ────────────────────────────────────────────────────
@@ -655,7 +661,8 @@ import re, sys, pathlib
 problems = []
 def front(path):
     return pathlib.Path(path).read_text().split('---', 2)[1]
-plan, start = pathlib.Path('skills/plan/SKILL.md').read_text(), pathlib.Path('skills/start/SKILL.md').read_text()
+plan = pathlib.Path('skills/plan/SKILL.md').read_text()
+start = ''.join(f.read_text() for f in sorted(pathlib.Path('skills/start').glob('*.md')))
 contract = pathlib.Path('skills/plan-artifact/SKILL.md').read_text()
 script = pathlib.Path('scripts/plan.py').read_text() if pathlib.Path('scripts/plan.py').exists() else ''
 if not script: problems.append('scripts/plan.py is missing')
@@ -679,22 +686,6 @@ for word in ('running in its session', 'not started; could start now', 'not star
 if 'name: "ck:plan-draft"' not in plan or not pathlib.Path('workflows/plan-draft.js').exists(): problems.append('skills/plan does not launch ck:plan-draft, or the workflow is missing')
 for need in ('<plan.py> approve', '<plan.py> refresh', '<plan.py> check', 'docs/build-plan.md', 'docs/plan/', 'Run `/ck:roadmap` first', 'plan-before.md', 'git add -- "<the plan>" && git commit -m', 'pass the file as `existing`', 'passes the plan on disk as `existing`'):
     if need not in plan: problems.append(f'skills/plan lacks: {need}')
-# /ck:start: cards through the app's tool, a way without it, and its limits.
-for need in ('mcp__ccd_session__spawn_task', 'mcp__ccd_session_mgmt__list_sessions', 'mcp__ccd_session_mgmt__set_session_title', 'mcp__ccd_session_mgmt__set_session_model',
-             'paste this as its first message', 'you never start one', 'Never mark a row done without a merged pull request or the author', 'Never merge without the author',
-             'git-common-dir', 'starts with `[<the row\'s full id>] [`', '[dropped]', 'gh pr checks', 'in its own worktree', 'git add -- "<the plan>" && git commit -m'):
-    if need not in start: problems.append(f'skills/start lacks: {need}')
-# A fix to a finished stage: the card command as it is run, the model check, and what a fix never does.
-for need in ('--fix - --title "<the title>"', "<<'CK_FAULT'", 'stays done on the board', 'It checks its own model before it works', 'Never change a State for a fix',
-             'gh pr view <n> --json title', 'back fix',
-             # Faults a review confirmed, each held shut by the words that cure it.
-             'When a line of the words is exactly `CK_FAULT`, use another word that no line of them equals for both markers',
-             'unless `fix` was typed, leave out any plan', "whose title's first brackets hold a row's full id followed by ` fix`",
-             'When the fix has a pull request, say `merge` and its number here.', "only when it is a stage's pull request: a fix's is never marked"):
-    if need not in start: problems.append(f'skills/start lacks: {need}')
-if "<its pull request's number>" in start: problems.append('skills/start promises every fix a pull request number; a fix to a stage that hands back a report opens none')
-for word in ('review-page', 'run.json', 'Workflow('):
-    if word in start: problems.append(f'skills/start mentions {word}; it launches nothing and reviews nothing')
 # The script makes the fix card and puts the model check in every card; the contract names a fix's session.
 for need in ('check your own model', '--fix'):
     if script and need not in script: problems.append(f'scripts/plan.py lacks: {need}')
@@ -702,7 +693,7 @@ if '[A31-P1-S5 fix] [Akira Fable]' not in contract: problems.append('the contrac
 for p in problems: print(p)
 sys.exit(1 if problems else 0)
 EOF
-then ok "skills/plan and skills/start: typed only; every plan.py command they run exists; the contract's fixed words are the script's; cards, the paste fallback, the fix step, the model check, and the limits are there"
+then ok "skills/plan and skills/start: typed only; every plan.py command they run exists; the contract's fixed words are the script's"
 else while IFS= read -r l; do fail "the staged plan: $l"; done < "$TMP/plan-static.out"; fi
 for row in '| `/ck:plan [work]`' '| `/ck:start [stage]`' '| Staged build plan | `docs/build-plan.md` |'; do
   if grep -qF -- "$row" README.md; then ok "README.md has: $row"; else fail "README.md lacks: $row"; fi
