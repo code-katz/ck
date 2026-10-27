@@ -13,7 +13,7 @@ CK_FAULT
 ```
 
 - It refuses and says why in one line: relay that line. When the line says the name is too long, shorten the title and run it once more. Nothing is opened.
-- Otherwise offer the card as step 4 of `SKILL.md` does, its sentence about a plan that is not committed included, with the `title`, `tldr`, and `prompt` exactly as printed. Say "Card up: `<title>`. Click it, start it in its own worktree, and pick `<model>` as its model. `<id>` stays done on the board. When the fix has a pull request, say `merge` and its number here."
+- Otherwise put up a chip as step 4 of `SKILL.md` does, its sentence about a plan that is not committed included, with the `title`, `tldr`, and `prompt` exactly as printed and `background` "A fix to stage `<id>` of the plan `<the plan>`, opened by /ck:start: `<tldr>`". Say "Chip up: `<title>`. Click it to start it. `<id>` stays done on the board. When the fix has a pull request, say `merge` and its number here."
 
 ## Fix sessions on the board
 

@@ -42,6 +42,7 @@
 | 0.1.13 | 2026-10-26 | The memory gate | Tag `v0.1.13` |
 | 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14`; ck-next, under test |
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16`; ck-next |
+| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; ck-next |
 
 ---
 
@@ -98,6 +99,20 @@ Later: the proof page tables
 ---
 
 ## Revision History
+
+## [2026-10-27] 0.1.17: /ck:start puts up chips again
+
+**Change Type:** `add`
+**Triggered by:** `user-feedback`
+**Items Affected:** Releases
+
+### What Changed
+0.1.17 is added to Releases. `/ck:start` opens a stage's session with the desktop app's `start_session` tool, as a chip the author clicks, in place of `spawn_task`, which the app no longer has. A fix to a finished stage gets a chip the same way.
+
+### Why
+In hireling on 2026-10-27, `/ck:start` found no `spawn_task` and printed blocks to paste. A coordinator on 2026-10-19 had already used `start_session` on its own; this makes every run do it.
+
+---
 
 ## [2026-10-27] 0.1.16: a shorter /ck:start
 

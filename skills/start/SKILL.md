@@ -15,7 +15,7 @@ Typing the command is the author's choice of how to work: send no greeting, ques
 - `refresh.md`: step 2 finds a session to match.
 - `state.md`: the author says "running", "done", or "back" and an id, or "save".
 - `merge.md`: the author says "merge" and an id or a pull request number.
-- `terminal.md`: the desktop app's session tools, `mcp__ccd_session_mgmt__list_sessions` and `mcp__ccd_session__spawn_task`, are missing (load them with ToolSearch when listed and not loaded).
+- `terminal.md`: the desktop app's session tools, `mcp__ccd_session_mgmt__list_sessions` and `mcp__ccd_session__start_session`, are missing (load them with ToolSearch when listed and not loaded).
 
 ## 1. Find the plan
 
@@ -49,8 +49,8 @@ Run `<plan.py> card "<the plan>" <id> --plugin-root "${CLAUDE_PLUGIN_ROOT}"`.
 
 - It refuses with a line: relay it. For the author's own job add "Say `done <id>` here when it is done."; for a design round, "Type `/ck:design <the feature>`, and say `done <id>` here when its spec is written."; for a row with no owner, "Type `/ck:plan` to give it an owner." Nothing is opened.
 - It prints `"ready": false`: ask "`<id>` waits on `<each id in blocked_by, with the item in front when the plan has one, joined by and>`. Open it anyway?" On any answer but "yes", say "Nothing is opened for `<id>`.", change nothing, and stop.
-- Otherwise, before the first card or block of this command, when `git status --porcelain -- "<the plan>" 2>/dev/null` prints anything, say once "The plan has changes that are not committed, so a new session reads the last committed copy or works from its card alone. Say `save` to commit the plan." Call `mcp__ccd_session__spawn_task` with the `title`, `tldr`, and `prompt` exactly as printed; the author asked for these cards by typing this command. Say "Card up: `<title>`. Click it, start it in its own worktree, and pick `<model>` as its model. It checks its own model before it works, and stops to tell you when it is on another. Say `running <id>` here once it is started." The author's click starts the session; you never start one.
+- Otherwise, before the first card or block of this command, when `git status --porcelain -- "<the plan>" 2>/dev/null` prints anything, say once "The plan has changes that are not committed, so a new session reads the last committed copy or works from its card alone. Say `save` to commit the plan." Put up a chip: call `mcp__ccd_session__start_session` with `initiation` "own_initiative", `context` "fresh", `use_worktree` true, the `title` and `prompt` exactly as printed, `background` "Stage `<id>` of the plan `<the plan>`, opened by /ck:start: `<tldr>`", and `model` the id in `${CLAUDE_PLUGIN_ROOT}/tiers.conf` that holds the card's model word. The author asked for chips by typing this command; nothing runs until the author clicks one. Say "Chip up: `<title>`. Click it to start it. It checks its own model before it works, and stops to tell you when it is on another. Say `running <id>` here once it is started." The author's click starts the session; you never start one.
 
 ## 5. Never
 
-Never do a stage's work here, open a session but by a card the author clicks or a block the author pastes, mark a row done without a merged pull request or the author's word, merge without the author's word for that stage, or change a State for a fix. Change nothing in the plan but a State cell; for anything else the author types `/ck:plan`.
+Never do a stage's work here, open a session but by a chip the author clicks or a block the author pastes, mark a row done without a merged pull request or the author's word, merge without the author's word for that stage, or change a State for a fix. Change nothing in the plan but a State cell; for anything else the author types `/ck:plan`.
