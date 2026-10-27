@@ -31,7 +31,13 @@ Write in chat, in this order:
 2. **Where**: memory or CLAUDE.md, and why, in one sentence.
 3. **Overlaps**: each memory (by file name) or CLAUDE.md line that says the same or the opposite, quoted, with merge, replace, or drop. Or "None."
 
-Then ask "Save this?" in the app's next-step box. The first button is your recommendation. The second is "Don't save", or "Save to memory" when you recommend don't save. Below the box, one line: "Or say add to CLAUDE.md." (or the choice the buttons leave out). Outside the app, ask in chat: "Reply memory, CLAUDE.md, or no." Write nothing until the User answers.
+Then ask in the message itself, never in the app's next-step box or with its buttons. End the proposal with these choices, each with its outcome in a sentence:
+
+1. **Save to memory**: the file above is written to this project's memory folder, and a line for it in MEMORY.md.
+2. **Add to CLAUDE.md**: the line is added to the project's CLAUDE.md on a branch, with a draft pull request to merge.
+3. **Don't save**: nothing is written.
+
+Then the one you recommend and why, in a sentence, and last the words to type: "Reply 1, 2 or 3." Write nothing until the User answers.
 
 ## 4. On the User's choice
 

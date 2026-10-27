@@ -14,11 +14,10 @@
 - `/ck:claude-md` (0.1.12) writes a project's "How we work" from ck's template and sorts its memory.
 - The memory gate (0.1.13): a proposal and an approval before any memory is saved.
 - Main is ck 0.1.13 again (2026-10-26). Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace, pinned to `v0.1.12`) and ck-next (a local marketplace, on `v0.1.13`, used by d20mob, hireling and the ck folder). Rollback in a project is two commands.
+- Two channels: stable (the `code-katz` marketplace, pinned to `v0.1.12`) and ck-next (a local marketplace, on `v0.1.14`, used by d20mob, hireling and the ck folder). Rollback in a project is two commands.
 
 **What's missing or fragile:**
-- 0.1.13 has not yet been tried in an interactive session.
-- The memory gate asks in the app's next-step box, with buttons. Questions belong in the message itself.
+- 0.1.13 and 0.1.14 have not yet been tried in an interactive session.
 - Auto mode refuses to push a tag or create a GitHub release, so you run that step by hand.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
@@ -40,7 +39,8 @@
 | 0.1.10 | 2026-10-12 | `/ck:do`, `/ck:plan`, `/ck:start` | Tag `v0.1.10` |
 | 0.1.11 | 2026-10-19 | The question rule at session start | Tag `v0.1.11`; reverted in 0.1.12, not coming back |
 | 0.1.12 | 2026-10-26 | `/ck:claude-md` | Tag `v0.1.12`; stable |
-| 0.1.13 | 2026-10-26 | The memory gate | Tag `v0.1.13`; ck-next, under test |
+| 0.1.13 | 2026-10-26 | The memory gate | Tag `v0.1.13` |
+| 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14`; ck-next, under test |
 
 ---
 
@@ -50,15 +50,13 @@
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Test 0.1.13 and promote it to stable** | It is released, but not yet tried by hand | In d20mob, a save shows the proposal and then the approval prompt; the `code-katz` pin moves to `v0.1.13` |
-| 2 | **0.1.14: questions in the message, never in a box** | The memory gate puts its question in the app's next-step box, and the app pushes every session to do the same | The memory gate asks with numbered choices and "Reply 1, 2 or 3"; the "How we work" template's Questions rule forbids the box |
+| 1 | **Test 0.1.14 and promote it to stable** | It is released, but not yet tried by hand | In d20mob, a save shows the proposal ending "Reply 1, 2 or 3" and then the approval prompt; the `code-katz` pin moves to `v0.1.14` |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
 | # | Opportunity | User Need | Assumptions to Validate |
 |---|---|---|---|
-| 1 | **A short global CLAUDE.md** ("How we work with Will", about 400 words, replacing the old team tool's 4,150) | About 5,000 fewer tokens in every session in every project, and no roster greeting or mode menu | The lessons d20mob, ck and hireling each learned can live in one place without losing project facts |
-| 2 | **Proof page tables** | A `\|` inside code in a table cell breaks the table on a proof page | A small fix to `render-review.py` |
+| 1 | **Proof page tables** | A `\|` inside code in a table cell breaks the table on a proof page | A small fix to `render-review.py` |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -72,18 +70,16 @@
 ## Recommended Sequencing
 
 ```
-Now:   test 0.1.13 in d20mob -> promote to stable
-Next:  0.1.14 (questions in the message) -> ck-next -> test -> stable
-Later: the global CLAUDE.md, the proof page tables
+Now:   test 0.1.14 in d20mob -> promote to stable
+Later: the proof page tables
 ```
 
 ---
 
 ## Open Questions
 
-1. Does the short global CLAUDE.md belong in ck (as a template, like "How we work"), or is it a one-off edit of your own file?
-2. Is the install drill on Clare's machine still wanted?
-3. What happens to the ck2 repository: archive it on GitHub, or leave it as it is?
+1. Is the install drill on Clare's machine still wanted?
+2. What happens to the ck2 repository: archive it on GitHub, or leave it as it is?
 
 ---
 
@@ -93,12 +89,29 @@ Later: the global CLAUDE.md, the proof page tables
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.12 headless runs only; 0.1.13 waiting |
+| Releases tried in d20mob before they go stable | every release | 0.1.12 headless runs only; 0.1.13 and 0.1.14 waiting |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-10-26] 0.1.14: questions in the message
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Tier 1; Tier 2 item 1; Releases; Open Questions
+
+### What Changed
+0.1.14 is released to ck-next. The memory gate ends its proposal with numbered choices and "Reply 1, 2 or 3", in the message itself, and the "How we work" template (0.1.14) says to ask in the message, never in the app's next-step box or its buttons. Tier 1 is now testing 0.1.14 and promoting it to stable; 0.1.13 goes to stable with it. Tier 2 item 1, the short global CLAUDE.md, is removed: it is done, and `~/.claude/CLAUDE.md` is empty. Its open question goes with it.
+
+### Why
+The app collapsed the message that held the box, and you could not see the choices. A question in the message is always on screen.
+
+### Open Questions Resolved / Added
+- Resolved: where the short global CLAUDE.md lives → nowhere; the global file is empty.
+
+---
 
 ## [2026-10-26] Main is 0.1.13 again; ck2's candidates dropped
 

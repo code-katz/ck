@@ -730,7 +730,7 @@ CM="python3 scripts/claude-md.py"
 mkdir -p "$TMP/cm"
 state_of() { $CM status "$@" | sed -n 's/^state: //p'; }
 # A tailored draft: the current template with every blank filled.
-sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.12.md > "$TMP/cm/draft.md"
+sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.14.md > "$TMP/cm/draft.md"
 
 # The command runs only when the User types it, and ships no hook of its own.
 if grep -qx 'disable-model-invocation: true' skills/claude-md/SKILL.md && ! grep -q 'claude-md' hooks/hooks.json; then
@@ -742,12 +742,12 @@ fi
 # A new section: the file is made with the heading and the draft, stamped with the template's version.
 $CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md" >/dev/null; rc=$?
 if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat "$TMP/cm/draft.md")" && "$(state_of "$TMP/cm/new.md")" == stamped ]] \
-   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.12' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
-  ok "a new section is written under the heading, stamped 0.1.12, not behind"
+   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.14' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
+  ok "a new section is written under the heading, stamped 0.1.14, not behind"
 else
   fail "a new section: exit $rc, state $(state_of "$TMP/cm/new.md")"
 fi
-cp templates/how-we-work/0.1.12.md "$TMP/cm/blank.md"
+cp templates/how-we-work/0.1.14.md "$TMP/cm/blank.md"
 out=$($CM write "$TMP/cm/blank2.md" --section "$TMP/cm/blank.md"); rc=$?
 [[ $rc -eq 1 && "$out" == *'{{lanes}}'* && ! -e "$TMP/cm/blank2.md" ]] && ok "a draft with a blank left in it is refused, and the blank is named" || fail "a draft with a blank: exit $rc, '$out'"
 
@@ -799,13 +799,13 @@ fi
 
 # Two shipped templates: the diff shows the change, and a section from the older one is behind.
 mkdir -p "$TMP/cm/templates"
-cp templates/how-we-work/0.1.12.md "$TMP/cm/templates/0.1.12.md"
-sed -e 's/ck:how-we-work 0.1.12/ck:how-we-work 0.1.13/' -e 's/^- \*\*Drawings first\.\*\* .*/- **Drawings first.** Changed in 0.1.13./' templates/how-we-work/0.1.12.md > "$TMP/cm/templates/0.1.13.md"
-d=$($CM diff 0.1.12 0.1.13 --templates "$TMP/cm/templates")
-if [[ "$d" == *'+- **Drawings first.** Changed in 0.1.13.'* && "$d" == *'-- **Drawings first.** A screen is drawn'* ]] \
-   && $CM template --templates "$TMP/cm/templates" | grep -qx 'template: 0.1.13' \
+cp templates/how-we-work/0.1.14.md "$TMP/cm/templates/0.1.14.md"
+sed -e 's/ck:how-we-work 0.1.14/ck:how-we-work 0.1.15/' -e 's/^- \*\*Drawings first\.\*\* .*/- **Drawings first.** Changed in 0.1.15./' templates/how-we-work/0.1.14.md > "$TMP/cm/templates/0.1.15.md"
+d=$($CM diff 0.1.14 0.1.15 --templates "$TMP/cm/templates")
+if [[ "$d" == *'+- **Drawings first.** Changed in 0.1.15.'* && "$d" == *'-- **Drawings first.** A screen is drawn'* ]] \
+   && $CM template --templates "$TMP/cm/templates" | grep -qx 'template: 0.1.15' \
    && $CM status "$TMP/cm/new.md" --templates "$TMP/cm/templates" | grep -qx 'behind: yes'; then
-  ok "the diff between two templates shows the change, 0.1.13 is current, and a section stamped 0.1.12 is behind"
+  ok "the diff between two templates shows the change, 0.1.15 is current, and a section stamped 0.1.14 is behind"
 else
   fail "two templates: diff '$d'"
 fi
