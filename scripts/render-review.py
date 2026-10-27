@@ -30,6 +30,30 @@ def inline(text):
     p = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'<em>\1</em>', p)
     return re.sub(r'\x00(\d+)\x00', lambda m: codes[int(m.group(1))], p)
 
+CODE_SPAN = re.compile(r'`[^`\n]*`')
+
+def split_row(line):
+    # A bar ends a cell, except after a backslash (the backslash is dropped) or inside a code
+    # span, read with the same pattern inline() uses. A doubled backslash stays two, so \\| is
+    # a backslash and then the end of a cell.
+    s = line.strip()
+    if s.startswith('|'): s = s[1:]
+    cells, cur, i = [], [], 0
+    while i < len(s):
+        c = s[i]
+        span = CODE_SPAN.match(s, i) if c == '`' else None
+        if c == '\\' and s[i + 1:i + 2] in ('|', '\\'):
+            cur.append('|' if s[i + 1] == '|' else '\\\\'); i += 2
+        elif span:
+            cur.append(span.group().replace('\\|', '|')); i = span.end()
+        elif c == '|':
+            cells.append(''.join(cur).strip()); cur = []; i += 1
+        else:
+            cur.append(c); i += 1
+    last = ''.join(cur).strip()
+    if last: cells.append(last)  # no last cell when the row ends with a bar
+    return cells
+
 def render(md):
     lines = md.split('\n')
     out, toc = [], []
@@ -80,11 +104,11 @@ def render(md):
         # table
         if stripped.startswith('|') and i + 1 < n and re.match(r'^\s*\|?\s*:?-{2,}', lines[i + 1]):
             flush_para(); close_lists()
-            header = [c.strip() for c in stripped.strip('|').split('|')]
+            header = split_row(stripped)
             i += 2
             rows = []
             while i < n and lines[i].strip().startswith('|'):
-                rows.append([c.strip() for c in lines[i].strip().strip('|').split('|')]); i += 1
+                rows.append(split_row(lines[i])); i += 1
             out.append('<div class="table-wrap"><table><thead><tr>' + ''.join('<th>' + inline(c) + '</th>' for c in header) + '</tr></thead><tbody>')
             for r in rows:
                 out.append('<tr>' + ''.join('<td>' + inline(c) + '</td>' for c in r) + '</tr>')
