@@ -46,6 +46,7 @@
 | 0.1.15 | 2026-10-26 | Current models: Opus 5.5, Sonnet 5.5, Haiku 5.5 | Tag `v0.1.15` |
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
 | 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; stable and ck-next |
+| 0.1.18 | 2026-10-27 | A shorter `/ck:do`; its git steps in `scripts/do.sh` | Tag `v0.1.18`; ck-next |
 
 ---
 
@@ -84,7 +85,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
 | 1 | **Try the memory gate in d20mob** | It is released and on stable, but not yet tried by hand | A save shows the proposal ending "Reply 1, 2 or 3", then the approval prompt |
-| 2 | **0.1.18: `/ck:do`** | It reads 2,737 words every time it is typed; whether to shorten it or remove it is being decided | The decision made, and the release on ck-next |
+| 2 | **0.1.18: `/ck:do`** | It read 2,746 words, plus the 598-word roster, every time it was typed; Will chose to shorten it, not remove it (2026-10-27) | The decision made, and the release on ck-next |
 | 3 | **0.1.19: a small cost script** | Shows what work costs by session, persona and model, so a release's saving can be measured | `/ck:cost` prints d20mob's last 7 days |
 | 4 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
 
@@ -134,6 +135,20 @@ Later: the lean review's recommendations
 ---
 
 ## Revision History
+
+## [2026-10-27] 0.1.18: a shorter /ck:do
+
+**Change Type:** `add`
+**Triggered by:** `planning-session`
+**Items Affected:** Releases, Tier 1 item 2
+
+### What Changed
+0.1.18 is added to Releases. `/ck:do` reads 1,082 words on every run instead of 3,344: `SKILL.md` drops from 2,746 words to 946, and the 598-word roster file gives way to one line per persona printed by the script. Its rare branches (a task for another command, a mockup, a write or check step, a build in place, a change to a returned step, and a failed or stopped step) move to their own files under `skills/do/`, each read only when its case comes up. The builder's rules move to `skills/do/build.md`, which the builder reads. A new `scripts/do.sh` runs the git steps (look, start, the look back with a ready verdict, merge, pull request, discard), and the tests run it in place of checking the skill's wording. Tier 1 item 2 records the choice to shorten rather than remove.
+
+### Why
+All of `/ck:do` was read every time it was typed. Removing it would have saved almost no tokens, since a typed-only command costs nothing until it is typed. Rules a script can check, such as whether a build is ready to merge and what to do on a merge conflict, now live in tested code instead of the prompt.
+
+---
 
 ## [2026-10-27] Lanes added to Tier 1
 
