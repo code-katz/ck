@@ -1,5 +1,5 @@
 {
-  "description": "ck: persona usage log, a check that the old team tool is gone, and the memory gate",
+  "description": "ck: persona usage log, a check that the old team tool is gone, the memory gate, and the session cost (a line after each answer once there is a pull request, and the table on the pull request at merge)",
   "hooks": {
     "SubagentStart": [
       {
@@ -22,6 +22,21 @@
         "matcher": "^(Write|Edit|MultiEdit|Bash)$",
         "hooks": [
           { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-gate.py\" check" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/cost.py\" merge", "timeout": 60 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/cost.py\" stop", "timeout": 20 }
         ]
       }
     ]

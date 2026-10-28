@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-10-27.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-10-28.
 
 ---
 
@@ -47,6 +47,7 @@
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
 | 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; stable and ck-next |
 | 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18`; ck-next |
+| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; ck-next |
 
 ---
 
@@ -86,7 +87,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **Try the memory gate in d20mob** | It is released and on stable, but not yet tried by hand | A save shows the proposal ending "Reply 1, 2 or 3", then the approval prompt |
 | 2 | **0.1.18: `/ck:do`** | It read 2,746 words, plus the 598-word roster, every time it was typed; Will chose to shorten it, not remove it (2026-10-27) | The decision made, and the release on ck-next |
-| 3 | **0.1.19: a small cost script** | Shows what work costs by session, persona and model, so a release's saving can be measured | `/ck:cost` prints d20mob's last 7 days |
+| 3 | **0.1.19: a small cost script** | Shows what work costs by session, persona and model, so a release's saving can be measured | Built in 0.1.19; done when a few merged pull requests carry the table and `/ck:cost history` compares them |
 | 4 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
 
 ### Tier 2: High Value, Plan for Next Sprint
@@ -108,7 +109,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 ```
 Now:   try the memory gate in d20mob
-Next:  0.1.18 (/ck:do) -> 0.1.19 (cost script) -> ck-next -> test -> stable
+Next:  0.1.19 (cost script) on ck-next -> a few merges with the table -> stable
 Then:  lanes -> ck-next -> a d20mob phase -> stable
 Later: the lean review's recommendations
 ```
@@ -135,6 +136,20 @@ Later: the lean review's recommendations
 ---
 
 ## Revision History
+
+## [2026-10-28] 0.1.19: a small cost script
+
+**Change Type:** `add`
+**Triggered by:** `planning-session`
+**Items Affected:** Releases, Tier 1 item 3, Recommended Sequencing
+
+### What Changed
+0.1.19 is added to Releases. `scripts/cost.py` (standard library) reads one session's transcripts, its subagents' and workflow agents' included, and prints "<session name> cost summary": a row per lane (the main session, each subagent by its type, and background, which is what Claude Code's own cost record counts beyond the transcripts) and a column per kind of token, each cell in tokens and dollars. Prices are fetched from Anthropic's pricing page at most once a day and saved in `~/.cache/ck/pricing.md`; a model the page does not list is priced as ?, never $0. Each request is priced on its own, with 5-minute and 1-hour cache writes at their own rates. The total is checked against Claude Code's own figure, and a line says when the two disagree. `/ck:cost` shows the table. Two hooks run the script with no model involved: after each answer, once the session has a pull request, one line with the cost so far; after `gh pr merge`, the table as a comment on the pull request and a line in `~/.claude/ck-cost.jsonl`, which `/ck:cost history` lists. On seven real sessions ck's total was within a few cents of Claude Code's, or the gap was explained.
+
+### Why
+To tell whether a release such as the shorter `/ck:start` saved anything, and where the next saving is. Will chose live prices over a typed-in table, since a table goes stale: the pricing page already prices Sonnet 5.5 cache reads at $0.10 per million where Claude Code bills $0.20. He chose the table on the pull request at merge plus a line after each answer, since a session's end has no moment where the chat can show anything, and a table kept in the repository would make parallel sessions conflict.
+
+---
 
 ## [2026-10-27] 0.1.18: a shorter /ck:do
 
