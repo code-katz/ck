@@ -12,13 +12,15 @@
 - The product pipeline (opportunity, market research, brief, PRD, team, roadmap, architecture, brand guide, design), drilled on real projects from 2026-10-01 to 2026-10-05.
 - `/ck:plan`, `/ck:start` and `/ck:do`, used in d20mob and hireling since 0.1.10.
 - `/ck:claude-md` (0.1.12) writes a project's "How we work" from ck's template and sorts its memory.
-- The memory gate (0.1.13): a proposal and an approval before any memory is saved.
-- Main is ck 0.1.13 again (2026-10-26). Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace, pinned to `v0.1.12`) and ck-next (a local marketplace, on `v0.1.14`, used by d20mob, hireling and the ck folder). Rollback in a project is two commands.
+- The memory gate (0.1.13), asking in the message since 0.1.14: a proposal and an approval before any memory is saved.
+- Current models since 0.1.15: Opus 5.5, Sonnet 5.5 and Haiku 5.5; Fable 5.1 for judgment.
+- A shorter `/ck:start` (0.1.16, about 1,080 words read per use instead of 2,699), with its chips back (0.1.17, confirmed in hireling).
+- Main is at 0.1.17. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.17`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
-- 0.1.13 and 0.1.14 have not yet been tried in an interactive session.
-- Auto mode refuses to push a tag or create a GitHub release, so you run that step by hand.
+- The memory gate has not yet been tried in an interactive session.
+- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
 ---
@@ -38,11 +40,12 @@
 | 0.1.9 | 2026-10-07 | `/ck:next` shows the whole pipeline as a table | From `main` |
 | 0.1.10 | 2026-10-12 | `/ck:do`, `/ck:plan`, `/ck:start` | Tag `v0.1.10` |
 | 0.1.11 | 2026-10-19 | The question rule at session start | Tag `v0.1.11`; reverted in 0.1.12, not coming back |
-| 0.1.12 | 2026-10-26 | `/ck:claude-md` | Tag `v0.1.12`; stable |
+| 0.1.12 | 2026-10-26 | `/ck:claude-md` | Tag `v0.1.12` |
 | 0.1.13 | 2026-10-26 | The memory gate | Tag `v0.1.13` |
-| 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14`; ck-next, under test |
-| 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16`; ck-next |
-| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; ck-next |
+| 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14` |
+| 0.1.15 | 2026-10-26 | Current models: Opus 5.5, Sonnet 5.5, Haiku 5.5 | Tag `v0.1.15` |
+| 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
+| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; stable and ck-next |
 
 ---
 
@@ -52,14 +55,15 @@
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Test 0.1.14 and promote it to stable** | It is released, but not yet tried by hand | In d20mob, a save shows the proposal ending "Reply 1, 2 or 3" and then the approval prompt; the `code-katz` pin moves to `v0.1.14` |
-| 2 | **0.1.15: current models** | Craft runs on Opus 5, execution on Sonnet 5 and checkers on Haiku 4.5, a generation behind; Fable 5.1 stays | `tiers.conf` names `claude-opus-5-5` and `claude-sonnet-5-5`, every checker runs on `claude-haiku-5-5`, and a ck persona agent in d20mob reports the new model |
+| 1 | **Try the memory gate in d20mob** | It is released and on stable, but not yet tried by hand | A save shows the proposal ending "Reply 1, 2 or 3", then the approval prompt |
+| 2 | **0.1.18: `/ck:do`** | It reads 2,737 words every time it is typed; whether to shorten it or remove it is being decided | The decision made, and the release on ck-next |
+| 3 | **0.1.19: a small cost script** | Shows what work costs by session, persona and model, so a release's saving can be measured | `/ck:cost` prints d20mob's last 7 days |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
 | # | Opportunity | User Need | Assumptions to Validate |
 |---|---|---|---|
-| 1 | **Proof page tables** | A `\|` inside code in a table cell breaks the table on a proof page | A small fix to `render-review.py` |
+| 1 | **The lean review's recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -73,9 +77,9 @@
 ## Recommended Sequencing
 
 ```
-Now:   test 0.1.14 in d20mob -> promote to stable
-Next:  0.1.15 (current models) -> ck-next -> test -> stable
-Later: the proof page tables
+Now:   try the memory gate in d20mob
+Next:  0.1.18 (/ck:do) -> 0.1.19 (cost script) -> ck-next -> test -> stable
+Later: the lean review's recommendations
 ```
 
 ---
@@ -99,6 +103,20 @@ Later: the proof page tables
 ---
 
 ## Revision History
+
+## [2026-10-27] The roadmap brought up to date after 0.1.14 to 0.1.17
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot, Releases, Tier 1, Tier 2, Recommended Sequencing
+
+### What Changed
+0.1.15 is added to the Releases table, which had skipped it. Stable is on 0.1.17, not 0.1.12. Tier 1 is now trying the memory gate, 0.1.18 (`/ck:do`) and 0.1.19 (a cost script). The proof page tables shipped in 0.1.16, so Tier 2 now holds the lean review's recommendations.
+
+### Why
+Four releases in two days left the snapshot, the table and the tiers behind.
+
+---
 
 ## [2026-10-27] 0.1.17: /ck:start puts up chips again
 
