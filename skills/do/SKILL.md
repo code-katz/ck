@@ -37,11 +37,10 @@ Name each step with a verb, the work item's id if given, at most six words, and 
 ```
 1. Kai draws one mockup. You get a private link and OK it here.
 2. Sasha builds it on its own branch. You say merge.
-Rough cost: about $4 to $10.
 Go?
 ```
 
-Cost: a mockup or text $2 to $4, a build $2 to $6, a check $1, doubled for a `fable` owner. With a build and `uncommitted` above 0, add "You have uncommitted changes. The build starts from your last commit and will not include them." above "Go?".
+With a build and `uncommitted` above 0, add "You have uncommitted changes. The build starts from your last commit and will not include them." above "Go?".
 
 No agent runs before "go". "no" ends it, with nothing more. For a change, show the new plan and stop.
 
