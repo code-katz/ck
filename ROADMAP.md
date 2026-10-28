@@ -18,7 +18,7 @@
 - A shorter `/ck:do` (0.1.18, 1,082 words read per use instead of 3,344), with its git steps in `scripts/do.sh` and no cost guess.
 - `/ck:cost` (0.1.19): what a session's work costs, in tokens and dollars.
 - Main is at 0.1.19. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), stable on `v0.1.17`, ck-next on `v0.1.19`. Rollback in a project is two commands.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.19`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
@@ -49,9 +49,9 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14` |
 | 0.1.15 | 2026-10-26 | Current models: Opus 5.5, Sonnet 5.5, Haiku 5.5 | Tag `v0.1.15` |
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
-| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; **stable** |
+| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17` |
 | 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18` |
-| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **ck-next** |
+| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **stable** and **ck-next** |
 
 ---
 
@@ -90,7 +90,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
 | 1 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
-| 2 | **Try what is on ck-next, then promote it to stable** | The memory gate, the shorter `/ck:do` and `/ck:cost` are released, but none has been tried by hand, and stable is on 0.1.17 | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; then the stable pin moves to `v0.1.19` |
+| 2 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -111,7 +111,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 ```
 Now:   lanes -> ck-next -> a d20mob phase -> stable
-Beside: try what is on ck-next in d20mob -> promote 0.1.19 to stable
+Beside: try 0.1.19 in d20mob (already on stable)
 Later: the lean review's recommendations
 ```
 
@@ -131,12 +131,26 @@ Later: the lean review's recommendations
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; the memory gate (0.1.13, 0.1.14), 0.1.18 and 0.1.19 not yet tried by hand |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28) |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-10-28] 0.1.19 is stable
+
+**Change Type:** `complete`
+**Triggered by:** `stakeholder-feedback`
+**Items Affected:** Snapshot; Releases; Tier 1 item 2; Recommended Sequencing; OKR
+
+### What Changed
+Stable moved from `v0.1.17` to `v0.1.19` ([code-katz/claude-plugins#10](https://github.com/code-katz/claude-plugins/pull/10)), so stable and ck-next serve the same version. Tier 1 item 2 is now trying 0.1.19 by hand, with going back to `v0.1.17` if it fails.
+
+### Why
+You chose to promote before trying it: the two releases since 0.1.17 are a shorter `/ck:do` and a new `/ck:cost`, all checks pass, and going back is one pin change.
+
+---
 
 ## [2026-10-28] Tier 1 is lanes; the Releases table says which version each channel serves
 
