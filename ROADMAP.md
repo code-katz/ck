@@ -51,28 +51,29 @@
 
 ## ck2 features
 
-ck2 was a rewrite, frozen on 2026-10-19 and abandoned on 2026-10-26. Its code is not brought back: a feature that returns is rebuilt from scratch, as its own release. This is where each of its features stands.
+Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a feature that returns is rebuilt from scratch, as its own release. Built means it ran in ck2; planned means it was written down and never built. The last column is where each stands in ck now.
 
-| # | ck2 feature | What it did | Where it stands |
-|---|---|---|---|
-| 1 | A team per project | `.claude/ck-team.conf` invites or drops personas; every session is told who is on the team | Not planned |
-| 2 | `/ck:proof` | Any file becomes a proof page you comment on until approved | Removed: 0.1.13 already makes a proof page for any document |
-| 3 | Ask the owner first | Before a judgment question reaches you, the stage's owning persona answers it on its own model | Not planned: a stage session already runs as its owner, on the owner's model |
-| 4 | Lanes for `/ck:do` | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch | Not planned |
-| 5 | `/ck:start` as a phase coordinator | A chip per ready stage, or auto mode for a whole phase, and a hand-over at the phase's end | Partly: 0.1.17 puts up a chip per ready stage; no auto mode or phase hand-over |
-| 6 | `/ck:lean` | Asks whether a branch's code is as little as it needs to be | Not planned; a one-off lean review was done instead ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) |
-| 7 | The cost script | Prices a piece of work from session transcripts, by stage, agent and model | Planned: 0.1.19, `/ck:cost`, rebuilt small |
-| 8 | The cost report | The cost as a published page with filters | Not planned: 0.1.19 prints a table |
-| 9 | The outcome loop | A lean review at each phase's end, and every checker risk put to the stage's owner | Not planned |
-| 10 | One config file | `ck.conf` holds every model id and the core team | Not planned: `tiers.conf` stays |
-| 11 | The writing rule at session start | No em-dashes and plain technical English in every session | Covered: each project's "How we work" carries it (`/ck:claude-md`, 0.1.12) |
-| 12 | The style check | `style.py` checks headings, em-dashes and word limits | Not planned |
-| 13 | The instruction-file guard | A hook refuses a `ck:` agent's edits to ck's own skills and profiles | Partly: its Bash reader is inside 0.1.13's memory gate hook |
-| 14 | CI and Ruff | The tests and a lint check on every pull request | Partly: CI on main since 2026-10-26; no Ruff |
-| 15 | Current models | Opus 5.5 and Sonnet 5.5 for craft and execution | Done: 0.1.15, with Haiku 5.5 for checkers |
-| 16 | Pipeline commands that stand alone | Each pipeline command used on its own, with no required order and no pipeline table | Not planned |
-| 17 | Shorter commands, fewer tests | About 500 words per command, rare branches in their own files; tests only for real code | In progress: 0.1.16 (`/ck:start`), 0.1.18 (`/ck:do`) |
-| 18 | The question rule at session start | Questions with choices, trade-offs and a recommendation | Released as 0.1.11, then reverted in 0.1.12 |
+| # | Feature | What it does | In ck2 | Where it stands (2026-10-27) |
+|---|---|---|---|---|
+| 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Not planned |
+| 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Removed: 0.1.13 already makes a proof page for any document |
+| 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built | Not planned: a stage session already runs as its owner, on the owner's model |
+| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Not planned |
+| 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Partly: 0.1.17 puts up a chip per ready stage; no auto mode or phase hand-over |
+| 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built | Not planned; a one-off lean review was done instead ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) |
+| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Planned: 0.1.19, `/ck:cost`, rebuilt small |
+| 8 | **The cost report** | The cost as a published page with filters, by stage, lane, agent, model, and token type, with the dearest turns | Planned (ck2's only roadmap item) | Not planned: 0.1.19 prints a table |
+| 9 | **The outcome loop** | A lean review that runs on its own at each phase's end, and every checker risk put to the stage's owner before the pull request reaches you | Planned (a proposal, two decisions open) | Not planned |
+| 10 | **One config file** | `ck.conf` holds every model id and the core team, in place of `tiers.conf` | Built | Not planned: `tiers.conf` stays |
+| 11 | **The writing rule at session start** | No em-dashes and plain technical English, in every session's context | Built | Covered: each project's "How we work" carries it (`/ck:claude-md`, 0.1.12) |
+| 12 | **The style check** | `style.py` checks a document's headings, em-dashes, and word limits | Built | Not planned |
+| 13 | **The instruction-file guard** | A hook refuses a `ck:` agent's edits to ck's own skills and profiles | Built; its Bash reader is in 0.1.13 | Partly: its Bash reader is inside 0.1.13's memory gate hook |
+| 14 | **CI and Ruff** | The test suite and the lint check on every pull request, and a Run button when a merge is blocked | Built | Partly: CI on main since 2026-10-26; no Ruff |
+| 15 | **Current models** | Opus 5.5 and Sonnet 5.5 for the craft and execution tiers | Built | Done: 0.1.15, with Haiku 5.5 for checkers |
+| 16 | **Pipeline commands that stand alone** | Every pipeline command rebuilt on one shared loop (`pipeline.py`), each used on its own, with no required order and no pipeline table | Built | Not planned |
+| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite | In progress: 0.1.16 (`/ck:start`), 0.1.18 (`/ck:do`) |
+
+Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `code-katz` marketplace.
 
 ---
 
@@ -138,7 +139,7 @@ Later: the lean review's recommendations
 **Items Affected:** a new section, ck2 features
 
 ### What Changed
-A table lists ck2's 18 features and where each stands: done, partly done, planned, not planned, or removed, with the release that carries it.
+Revision 3's table of ck2's 17 features is carried forward word for word, with a column for where each stands: done, partly done, planned, not planned, or removed, with the release that carries it.
 
 ### Why
 You wanted the mapping from ck2 to ck kept in the roadmap, so the reason a ck2 feature is or is not in ck can be found later.
