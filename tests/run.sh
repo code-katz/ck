@@ -562,97 +562,94 @@ for f in skills/plan/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/
 done
 
 # ─── 18. /ck:do ──────────────────────────────────────────────────────────────
-section "18. /ck:do, the quick path"
-DO=skills/do/SKILL.md
+section "18. /ck:do, the quick path, and scripts/do.sh"
 mkdir -p "$TMP/do"
-if python3 - "$DO" "$TMP/do" > "$TMP/do/static.out" 2>&1 <<'EOF'
-import re, sys, pathlib
-t = pathlib.Path(sys.argv[1]).read_text()
-out = pathlib.Path(sys.argv[2])
+if python3 - > "$TMP/do/static.out" 2>&1 <<'EOF'
+import re, pathlib
 problems = []
-front = t.split('---', 2)[1]
+skill = pathlib.Path('skills/do/SKILL.md').read_text()
+front = skill.split('---', 2)[1]
 for key, pat in (('name: do', r'^name: do$'), ('disable-model-invocation: true', r'^disable-model-invocation: true$'), ('an argument hint', r'^argument-hint: ')):
     if not re.search(pat, front, re.M): problems.append(f'frontmatter lacks {key}')
-# Every command it sends the author to exists.
-named = set(re.findall(r'/ck:([a-z-]+)', t)) - {'do'}
-for n in sorted(named):
+files = sorted(pathlib.Path('skills/do').glob('*.md'))
+text = '\n'.join(p.read_text() for p in files)
+for n in sorted(set(re.findall(r'/ck:([a-z-]+)', text)) - {'do'}):
     if not (pathlib.Path(f'skills/{n}/SKILL.md').exists() or pathlib.Path(f'workflows/{n}.js').exists()):
         problems.append(f'names /ck:{n}, which is not a command')
-for n in ('opportunity', 'market-research', 'brief', 'prd', 'team', 'roadmap', 'architecture', 'brand-guide', 'design', 'panel', 'plan'):
-    if n not in named: problems.append(f'does not name /ck:{n} for work that belongs to it')
-# Every owner in the step table is on the roster.
-personas = {p.stem for p in pathlib.Path('profiles').glob('*.md')} - {'ROSTER'}
-rows = [l for l in t.split('\n') if re.match(r'^\| (Draw|Write|Build|Check) \|', l)]
-if len(rows) != 4: problems.append(f'the step table has {len(rows)} of its four rows')
-for l in rows:
-    who = l.split('|')[2]
-    if not [w for w in re.findall(r'\b[A-Z][a-z]+\b', who) if w.lower() in personas]:
-        problems.append(f'no roster persona owns the {l.split("|")[1].strip()} step')
-for name in re.findall(r'\(([A-Z][a-z]+)\)`', t):
-    if name.lower() not in personas: problems.append(f'example step name uses {name}, who is not on the roster')
-# It is the quick path: no review page, no pipeline record, no pipeline table.
-for word in ('review-page', 'render-review', 'run.json', 'close per'):
-    if word in t: problems.append(f'mentions {word}; /ck:do publishes no review page and keeps its record in do.json so /ck:next does not read it')
-if 'do.json' not in t: problems.append('does not name its record, do.json')
-for stop in ('Go?', 'OK, or what should change?', 'Merge into `'):
-    if stop not in t: problems.append(f'lacks the stop "{stop}"')
-for rule in ('No agent runs before "go"', 'Never merge, push, open a pull request, or discard without the author', 'git reset --hard <base>', 'isolation: "worktree"'):
-    if rule not in t: problems.append(f'lacks the rule: {rule}')
-# The exact commands, pulled out as section 15 pulls them.
-lines, cmds = t.split('\n'), []
-for i, line in enumerate(lines):
-    if 'exact command' not in line: continue
-    j = next((k for k in range(i + 1, len(lines)) if lines[k].strip()), i)
-    if lines[j] != '```bash': problems.append(f'"exact command" with no bash block after it: {line[:60]}'); continue
-    cmd = '\n'.join(lines[j + 1:lines.index('```', j + 1)])
-    if re.search(r'[*?\[]', re.sub(r"'[^']*'|\"[^\"]*\"", '', cmd).replace('[ -n', '')): problems.append(f'a file pattern outside quotes in: {cmd[:80]}')
-    cmds.append(cmd)
-if len(cmds) != 3: problems.append(f'{len(cmds)} exact commands, expected 3 (look, start, look back)')
-for name, cmd in zip(('look', 'start', 'back'), cmds): (out / f'{name}.sh').write_text(cmd.replace('<slug>', 'rulebook-icons') + '\n')
+for n in sorted(set(re.findall(r'`(?:\$\{CLAUDE_PLUGIN_ROOT\}/skills/do/)?([a-z-]+\.md)`', text))):
+    if not pathlib.Path(f'skills/do/{n}').exists(): problems.append(f'points to skills/do/{n}, which does not exist')
+script = pathlib.Path('scripts/do.sh').read_text()
+for c in sorted(set(re.findall(r'`<do> ([a-z]+)', text))):
+    if not re.search(rf'^{c}\)', script, re.M): problems.append(f'runs do.sh {c}, which the script does not have')
 for p in problems: print(p)
-sys.exit(1 if problems else 0)
+raise SystemExit(1 if problems else 0)
 EOF
-then ok "skills/do: typed only; every command and persona it names exists; no review page, record in do.json; three stops and four rules present"
+then ok "skills/do: typed only; every command, file, and do.sh command it names exists"
 else while IFS= read -r l; do fail "skills/do: $l"; done < "$TMP/do/static.out"; fi
 if grep -q '^| `/ck:do <task>`' README.md; then ok "README.md has a row for /ck:do"; else fail "README.md has no row for /ck:do"; fi
 
-# The exact commands run as written in both shells, in a repository, a linked worktree, and a plain folder.
+# scripts/do.sh in a plain folder, a repository, and a linked worktree.
+DOSH="$PWD/scripts/do.sh"; w="$TMP/do"
 do_git() { git -c user.name=t -c user.email=t@example.com -c init.defaultBranch=main "$@"; }
-for sh in bash zsh; do
-  command -v "$sh" >/dev/null 2>&1 || continue
-  [[ -f "$TMP/do/look.sh" && -f "$TMP/do/start.sh" && -f "$TMP/do/back.sh" ]] || { fail "$sh: /ck:do has no exact commands to run"; continue; }
-  w="$TMP/do/$sh"; mkdir -p "$w/plain" "$w/repo/docs"
-  (cd "$w/plain" && "$sh" "$TMP/do/look.sh") > "$w/out" 2> "$w/err"; rc=$?
-  if [[ $rc -eq 0 && ! -s "$w/err" && "$(cat "$w/out")" == $'root: \nbranch: \nuncommitted: 0' ]]; then ok "$sh: the look exits 0 and prints three empty answers in a plain folder"
-  else fail "$sh: the look in a plain folder: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
-  (cd "$w/repo" && do_git init -q && echo x > CLAUDE.md && echo t > docs/TEAM.md && echo p > page.html && do_git add -A && do_git commit -q -m first)
-  root="$(cd "$w/repo" && pwd -P)"; base="$(git -C "$w/repo" rev-parse HEAD)"
-  (cd "$w/repo" && "$sh" "$TMP/do/look.sh") > "$w/out" 2> "$w/err"; rc=$?
-  if [[ $rc -eq 0 && ! -s "$w/err" && "$(cat "$w/out")" == "root: $root"$'\nbranch: main\nuncommitted: 0\nCLAUDE.md\ndocs/TEAM.md' ]]; then ok "$sh: the look prints the root, the branch, a clean count, and the documents that exist"
-  else fail "$sh: the look in a repository: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
-  (cd "$w/repo" && "$sh" "$TMP/do/start.sh" && "$sh" "$TMP/do/start.sh") > "$w/out" 2> "$w/err"; rc=$?
-  run="$(sed -n 's/^runDir: //p' "$w/out" | head -1)"; exclude="$w/repo/.git/info/exclude"
-  if [[ $rc -eq 0 && ! -s "$w/err" && -d "$run" && "$run" == "$root/.ck/runs/"*"-rulebook-icons-do" && "$(grep -c '^base: '"$base"'$' "$w/out")" == 2 \
-        && "$(grep -cxF '.ck/' "$exclude")" == 1 && "$(grep -cxF '.claude/worktrees/' "$exclude")" == 1 && -z "$(git -C "$w/repo" status --porcelain)" ]]; then
-    ok "$sh: the start makes the run folder, prints the base, excludes the cache once, and leaves the checkout clean"
-  else fail "$sh: the start in a repository: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')', exclude '$(tr '\n' ' ' < "$exclude")'"; fi
-  do_git -C "$w/repo" worktree add -q --detach "$w/linked" HEAD
-  (cd "$w/linked" && "$sh" "$TMP/do/start.sh") > "$w/out" 2> "$w/err"; rc=$?
-  if [[ $rc -eq 0 && ! -s "$w/err" && -d "$(sed -n 's/^runDir: //p' "$w/out")" && -z "$(git -C "$w/linked" status --porcelain)" ]]; then ok "$sh: the start works in a linked worktree and leaves it clean"
-  else fail "$sh: the start in a linked worktree: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')', status '$(git -C "$w/linked" status --porcelain | tr '\n' ' ')'"; fi
-  (cd "$w/plain" && "$sh" "$TMP/do/start.sh") > "$w/out" 2> "$w/err"; rc=$?
-  if [[ $rc -eq 0 && ! -s "$w/err" && -d "$(sed -n 's/^runDir: //p' "$w/out")" && "$(sed -n 's/^base: //p' "$w/out")" == "" ]]; then ok "$sh: the start works with no repository"
-  else fail "$sh: the start with no repository: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
-  # A build as step 6 describes it: a worktree branch named do/<slug>, one commit on the base.
-  do_git -C "$w/repo" worktree add -q "$w/build" -b do/rulebook-icons "$base"
-  (cd "$w/build" && echo more >> page.html && do_git commit -q -am "icons beside the headings")
-  sed -e "s|<worktree>|$w/build|g" -e "s|<base>|$base|g" "$TMP/do/back.sh" > "$w/back.sh"
-  (cd "$w/repo" && "$sh" "$w/back.sh") > "$w/out" 2> "$w/err"; rc=$?
-  if [[ $rc -eq 0 && ! -s "$w/err" ]] && grep -qxF 'branch: do/rulebook-icons' "$w/out" && grep -qxF "from base: $base" "$w/out" \
-        && grep -q 'icons beside the headings$' "$w/out" && grep -q '1 file changed' "$w/out" && grep -qxF 'uncommitted: 0' "$w/out" && grep -q 'page.html' "$w/out"; then
-    ok "$sh: the look back prints the branch, the base it grew from, the commit, the files, and a clean count"
-  else fail "$sh: the look back: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
-done
+personas=$(grep -c '^| [a-z]* |' profiles/ROSTER.md)
+mkdir -p "$w/plain" "$w/repo/docs"
+(cd "$w/plain" && bash "$DOSH" look) > "$w/out" 2> "$w/err"; rc=$?
+if [[ $rc -eq 0 && ! -s "$w/err" && "$(head -3 "$w/out")" == $'root: \nbranch: \nuncommitted: 0' && "$(grep -c '^roster: [a-z]*, .*, \(fable\|opus\|sonnet\|haiku\)$' "$w/out")" == "$personas" && "$(wc -l < "$w/out" | tr -d ' ')" == $((personas + 3)) ]]
+then ok "look in a plain folder: three empty answers and the $personas personas, no documents"
+else fail "look in a plain folder: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
+(cd "$w/repo" && do_git init -q && git config user.name t && git config user.email t@example.com && echo x > CLAUDE.md && echo t > docs/TEAM.md && echo p > page.html && do_git add -A && do_git commit -q -m first)
+root="$(cd "$w/repo" && pwd -P)"; base="$(git -C "$w/repo" rev-parse HEAD)"
+(cd "$w/repo" && bash "$DOSH" look) > "$w/out" 2> "$w/err"; rc=$?
+if [[ $rc -eq 0 && ! -s "$w/err" && "$(head -3 "$w/out")" == "root: $root"$'\nbranch: main\nuncommitted: 0' && "$(grep -v '^roster: ' "$w/out" | tail -n +4)" == $'CLAUDE.md\ndocs/TEAM.md' ]]
+then ok "look in a repository: the root, the branch, a clean count, and the documents that exist"
+else fail "look in a repository: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
+(cd "$w/repo" && bash "$DOSH" start 'Rulebook icons!' && bash "$DOSH" start 'Rulebook icons!') > "$w/out" 2> "$w/err"; rc=$?
+run="$(sed -n 's/^runDir: //p' "$w/out" | head -1)"; exclude="$w/repo/.git/info/exclude"
+if [[ $rc -eq 0 && ! -s "$w/err" && -d "$run" && "$run" == "$root/.ck/runs/"*"-rulebook-icons-do" && "$(grep -c '^slug: rulebook-icons$' "$w/out")" == 2 && "$(grep -c "^base: $base$" "$w/out")" == 2 \
+      && "$(grep -cxF '.ck/' "$exclude")" == 1 && "$(grep -cxF '.claude/worktrees/' "$exclude")" == 1 && -z "$(git -C "$w/repo" status --porcelain)" ]]
+then ok "start: makes the run folder from a clean slug, prints the base, excludes the cache once, leaves the checkout clean"
+else fail "start in a repository: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')', exclude '$(tr '\n' ' ' < "$exclude")'"; fi
+do_git -C "$w/repo" worktree add -q --detach "$w/linked" HEAD
+(cd "$w/linked" && bash "$DOSH" start icons) > "$w/out" 2> "$w/err"; rc=$?
+if [[ $rc -eq 0 && ! -s "$w/err" && -d "$(sed -n 's/^runDir: //p' "$w/out")" && -z "$(git -C "$w/linked" status --porcelain)" ]]; then ok "start works in a linked worktree and leaves it clean"
+else fail "start in a linked worktree: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
+(cd "$w/plain" && bash "$DOSH" start icons) > "$w/out" 2> "$w/err"; rc=$?
+if [[ $rc -eq 0 && ! -s "$w/err" && -d "$(sed -n 's/^runDir: //p' "$w/out")" && "$(sed -n 's/^base: //p' "$w/out")" == "" ]]; then ok "start works with no repository"
+else fail "start with no repository: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
+
+# A build as build.md describes it: a worktree branch do/<slug> with one commit on the base.
+build() { do_git -C "$w/repo" worktree add -q "$w/$1" -b "do/$1" "$base"; }
+build icons; (cd "$w/icons" && echo more >> page.html && do_git commit -q -am "icons beside the headings")
+bash "$DOSH" back "$w/icons" "$base" > "$w/out" 2> "$w/err"; rc=$?
+if [[ $rc -eq 0 && ! -s "$w/err" ]] && grep -qxF 'branch: do/icons' "$w/out" && grep -qxF "from base: $base" "$w/out" && grep -q 'icons beside the headings$' "$w/out" \
+      && grep -q '1 file changed' "$w/out" && grep -qxF 'uncommitted: 0' "$w/out" && grep -qxF 'ready: yes' "$w/out"
+then ok "back: the branch, the base, the commit, the files, a clean count, and ready"
+else fail "back on a good build: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
+build empty
+bash "$DOSH" back "$w/empty" "$base" | grep -qxF 'ready: no, nothing was committed' && ok "back: no commit is not ready" || fail "back with no commit says it is ready"
+echo loose > "$w/icons/loose.txt"
+bash "$DOSH" back "$w/icons" "$base" | grep -qxF 'ready: no, 1 files are not committed' && ok "back: uncommitted files are not ready" || fail "back with an uncommitted file says it is ready"
+rm "$w/icons/loose.txt"
+(cd "$w/empty" && do_git checkout -q --orphan stray && do_git commit -q -m stray --allow-empty)
+bash "$DOSH" back "$w/empty" "$base" | grep -qxF 'ready: no, it did not grow from the base' && ok "back: a branch not grown from the base is not ready" || fail "back on an unrelated branch says it is ready"
+
+# merge, pr, and discard.
+out=$(bash "$DOSH" merge "$w/repo" "$w/icons" do/icons 2>&1); rc=$?
+if [[ $rc -eq 0 && "$out" == 'merged: do/icons into main' && ! -d "$w/icons" ]] && ! git -C "$w/repo" rev-parse -q --verify do/icons >/dev/null && grep -qx more <(tail -1 "$w/repo/page.html")
+then ok "merge: merges, removes the worktree, deletes the branch"
+else fail "merge of a clean build: exit $rc, '$out'"; fi
+build clash; (cd "$w/clash" && echo theirs > CLAUDE.md && do_git commit -q -am theirs); (cd "$w/repo" && echo ours > CLAUDE.md && do_git commit -q -am ours)
+out=$(bash "$DOSH" merge "$w/repo" "$w/clash" do/clash 2>&1); rc=$?
+if [[ $rc -ne 0 && "$out" == 'not merged: conflicts, so the merge was undone; do/clash is kept' && -d "$w/clash" && -z "$(git -C "$w/repo" status --porcelain)" ]] && git -C "$w/repo" rev-parse -q --verify do/clash >/dev/null
+then ok "merge with conflicts: undoes the merge, keeps the branch and the worktree"
+else fail "merge with conflicts: exit $rc, '$out', status '$(git -C "$w/repo" status --porcelain | tr '\n' ' ')'"; fi
+out=$(bash "$DOSH" merge "$w/linked" "$w/clash" do/clash 2>&1); rc=$?
+[[ $rc -ne 0 && "$out" == 'not merged: you are not on a branch; do/clash is kept' ]] && ok "merge off a branch: refuses and keeps the branch" || fail "merge from a detached checkout: exit $rc, '$out'"
+out=$(bash "$DOSH" pr "$w/repo" "$w/clash" do/clash 2>&1); rc=$?
+[[ $rc -ne 0 && "$out" == 'no pull request: this repository has no remote' && -d "$w/clash" ]] && ok "pr with no remote: says so and keeps the worktree" || fail "pr with no remote: exit $rc, '$out'"
+out=$(bash "$DOSH" discard "$w/repo" "$w/clash" do/clash 2>&1); rc=$?
+if [[ $rc -eq 0 && "$out" == 'discarded: do/clash' && ! -d "$w/clash" ]] && ! git -C "$w/repo" rev-parse -q --verify do/clash >/dev/null; then ok "discard: removes the worktree and the branch"
+else fail "discard: exit $rc, '$out'"; fi
 
 # ─── 19. The staged plan ─────────────────────────────────────────────────────
 section "19. The staged plan: /ck:plan, /ck:start, and scripts/plan.py"
