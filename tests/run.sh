@@ -597,7 +597,7 @@ mkdir -p "$w/plain" "$w/repo/docs"
 if [[ $rc -eq 0 && ! -s "$w/err" && "$(head -3 "$w/out")" == $'root: \nbranch: \nuncommitted: 0' && "$(grep -c '^roster: [a-z]*, .*, \(fable\|opus\|sonnet\|haiku\)$' "$w/out")" == "$personas" && "$(wc -l < "$w/out" | tr -d ' ')" == $((personas + 3)) ]]
 then ok "look in a plain folder: three empty answers and the $personas personas, no documents"
 else fail "look in a plain folder: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
-(cd "$w/repo" && do_git init -q && echo x > CLAUDE.md && echo t > docs/TEAM.md && echo p > page.html && do_git add -A && do_git commit -q -m first)
+(cd "$w/repo" && do_git init -q && git config user.name t && git config user.email t@example.com && echo x > CLAUDE.md && echo t > docs/TEAM.md && echo p > page.html && do_git add -A && do_git commit -q -m first)
 root="$(cd "$w/repo" && pwd -P)"; base="$(git -C "$w/repo" rev-parse HEAD)"
 (cd "$w/repo" && bash "$DOSH" look) > "$w/out" 2> "$w/err"; rc=$?
 if [[ $rc -eq 0 && ! -s "$w/err" && "$(head -3 "$w/out")" == "root: $root"$'\nbranch: main\nuncommitted: 0' && "$(grep -v '^roster: ' "$w/out" | tail -n +4)" == $'CLAUDE.md\ndocs/TEAM.md' ]]
