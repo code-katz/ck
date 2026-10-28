@@ -46,7 +46,7 @@
 | 0.1.15 | 2026-10-26 | Current models: Opus 5.5, Sonnet 5.5, Haiku 5.5 | Tag `v0.1.15` |
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
 | 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; stable and ck-next |
-| 0.1.18 | 2026-10-27 | A shorter `/ck:do`; its git steps in `scripts/do.sh` | Tag `v0.1.18`; ck-next |
+| 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18`; ck-next |
 
 ---
 
@@ -143,7 +143,7 @@ Later: the lean review's recommendations
 **Items Affected:** Releases, Tier 1 item 2
 
 ### What Changed
-0.1.18 is added to Releases. `/ck:do` reads 1,082 words on every run instead of 3,344: `SKILL.md` drops from 2,746 words to 946, and the 598-word roster file gives way to one line per persona printed by the script. Its rare branches (a task for another command, a mockup, a write or check step, a build in place, a change to a returned step, and a failed or stopped step) move to their own files under `skills/do/`, each read only when its case comes up. The builder's rules move to `skills/do/build.md`, which the builder reads. A new `scripts/do.sh` runs the git steps (look, start, the look back with a ready verdict, merge, pull request, discard), and the tests run it in place of checking the skill's wording. Tier 1 item 2 records the choice to shorten rather than remove.
+0.1.18 is added to Releases. `/ck:do` reads 1,055 words on every run instead of 3,344: `SKILL.md` drops from 2,746 words to 919, and the 598-word roster file gives way to one line per persona printed by the script. Its rare branches (a task for another command, a mockup, a write or check step, a build in place, a change to a returned step, and a failed or stopped step) move to their own files under `skills/do/`, each read only when its case comes up. The builder's rules move to `skills/do/build.md`, which the builder reads. A new `scripts/do.sh` runs the git steps (look, start, the look back with a ready verdict, merge, pull request, discard), and the tests run it in place of checking the skill's wording. Tier 1 item 2 records the choice to shorten rather than remove. The plan no longer prints a rough cost: the guess came from a fixed price table nobody had checked, and Claude Code turned its `$2` and `$6` into words of the task ("a build typo to in") when it was tried in d20mob. What work costs is the cost script's job (Tier 1 item 3). The first 0.1.18 tag, with the cost line, was replaced by this one the same day.
 
 ### Why
 All of `/ck:do` was read every time it was typed. Removing it would have saved almost no tokens, since a typed-only command costs nothing until it is typed. Rules a script can check, such as whether a build is ready to merge and what to do on a merge conflict, now live in tested code instead of the prompt.

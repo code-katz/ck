@@ -581,10 +581,13 @@ for n in sorted(set(re.findall(r'`(?:\$\{CLAUDE_PLUGIN_ROOT\}/skills/do/)?([a-z-
 script = pathlib.Path('scripts/do.sh').read_text()
 for c in sorted(set(re.findall(r'`<do> ([a-z]+)', text))):
     if not re.search(rf'^{c}\)', script, re.M): problems.append(f'runs do.sh {c}, which the script does not have')
+# Claude Code replaces $0, $1, ... in a typed skill with the words typed after the command.
+for p in files:
+    for m in re.finditer(r'\$[0-9]', p.read_text()): problems.append(f'{p} has {m.group()}, which Claude Code replaces with a word of the task')
 for p in problems: print(p)
 raise SystemExit(1 if problems else 0)
 EOF
-then ok "skills/do: typed only; every command, file, and do.sh command it names exists"
+then ok "skills/do: typed only; every command, file, and do.sh command it names exists; no dollar sign before a digit"
 else while IFS= read -r l; do fail "skills/do: $l"; done < "$TMP/do/static.out"; fi
 if grep -q '^| `/ck:do <task>`' README.md; then ok "README.md has a row for /ck:do"; else fail "README.md has no row for /ck:do"; fi
 
