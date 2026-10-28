@@ -15,8 +15,10 @@
 - The memory gate (0.1.13), asking in the message since 0.1.14: a proposal and an approval before any memory is saved.
 - Current models since 0.1.15: Opus 5.5, Sonnet 5.5 and Haiku 5.5; Fable 5.1 for judgment.
 - A shorter `/ck:start` (0.1.16, about 1,080 words read per use instead of 2,699), with its chips back (0.1.17, confirmed in hireling).
-- Main is at 0.1.17. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.17`. Rollback in a project is two commands.
+- A shorter `/ck:do` (0.1.18, 1,082 words read per use instead of 3,344), with its git steps in `scripts/do.sh` and no cost guess.
+- `/ck:cost` (0.1.19): what a session's work costs, in tokens and dollars.
+- Main is at 0.1.19. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), stable on `v0.1.17`, ck-next on `v0.1.19`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
@@ -63,7 +65,7 @@ Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a 
 | 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Planned: Tier 1 item 4, for plan stages as well as `/ck:do`, with the model set by the task |
 | 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Partly: 0.1.17 puts up a chip per ready stage; no auto mode or phase hand-over |
 | 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built | Not planned; a one-off lean review was done instead ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) |
-| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Planned: 0.1.19, `/ck:cost`, rebuilt small |
+| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Done: 0.1.19, `/ck:cost`, rebuilt small |
 | 8 | **The cost report** | The cost as a published page with filters, by stage, lane, agent, model, and token type, with the dearest turns | Planned (ck2's only roadmap item) | Not planned: 0.1.19 prints a table |
 | 9 | **The outcome loop** | A lean review that runs on its own at each phase's end, and every checker risk put to the stage's owner before the pull request reaches you | Planned (a proposal, two decisions open) | Not planned |
 | 10 | **One config file** | `ck.conf` holds every model id and the core team, in place of `tiers.conf` | Built | Not planned: `tiers.conf` stays |
@@ -73,7 +75,7 @@ Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a 
 | 14 | **CI and Ruff** | The test suite and the lint check on every pull request, and a Run button when a merge is blocked | Built | Partly: CI on main since 2026-10-26; no Ruff |
 | 15 | **Current models** | Opus 5.5 and Sonnet 5.5 for the craft and execution tiers | Built | Done: 0.1.15, with Haiku 5.5 for checkers |
 | 16 | **Pipeline commands that stand alone** | Every pipeline command rebuilt on one shared loop (`pipeline.py`), each used on its own, with no required order and no pipeline table | Built | Not planned |
-| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite | In progress: 0.1.16 (`/ck:start`), 0.1.18 (`/ck:do`) |
+| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite | Done for `/ck:start` (0.1.16) and `/ck:do` (0.1.18); other commands not yet |
 
 Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `code-katz` marketplace.
 
@@ -86,7 +88,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
 | 1 | **Try the memory gate in d20mob** | It is released and on stable, but not yet tried by hand | A save shows the proposal ending "Reply 1, 2 or 3", then the approval prompt |
-| 2 | **0.1.18: `/ck:do`** | It read 2,746 words, plus the 598-word roster, every time it was typed; Will chose to shorten it, not remove it (2026-10-27) | The decision made, and the release on ck-next |
+| 2 | **Try 0.1.18 and 0.1.19, then promote them to stable** | Both are on ck-next, and stable is still on 0.1.17 | `/ck:do` runs in d20mob with no cost line; `/ck:cost` prints a real table; the `code-katz` pin moves to `v0.1.19` |
 | 3 | **0.1.19: a small cost script** | Shows what work costs by session, persona and model, so a release's saving can be measured | Built in 0.1.19; done when a few merged pull requests carry the table and `/ck:cost history` compares them |
 | 4 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
 
@@ -130,12 +132,26 @@ Later: the lean review's recommendations
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.12 headless runs only; 0.1.13 and 0.1.14 waiting |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; the memory gate (0.1.13, 0.1.14), 0.1.18 and 0.1.19 not yet tried by hand |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-10-28] The roadmap brought up to date after 0.1.18 and 0.1.19
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; Tier 1 item 2; ck2 features, rows 7 and 17; OKR
+
+### What Changed
+The snapshot says main is at 0.1.19, with stable on 0.1.17 and ck-next on 0.1.19, and lists the shorter `/ck:do` and `/ck:cost`. Tier 1 item 2, the `/ck:do` decision, is done, so it becomes trying 0.1.18 and 0.1.19 and promoting them to stable. In the ck2 features table, the cost script (row 7) is done in 0.1.19, and shorter commands (row 17) are done for `/ck:start` and `/ck:do`. The OKR row says which releases are still untried.
+
+### Why
+0.1.18 (pull requests 48 and 49) and 0.1.19 (pull request 50) merged on 2026-10-28, and the snapshot, Tier 1 and the ck2 table still described them as coming.
+
+---
 
 ## [2026-10-28] 0.1.19: a small cost script
 
