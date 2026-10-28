@@ -29,7 +29,9 @@
 
 ## Releases
 
-| Version | Date | What it added | State |
+ck reaches projects from two places. **Stable** is the `code-katz` marketplace on GitHub: a project that installs ck the normal way gets the version it points to, and it moves only after a release is tried. **ck-next** is a test marketplace on Will's Mac (`~/development/ck-next`): d20mob, hireling and the ck folder use it, so they get each release first. Each points to one version at a time.
+
+| Version | Date | What it added | Served by |
 |---|---|---|---|
 | 0.1.1 | 2026-10-03 | The review loop proposes a change before it makes one | From `main` |
 | 0.1.2 | 2026-10-03 | A direct `/ck:brief` reads the opportunity and market research | From `main` |
@@ -47,9 +49,9 @@
 | 0.1.14 | 2026-10-26 | Questions in the message, never in the app's box | Tag `v0.1.14` |
 | 0.1.15 | 2026-10-26 | Current models: Opus 5.5, Sonnet 5.5, Haiku 5.5 | Tag `v0.1.15` |
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
-| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; stable and ck-next |
-| 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18`; ck-next |
-| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; ck-next |
+| 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17`; **stable** |
+| 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18` |
+| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **ck-next** |
 
 ---
 
@@ -87,10 +89,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Try the memory gate in d20mob** | It is released and on stable, but not yet tried by hand | A save shows the proposal ending "Reply 1, 2 or 3", then the approval prompt |
-| 2 | **Try 0.1.18 and 0.1.19, then promote them to stable** | Both are on ck-next, and stable is still on 0.1.17 | `/ck:do` runs in d20mob with no cost line; `/ck:cost` prints a real table; the `code-katz` pin moves to `v0.1.19` |
-| 3 | **0.1.19: a small cost script** | Shows what work costs by session, persona and model, so a release's saving can be measured | Built in 0.1.19; done when a few merged pull requests carry the table and `/ck:cost history` compares them |
-| 4 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
+| 1 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
+| 2 | **Try what is on ck-next, then promote it to stable** | The memory gate, the shorter `/ck:do` and `/ck:cost` are released, but none has been tried by hand, and stable is on 0.1.17 | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; then the stable pin moves to `v0.1.19` |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -110,9 +110,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   try the memory gate in d20mob
-Next:  0.1.19 (cost script) on ck-next -> a few merges with the table -> stable
-Then:  lanes -> ck-next -> a d20mob phase -> stable
+Now:   lanes -> ck-next -> a d20mob phase -> stable
+Beside: try what is on ck-next in d20mob -> promote 0.1.19 to stable
 Later: the lean review's recommendations
 ```
 
@@ -138,6 +137,20 @@ Later: the lean review's recommendations
 ---
 
 ## Revision History
+
+## [2026-10-28] Tier 1 is lanes; the Releases table says which version each channel serves
+
+**Change Type:** `reprioritize`
+**Triggered by:** `stakeholder-feedback`
+**Items Affected:** Tier 1; Releases; Recommended Sequencing
+
+### What Changed
+Tier 1 is now two items: lanes, then trying what is on ck-next and promoting it to stable. The cost script row is gone, because 0.1.19 shipped it; its "done when" folds into the second item. The memory gate test folds into it too. The Releases table's last column is now "Served by", with a line on what stable and ck-next are: stable serves 0.1.17 and ck-next serves 0.1.19, and no channel serves 0.1.18.
+
+### Why
+Tier 1 listed a shipped release and two tests as things to ship next, and the table said ck-next served three versions at once.
+
+---
 
 ## [2026-10-28] The roadmap brought up to date after 0.1.18 and 0.1.19
 
