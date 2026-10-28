@@ -822,6 +822,43 @@ out="$(gate "$(call Write file_path /tmp/x.md)")$(gate "$(call Bash command 'cat
 python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("memory-gate.py\" check" in x["command"] for e in h["PreToolUse"] for x in e["hooks"]); assert any("memory-gate.py\" rule" in x["command"] for e in h["SessionStart"] for x in e["hooks"])' \
   && ok "hooks.json runs the gate before tool calls and prints its rule at session start" || fail "hooks.json does not wire the memory gate"
 
+# ─── 22. The cost script ─────────────────────────────────────────────────────
+section "22. /ck:cost: scripts/cost.py and its hooks"
+CF=tests/fixtures/cost
+cost() { CK_PRICING_FILE=$CF/pricing.md HOME="$TMP/costhome" PATH="$TMP/costbin:$PATH" python3 scripts/cost.py "$@"; }
+out=$(cost $CF/s1.jsonl)
+if grep -qF '| main | opus-5-5 | 1.0M · $4.00 | 100k · $2.00 | 1.0M · $8.00 | 0 · $0.00 | **2.1M · $14.00** |' <<<"$out" \
+  && grep -qF '| ck:robin | haiku-5-5 | 200k · $0.10 |' <<<"$out" \
+  && grep -qF '| background | opus-5-5 | 0 · $0.00 | 50k · $1.00 |' <<<"$out" \
+  && grep -qF '| **All** | | 1.2M · $4.10 | 151k · $3.00 | 1.0M · $8.00 | 0 · $0.00 | **2.4M · $15.10** |' <<<"$out" \
+  && grep -qF "Claude Code's own figure: \$15.10." <<<"$out" && ! grep -q 'disagree\|made-up' <<<"$out"; then
+  ok "lanes add up to the All row and to Claude Code's figure; a message counts once; a long Haiku prompt takes the higher price; no message text"
+else fail "the cost table for the fixture session is wrong: $out"; fi
+out=$(cost $CF/s2.jsonl)
+grep -qF '| main | mystery-1 | 10 · ? |' <<<"$out" && grep -qF '**20 · ?**' <<<"$out" && ! grep -qF '$0.00' <<<"$out" \
+  && ok "a model the pricing page does not list is priced as ?, never \$0" || fail "an unknown model is not marked ?: $out"
+mkdir -p "$TMP/costbin" "$TMP/costhome"
+printf '%s\n' '#!/bin/sh' 'case "$1 $2" in' \
+  "  \"pr view\") echo '{\"number\": 7, \"state\": \"MERGED\", \"mergeCommit\": {\"oid\": \"abc1234def\"}, \"url\": \"https://github.com/o/r/pull/7\"}' ;;" \
+  "  \"pr comment\") printf '%s\\n' \"\$*\" >> \"$TMP/comments\" ;;" 'esac' > "$TMP/costbin/gh"
+chmod +x "$TMP/costbin/gh"
+cp $CF/s1.jsonl "$TMP/s3.jsonl"; cp -R $CF/s1 "$TMP/s3"
+echo '{"type": "pr-link", "prNumber": 7}' >> "$TMP/s3.jsonl"
+hook() { printf '{"transcript_path": "%s", "cwd": "%s", "tool_input": {"command": "%s"}}' "$1" "$TMP" "$2"; }
+quiet=$(hook $CF/s1.jsonl "" | cost stop)
+line=$(hook "$TMP/s3.jsonl" "" | cost stop | python3 -c 'import json,sys; print(json.load(sys.stdin)["systemMessage"])' 2>&1)
+[[ -z "$quiet" && "$line" == "ck cost so far: 2.4M · \$15.10 ("* ]] \
+  && ok "the Stop hook is quiet until the session has a pull request, then prints the cost so far" || fail "the Stop hook printed '$quiet' then '$line'"
+hook "$TMP/s3.jsonl" "git status" | cost merge
+hook "$TMP/s3.jsonl" "gh pr merge 7 --merge" | cost merge
+hook "$TMP/s3.jsonl" "gh pr merge 7 --merge" | cost merge
+hist=$(cost history)
+[[ $(grep -c 'Fixture session cost summary' "$TMP/comments" 2>/dev/null) == 1 ]] && grep -qF '| [o/r#7](https://github.com/o/r/pull/7) | abc1234 | Fixture session | 2.4M | $15.10 |' <<<"$hist" \
+  && ok "after gh pr merge the hook posts the table to the pull request once and logs it, and history lists it" || fail "the merge hook: $(grep -c 'cost summary' "$TMP/comments" 2>/dev/null) comments, history: $hist"
+python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("cost.py\" stop" in x["command"] for e in h["Stop"] for x in e["hooks"]); assert any("cost.py\" merge" in x["command"] for e in h["PostToolUse"] for x in e["hooks"])' \
+  && grep -qx 'disable-model-invocation: true' skills/cost/SKILL.md \
+  && ok "hooks.json runs the cost hooks, and /ck:cost runs only when typed" || fail "the cost hooks or /ck:cost are not wired"
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then
