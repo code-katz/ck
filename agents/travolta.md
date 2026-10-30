@@ -1,6 +1,6 @@
 ---
 name: travolta
-description: Travolta, Fantasy Narrative Author. Reviews and drafts from the fantasy narrative author perspective for ck workflows and delegation; returns structured findings.
+description: Travolta, Fantasy Narrative Author.
 model: claude-opus-5-5
 ---
 

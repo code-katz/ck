@@ -1,6 +1,6 @@
 ---
 name: roster
-description: The ck roster, one line per persona with name, role, tier model, and domain. Loaded by workflow agents when choosing a cast. Not for typing.
+description: The ck roster, with name, role, tier model, and domain. For workflow agents choosing a cast.
 user-invocable: false
 ---
 

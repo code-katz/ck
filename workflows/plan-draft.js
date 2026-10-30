@@ -1,12 +1,25 @@
 export const meta = {
   name: 'plan-draft',
-  description: 'The staged plan: one author lays the work out in phases and stages, one job and one owner per row, each row with a state and an entry a new session can start from; a checker runs the plan script on it and the author revises at most twice. With no item it plans the release from ROADMAP.md, docs/ARCHITECTURE.md, and docs/TEAM.md, as docs/build-plan.md; with an item it plans that one piece of work, under docs/plan/. Normally launched by /ck:plan, which mints the run directory and owns the review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, item (the piece of work, in the author\'s words; omit for the release plan), itemId (short id for an item plan), author (persona who writes it; default quinn for the release, akira for an item), inputs (absolute paths of the documents that exist), existing (absolute path of an earlier plan to carry over), outputPath, startAt (optional: draft | check). A direct /ck:plan-draft [item] works too, with everything defaulted to the current project and no run record.',
+  description: 'Writes a staged plan, the release with no text or the typed item, and checks it; launched by /ck:plan.',
   phases: [
     { title: 'Draft', detail: 'the author persona writes the plan to the staged plan contract: phases, a stage table per phase, and an entry per stage' },
     { title: 'Check', detail: 'one neutral Haiku agent runs the plan script (refresh, then check) and reads for what the script cannot see; the author revises at most twice' },
   ],
   personas: ['quinn', 'akira', 'sasha', 'alex', 'kai', 'river'],
 }
+
+// The staged plan: one author lays the work out in phases and stages, one job and one owner per row,
+// each row with a state and an entry a new session can start from; a checker runs the plan script on
+// it and the author revises at most twice. With no item it plans the release from ROADMAP.md,
+// docs/ARCHITECTURE.md, and docs/TEAM.md, as docs/build-plan.md; with an item it plans that one piece
+// of work, under docs/plan/. Normally launched by /ck:plan, which mints the run directory and owns the
+// review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the
+// project repository), pluginRoot, timestamp, item (the piece of work, in the author's words; omit for
+// the release plan), itemId (short id for an item plan), author (persona who writes it; default quinn
+// for the release, akira for an item), inputs (absolute paths of the documents that exist), existing
+// (absolute path of an earlier plan to carry over), outputPath, startAt (optional: draft | check). A
+// direct /ck:plan-draft [item] works too, with everything defaulted to the current project and no run
+// record.
 
 // Direct invocation (/ck:plan-draft [item]) hands the typed text to the script as a string; a skill
 // launch passes an object. Both are accepted. Paths default to the project the session is in, and

@@ -1,6 +1,6 @@
 export const meta = {
   name: 'brief-draft',
-  description: 'Toni runs a basic market pass (three to five comparable products, sourced), River writes docs/brief.md from one line of idea text to the brief contract, and a checker validates the shape, with River revising at most twice. Normally launched by /ck:brief, which mints the run directory and owns the review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, idea, opportunityPath (optional; absolute), marketResearchPath (optional; absolute), briefPath (optional; default <projectRoot>/docs/brief.md). A direct /ck:brief-draft <idea> works too, with everything defaulted to the current project and no run record.',
+  description: 'Writes docs/brief.md from one line of idea text after a sourced market pass; launched by /ck:brief.',
   phases: [
     { title: 'Market pass', detail: 'ck:toni finds three to five comparable products with a source each, reading market research and the opportunity first when they exist' },
     { title: 'Draft', detail: 'ck:river writes the brief: problem and root-cause chain, user, success metric, comparable products, scope with a smaller first version, non-goals, open questions' },
@@ -8,6 +8,15 @@ export const meta = {
   ],
   personas: ['toni', 'river'],
 }
+
+// Toni runs a basic market pass (three to five comparable products, sourced), River writes
+// docs/brief.md from one line of idea text to the brief contract, and a checker validates the shape,
+// with River revising at most twice. Normally launched by /ck:brief, which mints the run directory and
+// owns the review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute
+// path of the project repository), pluginRoot, timestamp, idea, opportunityPath (optional; absolute),
+// marketResearchPath (optional; absolute), briefPath (optional; default <projectRoot>/docs/brief.md).
+// A direct /ck:brief-draft <idea> works too, with everything defaulted to the current project and no
+// run record.
 
 // Direct invocation (/ck:brief-draft <idea>) hands the typed text to the script as a string; a skill
 // launch passes an object. Both are accepted. Paths default to the project the session is in,

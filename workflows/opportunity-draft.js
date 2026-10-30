@@ -1,6 +1,6 @@
 export const meta = {
   name: 'opportunity-draft',
-  description: 'Opportunity analysis: River frames the idea and chooses up to four contributing lenses from the roster (Toni and Akira always, a domain seat such as Reiner for a game or Jordan for a data product, Sage optionally); each contributor writes its own sourced section in parallel; River assembles docs/opportunity.md to the opportunity contract; a checker validates it. Type /ck:opportunity followed by the idea in a sentence. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, idea, inputs (absolute paths of docs/TEAM.md and docs/market-research.md when they exist), outputPath (optional; default <projectRoot>/docs/opportunity.md), startAt (optional: frame | sections | assemble | validate).',
+  description: 'Writes docs/opportunity.md from one idea, with sourced sections from up to four lenses; launched by /ck:opportunity.',
   phases: [
     { title: 'Frame', detail: 'ck:river writes the concept and hypothesis, chooses the contributors with a reason each, and briefs each one' },
     { title: 'Sections', detail: 'up to four contributors in parallel, each on its own tier, each writing its sourced section' },
@@ -9,6 +9,16 @@ export const meta = {
   ],
   personas: ['river', 'toni', 'akira', 'sage', 'reiner', 'jordan', 'kai', 'morgan', 'cornelius', 'casey'],
 }
+
+// Opportunity analysis: River frames the idea and chooses up to four contributing lenses from the
+// roster (Toni and Akira always, a domain seat such as Reiner for a game or Jordan for a data product,
+// Sage optionally); each contributor writes its own sourced section in parallel; River assembles
+// docs/opportunity.md to the opportunity contract; a checker validates it. Type /ck:opportunity
+// followed by the idea in a sentence. A skill may instead pass an object: runId, runDir (absolute
+// cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp,
+// idea, inputs (absolute paths of docs/TEAM.md and docs/market-research.md when they exist),
+// outputPath (optional; default <projectRoot>/docs/opportunity.md), startAt (optional: frame |
+// sections | assemble | validate).
 
 // Direct invocation (/ck:opportunity <idea>) hands the typed text to the script as a string; a skill
 // launch passes an object. Both are accepted. Paths default to the project the session is in, and

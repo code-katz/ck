@@ -1,6 +1,6 @@
 export const meta = {
   name: 'team-draft',
-  description: 'Team selection and roles and responsibilities. River reads the product documents and the roster and nominates a cast with an owner per document and stage; each nominee confirms or declines on its own tier and names what it needs and one missing seat; River writes docs/TEAM.md; a checker validates it, word count first. Normally launched by /ck:team, which mints the run directory and owns the review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents that exist: opportunity, brief, PRD, market research; at least one of the first two), teamPath (optional; default <projectRoot>/docs/TEAM.md), maxCast (optional; default 8). A direct /ck:team-draft works too, with everything defaulted to the current project and no run record.',
+  description: 'Writes docs/TEAM.md: a nominated cast, each member confirming its seat, with owners per document; launched by /ck:team.',
   phases: [
     { title: 'Nominate', detail: 'ck:river proposes the cast: an owner and reviewers per pipeline document and stage, and the missing seats' },
     { title: 'Confirm', detail: 'every nominee, in parallel on its own tier at low effort, reads its nomination and the brief (not the whole PRD), accepts or declines each responsibility, names its needs, one risk, and one missing seat' },
@@ -9,6 +9,16 @@ export const meta = {
   ],
   personas: ['river', 'akira', 'alex', 'casey', 'cornelius', 'ernie', 'iris', 'jordan', 'kai', 'morgan', 'noon', 'piper', 'quinn', 'reiner', 'rez', 'robin', 'sage', 'sasha', 'toni', 'tracy', 'travolta'],
 }
+
+// Team selection and roles and responsibilities. River reads the product documents and the roster and
+// nominates a cast with an owner per document and stage; each nominee confirms or declines on its own
+// tier and names what it needs and one missing seat; River writes docs/TEAM.md; a checker validates
+// it, word count first. Normally launched by /ck:team, which mints the run directory and owns the
+// review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the
+// project repository), pluginRoot, timestamp, inputs (absolute paths of the documents that exist:
+// opportunity, brief, PRD, market research; at least one of the first two), teamPath (optional;
+// default <projectRoot>/docs/TEAM.md), maxCast (optional; default 8). A direct /ck:team-draft works
+// too, with everything defaulted to the current project and no run record.
 
 // Direct invocation (/ck:team-draft) needs no arguments: the documents that exist in the project are
 // read. A skill may pass an object. Without a plugin root the roster and the contract are loaded

@@ -1,6 +1,6 @@
 ---
 name: jordan
-description: Jordan, Data & ML Consultant. Reviews and drafts from the data & ml consultant perspective for ck workflows and delegation; returns structured findings.
+description: Jordan, Data & ML Consultant.
 model: claude-fable-5-1
 ---
 

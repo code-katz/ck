@@ -1,6 +1,6 @@
 ---
 name: opportunity-artifact
-description: The Code Katz contract for an opportunity analysis: verdict, concept, sourced market context, one section per contributing lens, stage gates, monetization, risks, open questions, sources, and the checklist. Load when writing or validating docs/opportunity.md, inside or outside a ck workflow.
+description: The ck contract for docs/opportunity.md, the opportunity analysis. Load when writing or checking it.
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 export const meta = {
   name: 'brand',
-  description: 'Brand identity in three stages, one launch per stage, with a gallery review between them. proposals: Toni writes one positioning line per candidate direction, Iris designs four to six directions (mark, palette, type pairing, mood), Kai skins one UI surface per direction, and the gallery is rendered and checked. finalists: for the directions the author chose, Iris works up the full token set, the logo system, the type scale, and the app icon, Kai three UI surfaces, as a second gallery. guide: Kai exports brand/final/, Iris writes the brand direction record and docs/brand-guide.md, a checker validates both. Run through /ck:brand-guide, which owns the two reviews and passes an object: stage (proposals | finalists | guide), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot (required; the gallery renderer lives there), timestamp, source (absolute path of docs/opportunity.md or docs/brief.md), inputs (absolute paths of docs/PRD.md and docs/market-research.md when they exist), chosen (the labels picked at the previous review), changes (what the author asked to change, one string), startAt (optional step within the stage).',
+  description: 'Writes brand directions, finalists, and the brand guide across three stages; launched by /ck:brand-guide, which owns the reviews.',
   phases: [
     { title: 'Positioning', detail: 'ck:toni: the product name, the audience, and one positioning line per candidate direction' },
     { title: 'Directions', detail: 'ck:iris: four to six brand directions, each with a mark, a palette, a type pairing, and mood words; or the full system for each finalist' },
@@ -11,6 +11,20 @@ export const meta = {
   ],
   personas: ['iris', 'kai', 'toni'],
 }
+
+// Brand identity in three stages, one launch per stage, with a gallery review between them. proposals:
+// Toni writes one positioning line per candidate direction, Iris designs four to six directions (mark,
+// palette, type pairing, mood), Kai skins one UI surface per direction, and the gallery is rendered
+// and checked. finalists: for the directions the author chose, Iris works up the full token set, the
+// logo system, the type scale, and the app icon, Kai three UI surfaces, as a second gallery. guide:
+// Kai exports brand/final/, Iris writes the brand direction record and docs/brand-guide.md, a checker
+// validates both. Run through /ck:brand-guide, which owns the two reviews and passes an object: stage
+// (proposals | finalists | guide), runId, runDir (absolute cache directory), projectRoot (absolute
+// path of the project repository), pluginRoot (required; the gallery renderer lives there), timestamp,
+// source (absolute path of docs/opportunity.md or docs/brief.md), inputs (absolute paths of
+// docs/PRD.md and docs/market-research.md when they exist), chosen (the labels picked at the previous
+// review), changes (what the author asked to change, one string), startAt (optional step within the
+// stage).
 
 // This workflow is launched by the brand-guide skill with an object; it needs the plugin root to find the
 // gallery renderer, so a direct launch with typed text is refused with the command to use instead.

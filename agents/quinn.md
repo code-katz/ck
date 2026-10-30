@@ -1,6 +1,6 @@
 ---
 name: quinn
-description: Quinn, Project Manager & Scrum Master. Reviews and drafts from the project manager & scrum master perspective for ck workflows and delegation; returns structured findings.
+description: Quinn, Project Manager & Scrum Master.
 model: claude-opus-5-5
 ---
 

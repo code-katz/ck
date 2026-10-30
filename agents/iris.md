@@ -1,6 +1,6 @@
 ---
 name: iris
-description: Iris, Brand & Illustration. Reviews and drafts from the brand & illustration perspective for ck workflows and delegation; returns structured findings.
+description: Iris, Brand & Illustration.
 model: claude-opus-5-5
 ---
 

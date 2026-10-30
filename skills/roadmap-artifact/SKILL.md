@@ -1,6 +1,6 @@
 ---
 name: roadmap-artifact
-description: The Code Katz contract for ROADMAP.md, which is the roadmap skill's structure verbatim so the two stay interchangeable: current state, opportunities in three tiers, sequencing, open questions, OKRs, and a revision history. Load when writing or validating ROADMAP.md, inside or outside a ck workflow.
+description: The ck contract for ROADMAP.md, the product roadmap. Load when writing or checking it.
 user-invocable: false
 ---
 

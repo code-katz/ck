@@ -64,13 +64,7 @@ When this session's own instructions name a different memory folder, run it agai
 
 ## 4. Sort every memory
 
-Give each memory one proposed answer, by its file name:
-
-- **Keep**: a fact or a how-to a session looks up when it needs it, such as where a tool lives or a trap on this machine.
-- **Retire**: the template, the drafted section, or another line of CLAUDE.md already says it. Name where.
-- **Move**: a rule a session must know from the start, which belongs in a file. Into "How we work" in this run, as a line after the closing marker in the memory's own words; or into another file the page names (the roadmap, a style guide, a document), as a step of its own after this one.
-
-A memory and a line of the file that disagree get no proposal: the page names both, and the User picks which stands. Nothing is retired or moved without the User's word.
+Read `${CLAUDE_PLUGIN_ROOT}/skills/memory-gate/sort.md` and give each memory one proposed answer by it, by its file name. A **Retire** names the template, the drafted section, or the other line. A **Move** goes into "How we work" in this run, as a line after the closing marker in the memory's own words; or into another file the page names (the roadmap, a style guide, a document), as a step of its own after this one. A **Disagree** gets no proposal: the page names both.
 
 ## 5. Draft the section
 

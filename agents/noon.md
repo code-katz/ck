@@ -1,6 +1,6 @@
 ---
 name: noon
-description: Noon, Cyberpunk Narrative Author. Reviews and drafts from the cyberpunk narrative author perspective for ck workflows and delegation; returns structured findings.
+description: Noon, Cyberpunk Narrative Author.
 model: claude-opus-5-5
 ---
 

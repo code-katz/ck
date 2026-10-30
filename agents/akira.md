@@ -1,6 +1,6 @@
 ---
 name: akira
-description: Akira, Backend Engineering Consultant. Reviews and drafts from the backend engineering consultant perspective for ck workflows and delegation; returns structured findings.
+description: Akira, Backend Engineering Consultant.
 model: claude-fable-5-1
 ---
 

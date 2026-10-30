@@ -1,6 +1,6 @@
 ---
 name: sasha
-description: Sasha, Frontend Engineering Consultant. Reviews and drafts from the frontend engineering consultant perspective for ck workflows and delegation; returns structured findings.
+description: Sasha, Frontend Engineering Consultant.
 model: claude-sonnet-5-5
 ---
 

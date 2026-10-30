@@ -1,6 +1,6 @@
 ---
 name: toni
-description: Toni, Product Marketing Manager. Reviews and drafts from the product marketing manager perspective for ck workflows and delegation; returns structured findings.
+description: Toni, Product Marketing Manager.
 model: claude-opus-5-5
 ---
 

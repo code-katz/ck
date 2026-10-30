@@ -1,6 +1,6 @@
 ---
 name: memo-artifact
-description: The Code Katz contract for a decision memo written by a panel: the ten sections in order and the checklist. Load when writing or validating a memo under docs/decisions/, inside or outside a ck workflow.
+description: The ck contract for a panel's decision memo under docs/decisions/. Load when writing or checking one.
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: alex
-description: Alex, DevOps & Platform Consultant. Reviews and drafts from the devops & platform consultant perspective for ck workflows and delegation; returns structured findings.
+description: Alex, DevOps & Platform Consultant.
 model: claude-sonnet-5-5
 ---
 

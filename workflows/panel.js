@@ -1,12 +1,22 @@
 export const meta = {
   name: 'panel',
-  description: 'Three-lens decision panel: product (river, Fable 5.1), marketing (toni, Opus 5.5), and UX (kai, Sonnet 5.5) personas, each on a different model and each reading its own evidence, argue one question; a neutral memo surfaces where they disagree and leaves the decision to the author. Type /ck:panel followed by the question; the text is the only argument needed. A skill may instead pass an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp (UTC, minted by the caller with date -u), question, contextPath (optional), rationalePath (optional; each lens reads it only after forming its view), memoPath (optional; default <projectRoot>/docs/decisions/<timestamp>-panel.md), lenses (optional [{persona, lens, model, reads}]).',
+  description: 'Three personas on three models argue one question in a decision memo; type /ck:panel followed by the question.',
   phases: [
     { title: 'Lenses', detail: 'ck:river, ck:toni, ck:kai in parallel, one model each, each reading its own evidence, each forced to argue against itself' },
     { title: 'Synthesis', detail: 'one neutral agent writes the decision memo: agreement flagged as low-information, disagreement preserved, decision left to the author' },
   ],
   personas: ['river', 'toni', 'kai'],
 }
+
+// Three-lens decision panel: product (river, Fable 5.1), marketing (toni, Opus 5.5), and UX (kai,
+// Sonnet 5.5) personas, each on a different model and each reading its own evidence, argue one
+// question; a neutral memo surfaces where they disagree and leaves the decision to the author. Type
+// /ck:panel followed by the question; the text is the only argument needed. A skill may instead pass
+// an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the project
+// repository), pluginRoot, timestamp (UTC, minted by the caller with date -u), question, contextPath
+// (optional), rationalePath (optional; each lens reads it only after forming its view), memoPath
+// (optional; default <projectRoot>/docs/decisions/<timestamp>-panel.md), lenses (optional [{persona,
+// lens, model, reads}]).
 
 // Direct invocation (/ck:panel <question>) hands the typed text to the script as a string; a skill
 // launch passes an object. Both are accepted. Paths default to the project the session is in, and

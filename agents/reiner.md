@@ -1,6 +1,6 @@
 ---
 name: reiner
-description: Reiner, Tabletop Game Designer. Reviews and drafts from the tabletop game designer perspective for ck workflows and delegation; returns structured findings.
+description: Reiner, Tabletop Game Designer.
 model: claude-fable-5-1
 ---
 

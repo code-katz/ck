@@ -1,6 +1,6 @@
 ---
 name: robin
-description: Robin, QA & Testing Consultant. Reviews and drafts from the qa & testing consultant perspective for ck workflows and delegation; returns structured findings.
+description: Robin, QA & Testing Consultant.
 model: claude-sonnet-5-5
 ---
 

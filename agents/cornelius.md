@@ -1,6 +1,6 @@
 ---
 name: cornelius
-description: Cornelius, Military Historian. Reviews and drafts from the military historian perspective for ck workflows and delegation; returns structured findings.
+description: Cornelius, Military Historian.
 model: claude-opus-5-5
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: market-research-artifact
-description: The Code Katz contract for a market research document: five findings, market size and trends, a competitors table, customers and channels, pricing, constraints, contradictions and unknowns, implications, sources, and the checklist. Load when writing or validating docs/market-research.md, inside or outside a ck workflow.
+description: The ck contract for docs/market-research.md, the market research. Load when writing or checking it.
 user-invocable: false
 ---
 

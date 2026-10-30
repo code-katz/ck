@@ -1,6 +1,6 @@
 ---
 name: river
-description: River, Product Manager. Reviews and drafts from the product manager perspective for ck workflows and delegation; returns structured findings.
+description: River, Product Manager.
 model: claude-fable-5-1
 ---
 

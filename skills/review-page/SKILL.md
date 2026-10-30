@@ -1,6 +1,6 @@
 ---
 name: review-page
-description: How every ck gate publishes a document or gallery for review, waits for "done", proposes a change per comment, applies the ones the author approves, republishes, and reports. Read by the gate-owning skills; not run on its own.
+description: How every ck gate publishes a page for review and applies its comments. Read by gate skills; not run alone.
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: plan-artifact
-description: The Code Katz contract for a staged plan, the document /ck:plan writes and /ck:start opens sessions from. Phases, then stages, one job and one owner per row, each row with a state, and an entry per stage that a new session can start from. Load when writing, checking, or reading docs/build-plan.md or a plan under docs/plan/, inside or outside a ck workflow.
+description: The ck contract for a staged plan, docs/build-plan.md or under docs/plan/. Load when writing, checking, or reading one.
 user-invocable: false
 ---
 
