@@ -15,9 +15,9 @@ look)
   echo "root: $(git rev-parse --show-toplevel 2>/dev/null)"
   echo "branch: $(git branch --show-current 2>/dev/null)"
   echo "uncommitted: $(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
-  # The roster, one persona per line: name, role, and tier (fable, opus, sonnet).
-  awk -F' [|] ' '/^[|] [a-z]+ [|]/ { sub(/^[|] /, ""); split($3, m, "-"); print "roster: " $1 ", " $2 ", " m[2] }' \
-    "$(dirname "$0")/../profiles/ROSTER.md"
+  # This project's team, one persona per line: name, role, and tier (fable, opus, sonnet).
+  python3 "$(dirname "$0")/team.py" roster |
+    awk -F' [|] ' '/^[|] [a-z]+ [|]/ { sub(/^[|] /, ""); split($3, m, "-"); print "roster: " $1 ", " $2 ", " m[2] }'
   for p in CLAUDE.md docs/TEAM.md docs/PRD.md docs/brand-guide.md docs/design; do
     if [ -e "$p" ]; then echo "$p"; fi
   done

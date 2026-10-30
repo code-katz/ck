@@ -32,6 +32,11 @@ import os
 import re
 import sys
 
+try:
+    import team                                              # scripts/team.py, beside this script
+except ImportError:
+    team = None
+
 SECTIONS = ['What this covers', 'Phases', 'Stage by stage', 'Open points']
 LABELS = ['Kind', 'Does', 'Files', 'Reads', 'Follows', 'Done when', 'Hands back', 'With', 'Serves']
 REQUIRED = LABELS[:7]
@@ -40,6 +45,15 @@ MODELS = ['Fable', 'Opus', 'Sonnet', 'Haiku']
 NAME_LIMIT = 59
 WORD_LIMIT = 3500
 ROSTER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'profiles', 'ROSTER.md')
+
+
+def off_team(path):
+    """A test of a persona name: true when the plan's project has a team and the name is not on it."""
+    start = os.path.dirname(os.path.abspath(path))
+    if team is None or team.project(start) is None:
+        return lambda name: False
+    members = team.team(start)
+    return lambda name: name.lower() not in members
 
 # Numbers are written without padding (0, 7, 12, never 07) and are capped at six digits so no
 # input can make int() fail. No pattern here ends in a lazy run followed by optional spaces:
@@ -724,6 +738,12 @@ def cmd_check(args, opts):
             pending = plan.pending(row)
             lines.append('note: %s is %s, but %s, which it follows, %s not done'
                          % (row.stage, row.progress, plan.waits(row), 'is' if len(pending) == 1 else 'are'))
+    outside = off_team(args[0])
+    for row in plan.rows:
+        who = who_parts(row.who)
+        if who and outside(who[0]):
+            lines.append('note: %s: %s is not on this project\'s team; /ck:team invite %s adds them'
+                         % (tag(row), who[0], who[0].lower()))
     if roster is None:
         lines.append('roster: not found, names not checked')
     return status, lines + ['words: %d' % plan.words]
@@ -882,6 +902,9 @@ def cmd_card(args, opts):
         return 1, ['%s has no entry under Stage by stage' % full]
     if not who_parts(row.who):
         return 1, ['%s has no persona and model the plan allows: %s' % (full, row.who)]
+    if off_team(path)(row.owner[0]):
+        return 1, ['%s: %s is not on this project\'s team. Type /ck:team invite %s, or give the row another owner '
+                   'with /ck:plan' % (full, row.owner[0], row.owner[0].lower())]
     if not entry.title:
         return 1, ['%s has an entry with no title, so its session has no name' % full]
     if row.progress == 'unknown':

@@ -27,7 +27,7 @@ const contractStep = a.pluginRoot
   ? 'Read ' + a.pluginRoot + '/skills/opportunity-artifact/SKILL.md (the opportunity contract).'
   : 'Load the skill ck:opportunity-artifact with the Skill tool (the opportunity contract).'
 const rosterStep = a.pluginRoot
-  ? 'Read the roster: ' + a.pluginRoot + '/profiles/ROSTER.md (one line per persona: name, role, tier, domain).'
+  ? 'Read this project\'s team with the Bash tool: cd "' + projectRoot + '" && python3 "' + a.pluginRoot + '/scripts/team.py" roster (the roster rows of the seats on this project\'s team: name, role, tier, domain). Cast only from these rows, except a seat this prompt names as always taken.'
   : 'Load the skill ck:roster with the Skill tool (the roster: one line per persona with name, role, tier, domain).'
 const housekeeping = a.runDir ? '' : 'If ' + projectRoot + '/.git exists, run this with the Bash tool so the run cache stays out of git status: grep -qxF ".ck/" ' + projectRoot + '/.git/info/exclude 2>/dev/null || echo ".ck/" >> ' + projectRoot + '/.git/info/exclude . If it is refused, skip it and never mention it in a document. '
 const ONE_WRITE = 'Write the whole file with one Write call; do not build it with piecemeal edits, and do not re-read, edit, count, or check it after writing: return as soon as it is written, because a checker runs next and names anything unmet. '

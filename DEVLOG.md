@@ -5,6 +5,31 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-30] 0.1.20: a team per project
+
+**Category:** `feature`
+**Tags:** `ck`, `team`, `personas`, `casting`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project with no team file now casts from the core; any seat is one invite away)
+
+### Summary
+Each project's ck team is the core, eight seats (River, Quinn, Akira, Sasha, Kai, Robin, Alex, Morgan), plus the changes in `.claude/ck-team.conf`: one `invite <persona> <why>` or `drop <persona> <why>` per line. Every session, `/ck:do`, `/ck:opportunity`, `/ck:plan`, and `/ck:start`'s cards keep to it, so d20mob works with Reiner, Tracy, Travolta, and Piper and is never offered Noon. This rebuilds on main the proposal approved on 2026-10-16 (D1 to D4), re-scoped against 0.1.19 on a proof Will reviewed on 2026-10-28, where he set the goals: ck **never casts** a persona off the team (G1); a plan row naming one gets a note and **no card** (G2); a project with **no file has the core** (G3); and the full `/ck:team` invites its cast onto the team when it finishes (G4).
+
+### Detail
+- **`scripts/team.py`**, the one reader and writer: `show`, `roster` (the roster rows of the team only), `context` (the session paragraph), `invite`, `drop`. The last line about a persona wins; `invite` and `drop` keep only what differs from the core, so inviting a dropped core seat or dropping an invited guest removes its line. The project is the nearest folder up with the file or `.git`. The core is a list in the script, not a second file.
+- **Every session**: the SessionStart hook runs `team.py context`, one paragraph naming the team (about 70 tokens).
+- **Casting**: `do.sh look` prints `roster:` lines for the team only, and `/ck:do` takes the nearest team seat when a default owner (Iris, Toni) is off it. The opportunity and plan workflows read `team.py roster` instead of the whole roster; a seat a prompt fixes (Toni and Akira in the opportunity) still runs (D4).
+- **Plans**: `plan.py check` adds a `note:` line for an owner off the team, and `plan.py card` refuses that row until the persona is invited; `/ck:start` relays the refusal as it is, so `skills/start/` and the Who column are unchanged for lanes. Outside any repository with no team file, `plan.py` checks names against the roster only.
+- **`/ck:team show | invite | drop`** run the script, offer to commit the file, and launch nothing. The full `/ck:team` ends by inviting each Cast seat of `docs/TEAM.md` that is off the team.
+- **Cut from the proposal**: the warning line in the 21 switch commands (C7; `/ck:noon` still works everywhere), `core.conf`, `team.py has`, the "Invite Noon?" question mid-workflow, and changes to `team-draft.js` and `roadmap-draft.js`.
+- **Tests**: section 23, ten cases on `team.py` and `plan.py` (no file, d20mob's file, an unknown name, invite and drop, a persona both invited and dropped, the paragraph, the hook, the note and the refusal); the plan fixture project carries d20mob's team file. 495 checks pass.
+
+### Open
+- Not yet tried in a real session. The four checks to try in d20mob are in the pull request.
+- A guest (one use, asked once) leaves no line, as the proposal assumed; one core for every kind of project.
+
+---
+
 ## [2026-10-11] 0.1.10: /ck:do, the quick path; /ck:plan and /ck:start, a staged plan and one named session per stage
 
 **Category:** `feature`
