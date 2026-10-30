@@ -32,6 +32,8 @@ At most three steps, in this order. The owner is a roster persona the author nam
 - Build: Sasha for screens, Akira for server and data, Alex for infrastructure. When the author asked for the change made.
 - Check: Robin; Morgan when sign-in, payments, or personal data are touched. When asked for, or one of those is touched.
 
+A default owner must have a `roster:` line, since those are this project's team; when one does not, take the nearest seat that does and add "<name> is not on this team; `/ck:team invite <name>` adds them." above "Go?".
+
 Name each step with a verb, the work item's id if given, at most six words, and the owner, as in `Build: footer typo fix (Sasha)`, and use that name everywhere. Send the plan in this shape only, then stop:
 
 ```

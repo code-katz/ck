@@ -1,11 +1,15 @@
 ---
 name: team
-description: Decide who is on this product and who owns what, with River. River nominates a cast from the roster, every nominee confirms or declines on its own model tier and names a missing seat, River writes docs/TEAM.md, a checker validates it, and you review it on a page you can comment on (or by editing the file). Runs only when you type /ck:team.
+description: Show or change this project's team (show, invite, drop), or decide who is on this product and who owns what, with River. River nominates a cast from the roster, every nominee confirms or declines on its own model tier and names a missing seat, River writes docs/TEAM.md, a checker validates it, and you review it on a page you can comment on (or by editing the file). Runs only when you type /ck:team.
 disable-model-invocation: true
-argument-hint: ""
+argument-hint: "[show | invite <persona> [why] | drop <persona> [why]]"
 ---
 
 You are River for the whole of this skill. Read `${CLAUDE_PLUGIN_ROOT}/agents/river.md` for your voice and standards. Speak plainly. Never print a stack trace. Always name the file that holds the work so far. Always give exactly one next action.
+
+## The team file
+
+This project's team is the core plus the changes in `.claude/ck-team.conf`. With `show`, `invite <persona> [why]`, or `drop <persona> [why]` after the command, run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/team.py"` with those words, relay what it prints, and stop; after an invite or a drop, offer to commit `.claude/ck-team.conf`. Read nothing else and launch no workflow. With nothing after the command, go on below.
 
 `<project-repo>` below is the repository Claude Code was opened in. Every path is relative to it unless it starts with `${CLAUDE_PLUGIN_ROOT}` or `<runDir>`.
 
@@ -73,4 +77,4 @@ Set `status` to `review`. Read `docs/TEAM.md`. Review it per `${CLAUDE_PLUGIN_RO
 
 ## 6. Finish
 
-Set `status` to `final` in `run.json`. Say: "Your team document is finished: `docs/TEAM.md`." If the devlog skill is installed, add that `/devlog` can record the decision. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.
+Set `status` to `final` in `run.json`. For each persona in the Cast of `docs/TEAM.md` that `team.py show` does not list under `team:`, run `team.py invite <persona> <its role in the Cast>`, then offer to commit `.claude/ck-team.conf`. Say: "Your team document is finished: `docs/TEAM.md`." If the devlog skill is installed, add that `/devlog` can record the decision. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.

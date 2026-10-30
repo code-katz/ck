@@ -594,11 +594,11 @@ if grep -q '^| `/ck:do <task>`' README.md; then ok "README.md has a row for /ck:
 # scripts/do.sh in a plain folder, a repository, and a linked worktree.
 DOSH="$PWD/scripts/do.sh"; w="$TMP/do"
 do_git() { git -c user.name=t -c user.email=t@example.com -c init.defaultBranch=main "$@"; }
-personas=$(grep -c '^| [a-z]* |' profiles/ROSTER.md)
+personas=8   # a folder with no team file has the core
 mkdir -p "$w/plain" "$w/repo/docs"
 (cd "$w/plain" && bash "$DOSH" look) > "$w/out" 2> "$w/err"; rc=$?
 if [[ $rc -eq 0 && ! -s "$w/err" && "$(head -3 "$w/out")" == $'root: \nbranch: \nuncommitted: 0' && "$(grep -c '^roster: [a-z]*, .*, \(fable\|opus\|sonnet\|haiku\)$' "$w/out")" == "$personas" && "$(wc -l < "$w/out" | tr -d ' ')" == $((personas + 3)) ]]
-then ok "look in a plain folder: three empty answers and the $personas personas, no documents"
+then ok "look in a plain folder: three empty answers and the $personas core seats, no documents"
 else fail "look in a plain folder: exit $rc, '$(cat "$w/out" "$w/err" | tr '\n' ' ')'"; fi
 (cd "$w/repo" && do_git init -q && git config user.name t && git config user.email t@example.com && echo x > CLAUDE.md && echo t > docs/TEAM.md && echo p > page.html && do_git add -A && do_git commit -q -m first)
 root="$(cd "$w/repo" && pwd -P)"; base="$(git -C "$w/repo" rev-parse HEAD)"
@@ -858,6 +858,37 @@ hist=$(cost history)
 python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("cost.py\" stop" in x["command"] for e in h["Stop"] for x in e["hooks"]); assert any("cost.py\" merge" in x["command"] for e in h["PostToolUse"] for x in e["hooks"])' \
   && grep -qx 'disable-model-invocation: true' skills/cost/SKILL.md \
   && ok "hooks.json runs the cost hooks, and /ck:cost runs only when typed" || fail "the cost hooks or /ck:cost are not wired"
+
+# ─── 23. The team ────────────────────────────────────────────────────────────
+section "23. A team per project: scripts/team.py"
+TEAM="$PWD/scripts/team.py"; tw="$TMP/team"
+mkdir -p "$tw/none" "$tw/d20/.claude"; git init -q "$tw/none"
+cp tests/fixtures/plan/project/.claude/ck-team.conf "$tw/d20/.claude/"
+names() { (cd "$1" && python3 "$TEAM" show) | sed -n 's/^team: //p'; }
+[[ "$(names "$tw/none")" == 'river, quinn, akira, sasha, kai, robin, alex, morgan' ]] && ok "no file: the team is the core" || fail "no file: '$(names "$tw/none")'"
+d20="$(names "$tw/d20")"
+[[ "$d20" == 'river, quinn, akira, sasha, kai, robin, alex, morgan, reiner, tracy, travolta, piper' ]] && ok "d20mob's file: twelve seats, not Noon" || fail "d20mob's file: '$d20'"
+[[ "$(cd "$tw/d20" && python3 "$TEAM" roster | grep -c '^| [a-z]* |')" == 12 ]] && ok "roster prints the twelve seats' rows" || fail "roster: $(cd "$tw/d20" && python3 "$TEAM" roster | tr '\n' ' ')"
+cp "$tw/d20/.claude/ck-team.conf" "$tw/before"
+out=$(cd "$tw/d20" && python3 "$TEAM" invite nooon 2>&1); rc=$?
+[[ $rc -eq 1 && "$out" == 'nooon is not on the ck roster.' ]] && cmp -s "$tw/before" "$tw/d20/.claude/ck-team.conf" && ok "an unknown name is refused in one sentence and the file is unchanged" || fail "invite nooon: exit $rc, '$out'"
+(cd "$tw/d20" && python3 "$TEAM" invite noon cyberpunk words >/dev/null)
+[[ "$(diff "$tw/before" "$tw/d20/.claude/ck-team.conf" | grep -c '^[<>]')" == 1 ]] && [[ "$(names "$tw/d20")" == *', noon' ]] && ok "invite adds one line, and the team has Noon" || fail "invite noon: $(diff "$tw/before" "$tw/d20/.claude/ck-team.conf" | tr '\n' ' ')"
+(cd "$tw/d20" && python3 "$TEAM" drop noon >/dev/null && python3 "$TEAM" drop morgan >/dev/null && python3 "$TEAM" invite morgan >/dev/null)
+cmp -s "$tw/before" "$tw/d20/.claude/ck-team.conf" && ok "drop of an invited seat and invite of a dropped core seat leave no line" || fail "after drop and invite: $(diff "$tw/before" "$tw/d20/.claude/ck-team.conf" | tr '\n' ' ')"
+printf '%s\n' 'invite noon yes' 'drop noon no' 'drop kai' 'invite kai' >> "$tw/d20/.claude/ck-team.conf"
+d20="$(names "$tw/d20")"
+[[ "$d20" != *noon* && "$d20" == *kai* ]] && ok "a persona both invited and dropped follows the last line" || fail "invited and dropped: '$d20'"
+out=$(cd "$tw/d20" && python3 "$TEAM" context)
+[[ "$out" == *Reiner* && "$out" != *Noon* && $(wc -l <<<"$out") -eq 1 ]] && ok "context is one paragraph naming the team" || fail "context: '$out'"
+cp -R tests/fixtures/plan/project "$tw/plan"; (cd "$tw/plan" && python3 "$TEAM" drop travolta >/dev/null)
+note=$(cd "$tw/plan" && python3 "$REPO_DIR/scripts/plan.py" check docs/build-plan.md | grep -c '^note: P2-S2: Travolta is not on')
+card=$(cd "$tw/plan" && python3 "$REPO_DIR/scripts/plan.py" card docs/build-plan.md P2-S2); rc=$?
+(cd "$tw/plan" && python3 "$TEAM" invite travolta >/dev/null)
+(cd "$tw/plan" && python3 "$REPO_DIR/scripts/plan.py" card docs/build-plan.md P2-S2 >/dev/null); rc2=$?
+[[ $note == 1 && $rc -eq 1 && "$card" == 'P2-S2: Travolta is not on'* && $rc2 -eq 0 ]] && ok "plan.py notes a row whose owner is off the team and refuses its card until they are invited" || fail "plan.py and the team: note $note, card exit $rc '$card', after invite exit $rc2"
+python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("team.py\" context" in x["command"] for e in h["SessionStart"] for x in e["hooks"])' \
+  && ok "hooks.json prints the team at session start" || fail "hooks.json does not run team.py context"
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
