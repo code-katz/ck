@@ -1,6 +1,6 @@
 ---
 name: kai
-description: Kai, UX Design & Visual Art Consultant. Reviews and drafts from the ux design & visual art consultant perspective for ck workflows and delegation; returns structured findings.
+description: Kai, UX Design & Visual Art Consultant.
 model: claude-opus-5-5
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: tracy
-description: Tracy, Fantasy Genre Advisor. Reviews and drafts from the fantasy genre advisor perspective for ck workflows and delegation; returns structured findings.
+description: Tracy, Fantasy Genre Advisor.
 model: claude-opus-5-5
 ---
 

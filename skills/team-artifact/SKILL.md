@@ -1,6 +1,6 @@
 ---
 name: team-artifact
-description: The Code Katz contract for a product's team document: cast, roles and responsibilities matrix, hand-off order, needs, missing seats, declined nominations, and the checklist. Load when writing or validating docs/TEAM.md, inside or outside a ck workflow.
+description: The ck contract for docs/TEAM.md, the team document. Load when writing or checking it.
 user-invocable: false
 ---
 

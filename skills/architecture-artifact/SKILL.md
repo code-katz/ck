@@ -1,6 +1,6 @@
 ---
 name: architecture-artifact
-description: The Code Katz contract for an architecture document: context, quality attributes, the recommended architecture with a diagram, components, data, integrations, alternatives, decision record, sequencing, risks, challenged claims, premortem, and the checklist. Load when writing or validating docs/ARCHITECTURE.md, inside or outside a ck workflow.
+description: The ck contract for docs/ARCHITECTURE.md, the architecture document. Load when writing or checking it.
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: brief-artifact
-description: The Code Katz contract for a product brief: section order, required fields, and the checklist it must pass. Load when writing, revising, or validating docs/brief.md, inside or outside a ck workflow.
+description: The ck contract for docs/brief.md, the product brief. Load when writing or checking it.
 user-invocable: false
 ---
 

@@ -103,12 +103,11 @@ for name in "${names[@]}"; do
   done
   domain=$(profile_domain "$profile")
   [[ -z "$domain" ]] && domain="$role"
-  role_lc=$(printf '%s' "$role" | tr '[:upper:]' '[:lower:]')
 
   {
     printf -- '---\n'
     printf 'name: %s\n' "$name"
-    printf 'description: %s, %s. Reviews and drafts from the %s perspective for ck workflows and delegation; returns structured findings.\n' "$display" "$role" "$role_lc"
+    printf 'description: %s, %s.\n' "$display" "$role"
     printf 'model: %s\n' "$model"
     printf -- '---\n\n'
     printf '<!-- GENERATED from profiles/%s.md by scripts/generate.sh; edit the profile, not this file. -->\n\n' "$name"
@@ -146,7 +145,7 @@ mkdir -p "$OUT_DIR/skills/roster"
 {
   printf -- '---\n'
   printf 'name: roster\n'
-  printf 'description: The ck roster, one line per persona with name, role, tier model, and domain. Loaded by workflow agents when choosing a cast. Not for typing.\n'
+  printf 'description: The ck roster, with name, role, tier model, and domain. For workflow agents choosing a cast.\n'
   printf 'user-invocable: false\n'
   printf -- '---\n\n'
   printf '<!-- GENERATED from profiles/*.md and tiers.conf by scripts/generate.sh; edit those, not this file. -->\n\n'

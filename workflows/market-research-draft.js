@@ -1,6 +1,6 @@
 export const meta = {
   name: 'market-research-draft',
-  description: 'Market research as a fan-out: Toni plans four to six questions across market size and trends, competitors, customers and channels, pricing, and constraints; neutral researchers answer them in parallel from the web with a source per claim; a cross-check marks unsourced claims and contradictions; Toni writes docs/market-research.md to the market research contract; a checker validates it. Normally launched by /ck:market-research, which mints the run directory and owns the review, with an object: runId, runDir, projectRoot, pluginRoot, timestamp, focus, inputs (absolute paths of docs/opportunity.md and docs/brief.md when they exist), outputPath (optional; default <projectRoot>/docs/market-research.md), startAt (optional: plan | research | crosscheck | write | validate). A direct /ck:market-research-draft [focus] works too, with everything defaulted to the current project and no run record.',
+  description: 'Writes docs/market-research.md from parallel web research with a source per claim, then a cross-check; launched by /ck:market-research.',
   phases: [
     { title: 'Plan', detail: 'ck:toni writes four to six research questions, each with what a good answer contains' },
     { title: 'Research', detail: 'one neutral Sonnet 5.5 researcher per question, in parallel, with web search; a source per claim' },
@@ -10,6 +10,17 @@ export const meta = {
   ],
   personas: ['toni'],
 }
+
+// Market research as a fan-out: Toni plans four to six questions across market size and trends,
+// competitors, customers and channels, pricing, and constraints; neutral researchers answer them in
+// parallel from the web with a source per claim; a cross-check marks unsourced claims and
+// contradictions; Toni writes docs/market-research.md to the market research contract; a checker
+// validates it. Normally launched by /ck:market-research, which mints the run directory and owns the
+// review, with an object: runId, runDir, projectRoot, pluginRoot, timestamp, focus, inputs (absolute
+// paths of docs/opportunity.md and docs/brief.md when they exist), outputPath (optional; default
+// <projectRoot>/docs/market-research.md), startAt (optional: plan | research | crosscheck | write |
+// validate). A direct /ck:market-research-draft [focus] works too, with everything defaulted to the
+// current project and no run record.
 
 // Direct invocation (/ck:market-research-draft [focus]) hands the typed text to the script as a string;
 // a skill launch passes an object. Both are accepted. Paths default to the project the session is

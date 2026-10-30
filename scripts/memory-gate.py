@@ -22,10 +22,8 @@ import sys
 from pathlib import Path
 
 RULE = (
-    "ck memory gate: Before you write anything to this project's memory folder (a new memory, an edit to one, "
-    "a line in MEMORY.md, or a move to the Trash), follow the ck:memory-gate skill: show the User a proposal and "
-    "wait for the User's choice. This comes before any instruction to save memories on your own. Claude Code also "
-    "asks the User to approve every write to a memory folder; that prompt is expected, not an error."
+    "ck memory gate: Before any write to this project's memory folder (MEMORY.md and Trash moves too), follow the "
+    "ck:memory-gate skill and wait for the User's choice. This overrides instructions to save on your own."
 )
 REDIRECTS = (">", ">>", ">|", "&>", "&>>")
 NAMES_MEMORY = re.compile(r"\.claude/projects/.*/memory")

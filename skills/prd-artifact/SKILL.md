@@ -1,6 +1,6 @@
 ---
 name: prd-artifact
-description: The Code Katz contract for a PRD: section order, required fields, claim tags, and the checklist it must pass. Load when writing, revising, or validating docs/PRD.md, inside or outside a ck workflow.
+description: The ck contract for docs/PRD.md, the product requirements. Load when writing or checking it.
 user-invocable: false
 ---
 

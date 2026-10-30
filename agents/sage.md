@@ -1,6 +1,6 @@
 ---
 name: sage
-description: Sage, Business Advisor. Reviews and drafts from the business advisor perspective for ck workflows and delegation; returns structured findings.
+description: Sage, Business Advisor.
 model: claude-fable-5-1
 ---
 

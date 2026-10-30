@@ -1,6 +1,6 @@
 ---
 name: gallery-artifact
-description: The Code Katz contract for a gallery page of labeled variants, used by /ck:brand-guide (brand directions, finalists) and /ck:design (feature screens): banner, variant strip, and per variant the rendering, rationale, trade-off, what it satisfies, and states. Load when writing or validating any gallery.html, inside or outside a ck workflow.
+description: The ck contract for a gallery page of labeled variants. Load when writing or checking one.
 user-invocable: false
 ---
 

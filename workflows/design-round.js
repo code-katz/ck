@@ -1,6 +1,6 @@
 export const meta = {
   name: 'design-round',
-  description: 'One feature from the PRD to design mockups, in two stages with a gallery review between them. variants: River extracts the feature (its requirements, acceptance criteria, user, metric, constraints, and the screens it implies) into the run directory, Kai writes three labeled concepts and then the screens of each with their empty, loading, and error states, the gallery is rendered and checked. refine: Kai writes the chosen variant at full fidelity (chosen.html) and the design spec, Robin adds the acceptance checks, a checker validates the spec. Run through /ck:design, which owns the review and passes an object: stage (variants | refine), feature (the name or requirement number typed), slug (the docs/design/<slug>/ folder), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot (required; the gallery renderer lives there), timestamp, prd (absolute path of docs/PRD.md), brand (absolute path of docs/brand-guide.md or empty), tokens (absolute path of brand/final/tokens.css or empty), architecture (absolute path of docs/ARCHITECTURE.md or empty), chosen (the label picked at the review), changes (what the author asked to change), startAt (optional step within the stage).',
+  description: 'Takes one PRD feature to a gallery of mockups, then a chosen design and spec; launched by /ck:design.',
   phases: [
     { title: 'Extract', detail: 'ck:river, low effort: the feature from the PRD, in one page under the run directory' },
     { title: 'Concepts', detail: 'ck:kai: three labeled variants, each a different answer to the feature, with the screens each needs' },
@@ -12,6 +12,20 @@ export const meta = {
   ],
   personas: ['river', 'kai', 'robin'],
 }
+
+// One feature from the PRD to design mockups, in two stages with a gallery review between them.
+// variants: River extracts the feature (its requirements, acceptance criteria, user, metric,
+// constraints, and the screens it implies) into the run directory, Kai writes three labeled concepts
+// and then the screens of each with their empty, loading, and error states, the gallery is rendered
+// and checked. refine: Kai writes the chosen variant at full fidelity (chosen.html) and the design
+// spec, Robin adds the acceptance checks, a checker validates the spec. Run through /ck:design, which
+// owns the review and passes an object: stage (variants | refine), feature (the name or requirement
+// number typed), slug (the docs/design/<slug>/ folder), runId, runDir (absolute cache directory),
+// projectRoot (absolute path of the project repository), pluginRoot (required; the gallery renderer
+// lives there), timestamp, prd (absolute path of docs/PRD.md), brand (absolute path of
+// docs/brand-guide.md or empty), tokens (absolute path of brand/final/tokens.css or empty),
+// architecture (absolute path of docs/ARCHITECTURE.md or empty), chosen (the label picked at the
+// review), changes (what the author asked to change), startAt (optional step within the stage).
 
 // Launched by the design skill with an object; a direct launch with typed text is refused with the command to use.
 const a = (args && typeof args === 'object') ? args : {}

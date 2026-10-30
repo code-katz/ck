@@ -1,6 +1,6 @@
 ---
 name: brand-artifact
-description: The Code Katz contract for the two brand documents: the brand direction record (the decision and the locked system) and the brand identity guide (overview, architecture, logo system, color, typography, UI surfaces, art direction, app icon, legal), with the checklist. Load when writing or validating docs/decisions/<timestamp>-brand-direction.md or docs/brand-guide.md, inside or outside a ck workflow.
+description: The ck contract for the brand direction record and the brand guide. Load when writing or checking them.
 user-invocable: false
 ---
 

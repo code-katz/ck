@@ -5,6 +5,29 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-10-30] 0.1.21: short listings and a lighter memory gate
+
+**Category:** `refactor`
+**Tags:** `ck`, `tokens`, `listings`, `memory-gate`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+R1 and R3 of the lean review. What ck adds to every session's listing drops from 2,549 words to 531, about 2,700 tokens saved per session. One memory-gate run reads 603 words instead of 3,014, about 3,200 tokens saved per memory; choosing "Add to CLAUDE.md" adds 205 more.
+
+### Detail
+- **Workflows** (1,386 to 172 words): each `meta.description` is one sentence of 15 to 20 words. The old text moved word for word to a comment under `meta`. `/ck:panel` keeps "type /ck:panel followed by the question", since no skill launches it when typed.
+- **Contracts and helpers** (634 to 235): about 15 words each. **Agents** (453 to 90): name and role only, from `scripts/generate.sh`. **The gate's rule** (76 to 34): the sentence on Claude Code's approval prompt went, since the hook's own prompt and the skill's step 4 already say it.
+- **Hiding workflows**: not possible. Claude Code 2.1.310 has `disableModelInvocation` on a workflow's command, but its plugin loader never sets it from `meta`, and the docs name no such field. So the 172 words stay.
+- **The gate**: the sort moved to `skills/memory-gate/sort.md`, read by the gate and by step 4 of `/ck:claude-md`. The steps for a CLAUDE.md change moved to `skills/memory-gate/claude-md-change.md`, read only on that choice. The gate no longer points at step 8 of `/ck:claude-md` for the Trash or the merge; it says them itself.
+- **Reviewed** by Fable before merge. It found nothing that breaks. Three fixes taken: `draft` says its argument defaults to prd, `plan-draft` says no text means the release, and `/ck:claude-md` step 4 says to read `sort.md`. One change kept: in `/ck:claude-md`, Retire now also covers a memory that repeats another memory; step 7 still asks the User.
+- **Tried** in a real `claude -p` session on a throwaway repository: the gate ran, read `sort.md` and not the claude-md skill, ended "Reply 1, 2 or 3", and read `claude-md-change.md` only after "2". That repository has no remote, so the pull request step was not reached, and no write to memory was approved.
+
+### Open
+- The 2,700 and 3,200 are words times 1.33, not measured tokens. A workflow's whole weight in the listing also depends on Claude Code's own cut when the listing is over its budget.
+
+---
+
 ## [2026-10-30] 0.1.20: a team per project
 
 **Category:** `feature`

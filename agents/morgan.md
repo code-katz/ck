@@ -1,6 +1,6 @@
 ---
 name: morgan
-description: Morgan, Security Engineering Consultant. Reviews and drafts from the security engineering consultant perspective for ck workflows and delegation; returns structured findings.
+description: Morgan, Security Engineering Consultant.
 model: claude-fable-5-1
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: design-spec-artifact
-description: The Code Katz contract for a feature design spec, written after the chosen variant: feature, chosen variant, screens, components, interactions, states, copy, accessibility, requirement traceability, acceptance, and the checklist. Load when writing or validating docs/design/<feature>/spec.md, inside or outside a ck workflow.
+description: The ck contract for a feature design spec, docs/design/<feature>/spec.md. Load when writing or checking it.
 user-invocable: false
 ---
 

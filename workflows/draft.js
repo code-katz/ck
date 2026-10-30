@@ -1,6 +1,6 @@
 export const meta = {
   name: 'draft',
-  description: "One author drafts a document to its contract, a checker validates it, optionally the three-lens panel challenges it (forming its view before reading the rationale) and the author rewrites it with a Challenged claims appendix; the author adds a premortem either way. Serves the PRD (river; lenses river, toni, kai) and the architecture document (akira; lenses morgan, alex, jordan). Normally launched by /ck:prd or /ck:architecture with an object: artifact ('prd' | 'architecture'), runId, runDir (absolute cache directory), projectRoot (absolute path of the project repository), pluginRoot, timestamp, inputs (absolute paths of the documents to read; the skill lists the ones that exist), outputPath (optional; default from the artifact table), startAt (optional: draft | validate | panel | synthesize; earlier stages are skipped and the document on disk is used), lenses (optional), panel (optional; false skips the panel and the rewrite: the author appends the premortem with a few edits instead, which is the cheap path). A direct /ck:draft prd works too, with everything defaulted to the current project.",
+  description: 'Writes docs/PRD.md or docs/ARCHITECTURE.md (the argument, prd by default) to its contract; launched by /ck:prd or /ck:architecture.',
   phases: [
     { title: 'Draft', detail: 'the author writes the document from its inputs to the contract; every claim not from the inputs tagged [C<n>]' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the contract checklist; the author revises at most twice' },
@@ -10,6 +10,19 @@ export const meta = {
   ],
   personas: ['river', 'toni', 'kai', 'akira', 'morgan', 'alex', 'jordan'],
 }
+
+// One author drafts a document to its contract, a checker validates it, optionally the three-lens
+// panel challenges it (forming its view before reading the rationale) and the author rewrites it with
+// a Challenged claims appendix; the author adds a premortem either way. Serves the PRD (river; lenses
+// river, toni, kai) and the architecture document (akira; lenses morgan, alex, jordan). Normally
+// launched by /ck:prd or /ck:architecture with an object: artifact ('prd' | 'architecture'), runId,
+// runDir (absolute cache directory), projectRoot (absolute path of the project repository),
+// pluginRoot, timestamp, inputs (absolute paths of the documents to read; the skill lists the ones
+// that exist), outputPath (optional; default from the artifact table), startAt (optional: draft |
+// validate | panel | synthesize; earlier stages are skipped and the document on disk is used), lenses
+// (optional), panel (optional; false skips the panel and the rewrite: the author appends the premortem
+// with a few edits instead, which is the cheap path). A direct /ck:draft prd works too, with
+// everything defaulted to the current project.
 
 const ARTIFACTS = {
   prd: {
