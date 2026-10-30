@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-10-28.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-10-30.
 
 ---
 
@@ -17,11 +17,13 @@
 - A shorter `/ck:start` (0.1.16, about 1,080 words read per use instead of 2,699), with its chips back (0.1.17, confirmed in hireling).
 - A shorter `/ck:do` (0.1.18, 1,082 words read per use instead of 3,344), with its git steps in `scripts/do.sh` and no cost guess.
 - `/ck:cost` (0.1.19): what a session's work costs, in tokens and dollars.
-- Main is at 0.1.19. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.19`. Rollback in a project is two commands.
+- A team per project (0.1.20): a core of eight seats plus the invites and drops in `.claude/ck-team.conf`, and ck casts only from that team.
+- Main is at 0.1.20. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.20`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
+- 0.1.20 has not been tried in a real session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats once it loads 0.1.20, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
@@ -51,7 +53,8 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
 | 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17` |
 | 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18` |
-| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **stable** and **ck-next** |
+| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **stable** |
+| 0.1.20 | 2026-10-30 | A team per project: `.claude/ck-team.conf`, `/ck:team show`, `invite` and `drop`, a session paragraph naming the team, and casting only from it | Tag `v0.1.20`; **ck-next** |
 
 ---
 
@@ -59,12 +62,12 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 
 Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a feature that returns is rebuilt from scratch, as its own release. Built means it ran in ck2; planned means it was written down and never built. The last column is where each stands in ck now.
 
-| # | Feature | What it does | In ck2 | Where it stands (2026-10-27) |
+| # | Feature | What it does | In ck2 | Where it stands (2026-10-30) |
 |---|---|---|---|---|
-| 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Not planned |
+| 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Done: 0.1.20, rebuilt and re-scoped; `/ck:noon` and the other switch commands work everywhere, with no warning line |
 | 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Removed: 0.1.13 already makes a proof page for any document |
 | 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built | Not planned: a stage session already runs as its owner, on the owner's model |
-| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Planned: Tier 1 item 4, for plan stages as well as `/ck:do`, with the model set by the task |
+| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Planned: Tier 1 item 1, for plan stages as well as `/ck:do`, with the model set by the task |
 | 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Partly: 0.1.17 puts up a chip per ready stage; no auto mode or phase hand-over |
 | 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built | Not planned; a one-off lean review was done instead ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) |
 | 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Done: 0.1.19, `/ck:cost`, rebuilt small |
@@ -91,6 +94,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
 | 2 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
+| 3 | **Try 0.1.20 in d20mob** | It is on ck-next and no session has loaded it. d20mob needs its team file before its plan rows owned by Reiner, Tracy, Travolta or Piper get cards | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass; then stable moves to `v0.1.20` |
+| 4 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -112,6 +117,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ```
 Now:   lanes -> ck-next -> a d20mob phase -> stable
 Beside: try 0.1.19 in d20mob (already on stable)
+Beside: try 0.1.20 in d20mob -> stable
+2026-11-06: measure d20mob's 400K auto-compact test
 Later: the lean review's recommendations
 ```
 
@@ -122,6 +129,7 @@ Later: the lean review's recommendations
 1. Is the install drill on Clare's machine still wanted?
 2. What happens to the ck2 repository: archive it on GitHub, or leave it as it is?
 3. Is effort set per lane as well as the model, and where is it set?
+4. Why does idle compaction never fire in the sessions the evaluation measured, and should it be reported to Anthropic?
 
 ---
 
@@ -131,12 +139,44 @@ Later: the lean review's recommendations
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28) |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 is on ck-next, untried |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-10-30] Compaction at step boundaries evaluated, not built
+
+**Change Type:** `remove`
+**Triggered by:** `discovery`
+**Items Affected:** Tier 1 item 4; Recommended Sequencing; Open Questions
+
+### What Changed
+The feature note "compact context at step boundaries" was evaluated in a session that wrote no ck code ([the evaluation page](https://claude.ai/artifact/WWs1m4WT5aFpFHPP4zrekN)). You approved its verdict: no compaction policy in ck and no release. 0.1.21 had been held for it and is free again. Tier 1 gains a measurement instead: d20mob runs on a 400K auto-compact window from 2026-10-30 to 2026-11-06, and ck and hireling stay on the default. The setting is in d20mob's local settings, which git ignores. Open Questions gains question 4.
+
+### Why
+ck cannot trigger a compaction at a step boundary, and compacting after every action cost 45% to 620% more in the evaluation's replay. The 400K window alone is predicted to save $116 to $154 a week in API-equivalent dollars. With idle compaction working as well, the prediction is $193 to $234 a week, or 21% to 25%. The test is not proven yet: nobody has seen the setting reach a worktree session. The paper behind the note was never found, so its claim was not checked.
+
+### Open Questions Resolved / Added
+- Resolved: should ck compact at step boundaries → no.
+- Added: why does idle compaction never fire in the sessions measured, and should it be reported to Anthropic?
+
+---
+
+## [2026-10-30] 0.1.20: a team per project
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; Releases; ck2 features, rows 1 and 4; Tier 1 item 3; Recommended Sequencing; OKR
+
+### What Changed
+0.1.20 is added to Releases ([code-katz/ck#51](https://github.com/code-katz/ck/pull/51)), on ck-next, with stable still on `v0.1.19`. Row 1 of the ck2 features table moves from not planned to done, rebuilt on main and re-scoped from the proposal approved on 2026-10-16. Each project's team is the eight core seats (River, Quinn, Akira, Sasha, Kai, Robin, Alex, Morgan) plus the invites and drops in `.claude/ck-team.conf`, and `/ck:do`, `/ck:opportunity`, `/ck:plan` and `/ck:start`'s cards keep to it. A project with no file now casts from the core, not the whole roster. Tier 1 gains trying 0.1.20 in d20mob. Row 4 of the ck2 table pointed at Tier 1 item 4, and lanes are now item 1.
+
+### Why
+You chose to build it as the first of the releases 0.1.20 to 0.1.24, and fixed its number at the start. It changed from "Not planned" because a card game should work with Reiner and Tracy and never be offered Noon. 495 checks pass, but no real session has loaded it, so it stays off stable until the four checks pass.
+
+---
 
 ## [2026-10-28] 0.1.19 is stable
 
