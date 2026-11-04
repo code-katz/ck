@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-03] 0.1.24: lane endings
+
+**Category:** `fix`
+**Tags:** `ck`, `lanes`, `next`, `claude-md`
+**Risk Level:** `low`
+**Breaking Change:** `no` (outside a lane nothing changes)
+
+### Summary
+In d20mob, lane sessions ended by suggesting the next lane and ck commands. Will expects that from the coordinator, not from the lane. Two sources, two fixes.
+
+### Detail
+- **Gate skills in a lane.** `skills/next/SKILL.md` section 4 now says a lane (a session whose title starts with a bracketed id, such as `[A31-P6-S4]`) closes with only the skill's own finished sentence: no pipeline table, no line under it, no next command, and none of the skill's other suggestions (the `/devlog` note, the `/ck:start` line). The rule is in that one place, so the ten gate skills needed no edit.
+- **"Finishing a session" in the How we work template.** New `templates/how-we-work/0.1.24.md`, copied from 0.1.14 with the stamp and one clause changed: "if something is, name it in one line and leave it to the coordinator; do not suggest the next lane or a command to run." `scripts/claude-md.py` takes the newest file as current, so `/ck:claude-md` picks it up with no change. The `/ck:claude-md` tests now read the 0.1.24 template.
+
+### Open
+- Nothing propagates template changes. d20mob and hireling each get the one changed sentence by hand, on their own pull requests, when Will says so.
+
+---
+
 ## [2026-11-03] 0.1.23: a pull request's own cost, on the right pull request
 
 **Category:** `fix`

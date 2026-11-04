@@ -77,3 +77,5 @@ Do not run any agent. Do not explain how the tool works unless asked.
 ## 4. When another skill closes with this
 
 Every gate-owning skill ends by reading this file. Do sections 1 to 3 the same way, after that skill's own finished sentence: the table, the line under it, then the one thing to say.
+
+In a lane, do none of that. A lane is a session whose title starts with a bracketed id, such as `[A31-P6-S4]` (the opening message and the branch name `claude/<id>-<slug>` carry the same id). Choosing the next lane and the next command is the coordinator's job, not the lane's. A lane closes with only the skill's own finished sentence: no table, no line under it, no next command, and none of the skill's other suggestions, such as the `/devlog` note or the `/ck:start` line. Outside a lane, nothing changes.
