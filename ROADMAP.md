@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-10-30.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-03.
 
 ---
 
@@ -18,12 +18,18 @@
 - A shorter `/ck:do` (0.1.18, 1,082 words read per use instead of 3,344), with its git steps in `scripts/do.sh` and no cost guess.
 - `/ck:cost` (0.1.19): what a session's work costs, in tokens and dollars.
 - A team per project (0.1.20): a core of eight seats plus the invites and drops in `.claude/ck-team.conf`, and ck casts only from that team.
-- Main is at 0.1.20. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.20`. Rollback in a project is two commands.
+- Short listings (0.1.21): what ck adds to every session's listing drops from 2,549 words to 531, and one memory-gate run reads 603 words instead of 3,014.
+- A pull request's own cost (0.1.23): the merge hook charges the sessions that worked on the branch, finds the right pull request (`cd`, `--repo`, a URL), prints one line in the session, and leaves the numbers on the pull request as data.
+- Lane endings (0.1.24): a lane ends with its own finished sentence and leaves the next lane and the next command to the coordinator. d20mob and hireling carry the new "Finishing a session" sentence.
+- Main is at 0.1.24. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.24`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
-- 0.1.20 has not been tried in a real session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats once it loads 0.1.20, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- 0.1.20 to 0.1.24 have not been tried in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand.
+- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03 four installs were set to 0.1.24 by hand.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
@@ -54,7 +60,11 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17` |
 | 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18` |
 | 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **stable** |
-| 0.1.20 | 2026-10-30 | A team per project: `.claude/ck-team.conf`, `/ck:team show`, `invite` and `drop`, a session paragraph naming the team, and casting only from it | Tag `v0.1.20`; **ck-next** |
+| 0.1.20 | 2026-10-30 | A team per project: `.claude/ck-team.conf`, `/ck:team show`, `invite` and `drop`, a session paragraph naming the team, and casting only from it | Tag `v0.1.20` |
+| 0.1.21 | 2026-10-30 | Short listings and a lighter memory gate (lean review R1 and R3) | Tag `v0.1.21` |
+| 0.1.22 | none | Held for lanes, which did not ship | Not released |
+| 0.1.23 | 2026-11-03 | A pull request's own cost, on the right pull request, with one line in the session | Tag `v0.1.23` |
+| 0.1.24 | 2026-11-03 | Lane endings: no pipeline table or next command in a lane; How we work 0.1.24 | Tag `v0.1.24`; **ck-next** |
 
 ---
 
@@ -62,15 +72,15 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 
 Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a feature that returns is rebuilt from scratch, as its own release. Built means it ran in ck2; planned means it was written down and never built. The last column is where each stands in ck now.
 
-| # | Feature | What it does | In ck2 | Where it stands (2026-10-30) |
+| # | Feature | What it does | In ck2 | Where it stands (2026-11-03) |
 |---|---|---|---|---|
 | 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Done: 0.1.20, rebuilt and re-scoped; `/ck:noon` and the other switch commands work everywhere, with no warning line |
 | 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Removed: 0.1.13 already makes a proof page for any document |
 | 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built | Not planned: a stage session already runs as its owner, on the owner's model |
-| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Planned: Tier 1 item 1, for plan stages as well as `/ck:do`, with the model set by the task |
+| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Tested, not built: one persona session on a model chosen for the job wrote more correct code than lanes in one run of each stage; your call, Tier 1 item 1 |
 | 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Partly: 0.1.17 puts up a chip per ready stage; no auto mode or phase hand-over |
 | 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built | Not planned; a one-off lean review was done instead ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) |
-| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Done: 0.1.19, `/ck:cost`, rebuilt small |
+| 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Done: 0.1.19, `/ck:cost`, rebuilt small; 0.1.23 charges each pull request its own cost |
 | 8 | **The cost report** | The cost as a published page with filters, by stage, lane, agent, model, and token type, with the dearest turns | Planned (ck2's only roadmap item) | Not planned: 0.1.19 prints a table |
 | 9 | **The outcome loop** | A lean review that runs on its own at each phase's end, and every checker risk put to the stage's owner before the pull request reaches you | Planned (a proposal, two decisions open) | Not planned |
 | 10 | **One config file** | `ck.conf` holds every model id and the core team, in place of `tiers.conf` | Built | Not planned: `tiers.conf` stays |
@@ -80,7 +90,7 @@ Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a 
 | 14 | **CI and Ruff** | The test suite and the lint check on every pull request, and a Run button when a merge is blocked | Built | Partly: CI on main since 2026-10-26; no Ruff |
 | 15 | **Current models** | Opus 5.5 and Sonnet 5.5 for the craft and execution tiers | Built | Done: 0.1.15, with Haiku 5.5 for checkers |
 | 16 | **Pipeline commands that stand alone** | Every pipeline command rebuilt on one shared loop (`pipeline.py`), each used on its own, with no required order and no pipeline table | Built | Not planned |
-| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite | Done for `/ck:start` (0.1.16) and `/ck:do` (0.1.18); other commands not yet |
+| 17 | **Shorter commands and fewer tests** | About 500 words per command, rare branches in a separate file; tests only for real code | Rules, applied in ck2's rewrite | Done for `/ck:start` (0.1.16), `/ck:do` (0.1.18) and the session listing (0.1.21); other commands not yet |
 
 Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `code-katz` marketplace.
 
@@ -92,16 +102,17 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Lanes: the model follows the task, not the persona** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The V2 proposal (2026-10-13) designed lanes and ck2 built them (ck2 features, row 4); they are rebuilt from scratch | A plan's Who column names no model; in d20mob a stage runs its scout, builder and checker on the models one config file gives each lane, and its author on a model chosen for the job, with no per-row ruling |
+| 1 | **The model follows the task, not the persona: lanes or the small release** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The lanes session's test ([revision 5](https://claude.ai/artifact/3NfTciKu6movQW8yN7aDsP)) found lanes lost to one persona session on the model that fits the job, in one run of each stage. By your rule, that makes the small release the build, as 0.1.25 | You choose lanes or the small release; then a plan's Who column names no model, and in d20mob a stage runs on a model chosen for the job with no per-row ruling |
 | 2 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
-| 3 | **Try 0.1.20 in d20mob** | It is on ck-next and no session has loaded it. d20mob needs its team file before its plan rows owned by Reiner, Tracy, Travolta or Piper get cards | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass; then stable moves to `v0.1.20` |
+| 3 | **Try ck-next (0.1.20 to 0.1.24) in d20mob** | ck-next serves 0.1.24 since 2026-11-03, and no restarted d20mob session has used it yet | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, and a lane that runs a gate skill ends with only its finished sentence; then stable moves to `v0.1.24` |
 | 4 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
 | # | Opportunity | User Need | Assumptions to Validate |
 |---|---|---|---|
-| 1 | **The lean review's recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
+| 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
+| 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -115,11 +126,11 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   lanes -> ck-next -> a d20mob phase -> stable
+Now:   try ck-next 0.1.24 in d20mob -> stable
+Next:  your call on lanes -> 0.1.25 (lanes or the small release) -> ck-next -> a d20mob phase -> stable
 Beside: try 0.1.19 in d20mob (already on stable)
-Beside: try 0.1.20 in d20mob -> stable
 2026-11-06: measure d20mob's 400K auto-compact test
-Later: the lean review's recommendations
+Later: template changes reach projects; the lean review's remaining recommendations
 ```
 
 ---
@@ -139,12 +150,30 @@ Later: the lean review's recommendations
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 is on ck-next, untried |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.24 are on ck-next, untried |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-11-03] 0.1.21, 0.1.23 and 0.1.24 shipped; lanes tested; ck-next on 0.1.24
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; Releases; ck2 features, rows 4, 7 and 17; Tier 1 items 1 and 3; Tier 2 items 1 and 2; Recommended Sequencing; OKR
+
+### What Changed
+Releases gains 0.1.21 (short listings and a lighter memory gate, [code-katz/ck#53](https://github.com/code-katz/ck/pull/53)), 0.1.23 (a pull request's own cost, [code-katz/ck#54](https://github.com/code-katz/ck/pull/54)) and 0.1.24 (lane endings, [code-katz/ck#55](https://github.com/code-katz/ck/pull/55)). 0.1.22 was held for lanes and is not released. ck-next serves 0.1.24 and stable stays on 0.1.19. Tier 1 item 1 becomes your call between lanes and the small release, after the lanes test. Item 3 becomes trying all of ck-next in d20mob. Tier 2 gains template changes reaching projects. Outside the repository: the question rule (0.1.14) went into d20mob ([d6veteran/d20mob#365](https://github.com/d6veteran/d20mob/pull/365)) and hireling ([d6veteran/hireling#9](https://github.com/d6veteran/hireling/pull/9)), the finishing rule (0.1.24) went into both ([d6veteran/d20mob#388](https://github.com/d6veteran/d20mob/pull/388), [d6veteran/hireling#24](https://github.com/d6veteran/hireling/pull/24)), and the old team tool was removed, with a copy in `~/claude-team-removed-2026-10-30`.
+
+### Why
+0.1.21 came from the lean review. 0.1.23 fixed cost numbers that were right per session but put on the wrong pull request, with 15 of 31 merges off by more than $1. 0.1.24 came from lanes in d20mob naming the next lane and printing the whole pipeline table, which is the coordinator's job. The question rule was missing in d20mob because the template changed after its section was written and nothing carries a change to a project.
+
+### Open Questions Resolved / Added
+- Resolved: does a lane suggest the next lane? → no; it names what is left in one line and leaves it to the coordinator.
+- Added: lanes or the small release for 0.1.25 (Tier 1 item 1).
+
+---
 
 ## [2026-10-30] Compaction at step boundaries evaluated, not built
 
