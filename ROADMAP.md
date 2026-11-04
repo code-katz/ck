@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-03.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-04.
 
 ---
 
@@ -21,15 +21,16 @@
 - Short listings (0.1.21): what ck adds to every session's listing drops from 2,549 words to 531, and one memory-gate run reads 603 words instead of 3,014.
 - A pull request's own cost (0.1.23): the merge hook charges the sessions that worked on the branch, finds the right pull request (`cd`, `--repo`, a URL), prints one line in the session, and leaves the numbers on the pull request as data.
 - Lane endings (0.1.24): a lane ends with its own finished sentence and leaves the next lane and the next command to the coordinator. d20mob and hireling carry the new "Finishing a session" sentence.
-- Main is at 0.1.24. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.24`. Rollback in a project is two commands.
+- The stage's model (0.1.25): How we work tells a stage session to check its own model before anything else, whoever wrote its brief, and to stop and wait for go when it is on another. Until then the stop came only from the brief, and coordinators that wrote their own briefs left it out.
+- Main is at 0.1.25. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.25`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
-- 0.1.20 to 0.1.24 have not been tried in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- 0.1.20 to 0.1.25 have not been checked in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
-- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand.
-- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03 four installs were set to 0.1.24 by hand.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) is in neither yet.
+- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03 and 2026-11-04 the four main installs were set by hand, to 0.1.24 and then 0.1.25.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
@@ -64,7 +65,8 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.21 | 2026-10-30 | Short listings and a lighter memory gate (lean review R1 and R3) | Tag `v0.1.21` |
 | 0.1.22 | none | Held for lanes, which did not ship | Not released |
 | 0.1.23 | 2026-11-03 | A pull request's own cost, on the right pull request, with one line in the session | Tag `v0.1.23` |
-| 0.1.24 | 2026-11-03 | Lane endings: no pipeline table or next command in a lane; How we work 0.1.24 | Tag `v0.1.24`; **ck-next** |
+| 0.1.24 | 2026-11-03 | Lane endings: no pipeline table or next command in a lane; How we work 0.1.24 | Tag `v0.1.24` |
+| 0.1.25 | 2026-11-04 | The stage's model: a stage session on the wrong model stops and waits, whoever wrote its brief; How we work 0.1.25 | Tag `v0.1.25`; **ck-next** |
 
 ---
 
@@ -102,10 +104,11 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **The model follows the task, not the persona: lanes or the small release** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The lanes session's test ([revision 5](https://claude.ai/artifact/3NfTciKu6movQW8yN7aDsP)) found lanes lost to one persona session on the model that fits the job, in one run of each stage. By your rule, that makes the small release the build, as 0.1.25 | You choose lanes or the small release; then a plan's Who column names no model, and in d20mob a stage runs on a model chosen for the job with no per-row ruling |
+| 1 | **The model follows the task, not the persona: lanes or the small release** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The lanes session's test ([revision 5](https://claude.ai/artifact/3NfTciKu6movQW8yN7aDsP)) found lanes lost to one persona session on the model that fits the job, in one run of each stage. By your rule, that makes the small release the build, as 0.1.26 | You choose lanes or the small release; then a plan's Who column names no model, and in d20mob a stage runs on a model chosen for the job with no per-row ruling |
 | 2 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
-| 3 | **Try ck-next (0.1.20 to 0.1.24) in d20mob** | ck-next serves 0.1.24 since 2026-11-03, and no restarted d20mob session has used it yet | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, and a lane that runs a gate skill ends with only its finished sentence; then stable moves to `v0.1.24` |
+| 3 | **Try ck-next (0.1.20 to 0.1.25) in d20mob** | ck-next serves 0.1.25 since 2026-11-04, and the checks here have not been recorded in a d20mob session | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, and a lane that runs a gate skill ends with only its finished sentence; then stable moves to `v0.1.25` |
 | 4 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
+| 5 | **The stage's model in d20mob and hireling** | Their coordinators write their own briefs. hireling's Phase 2 briefs never carried the model check, and d20mob's A31-P6 coordinator dropped it after its context was compacted on 2026-11-04, so stages opened on a cheaper model and went to work | Each project's How we work has the 0.1.25 bullet, on its own pull request when you say so; then a stage opened on the wrong model stops and waits for go |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -126,8 +129,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   try ck-next 0.1.24 in d20mob -> stable
-Next:  your call on lanes -> 0.1.25 (lanes or the small release) -> ck-next -> a d20mob phase -> stable
+Now:   the stage's model in d20mob and hireling; try ck-next 0.1.25 in d20mob -> stable
+Next:  your call on lanes -> 0.1.26 (lanes or the small release) -> ck-next -> a d20mob phase -> stable
 Beside: try 0.1.19 in d20mob (already on stable)
 2026-11-06: measure d20mob's 400K auto-compact test
 Later: template changes reach projects; the lean review's remaining recommendations
@@ -150,12 +153,30 @@ Later: template changes reach projects; the lean review's remaining recommendati
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.24 are on ck-next, untried |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.25 are on ck-next, untried |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-11-04] 0.1.25 shipped: the stage's model; ck-next on 0.1.25
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; Releases; Tier 1 items 1, 3 and 5; Recommended Sequencing; OKR
+
+### What Changed
+Releases gains 0.1.25 (the stage's model, [code-katz/ck#57](https://github.com/code-katz/ck/pull/57)), tagged `v0.1.25`, and ck-next serves it. Stable stays on 0.1.19. Tier 1 item 1, lanes or the small release, moves to 0.1.26. Tier 1 gains item 5: put the 0.1.25 bullet into d20mob's and hireling's How we work. `claude plugin update` again updated an old d20mob worktree, so the four main installs were set to 0.1.25 by hand.
+
+### Why
+Stage sessions in hireling (since 2026-11-01) and d20mob (since 2026-11-04) opened on a cheaper model than their row's and went straight to work. The stop had lived only in each brief: `plan.py card` writes it, and d20mob's coordinators had written it by habit. hireling's Phase 2 coordinator never did, and d20mob's A31-P6 coordinator dropped it after its context was compacted. Putting the rule in How we work makes it part of every session's `CLAUDE.md`. You want a stage on the wrong model to stop, not to switch itself.
+
+### Open Questions Resolved / Added
+- Resolved: what makes a stage on the wrong model stop? → a How we work rule, not the brief alone.
+- Added: none.
+
+---
 
 ## [2026-11-03] 0.1.21, 0.1.23 and 0.1.24 shipped; lanes tested; ck-next on 0.1.24
 
