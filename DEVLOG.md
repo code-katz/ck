@@ -5,6 +5,26 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-04] 0.1.25: the model check in How we work
+
+**Category:** `fix`
+**Tags:** `ck`, `lanes`, `models`, `claude-md`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project changes only when its How we work is updated)
+
+### Summary
+A stage session checked its model only when its brief came from `plan.py card`, which puts the `MODEL_CHECK` paragraph in every card. A coordinator that writes its own briefs leaves it out. hireling's Phase 2 coordinator, started 2026-11-01 from a pasted prompt, did that for 15 stage sessions. A chip cannot open on a dearer model than its coordinator's, so an `[Akira Fable]` stage opened on Sonnet and went straight to work. d20mob's coordinators had always written their own briefs, with a line of their own ("If you are not running on Fable, say so in one line and wait"), so its stages stopped on the wrong model through P6-S3 on 2026-11-03. The A31-P6 coordinator's context was compacted twice early on 2026-11-04, and its briefs from P6-S4 on, and the A31-P7 coordinator's, have no such line: `[A31-P7-S0] [Akira Opus]` opened on Sonnet and started work until Will stopped it. Nothing in ck changed; the stop lived only in each brief, and a coordinator can drop it. Will wants a stage on the wrong model to stop, not to switch itself.
+
+### Detail
+- **"The stage's model" in the How we work template.** New `templates/how-we-work/0.1.25.md`, copied from 0.1.24 with the stamp changed and one bullet added after **Personas, as lanes**: a session whose title starts with an id and a `[{persona} {model}]` tag checks its own model before anything else, whoever wrote its brief. It keeps `MODEL_CHECK`'s behaviour: stop with "This session is on <your model>, and the plan puts this stage on {model}. Pick {model} in the model menu, then say go.", carry on when the User says go, and say so in one line when it cannot tell. The rule is in the project's `CLAUDE.md`, so it reaches the session whatever the brief says.
+- **`MODEL_CHECK` stays in `plan.py` cards.** A project whose How we work is behind still gets the check from the card.
+- `scripts/claude-md.py` takes the newest template as current, so `/ck:claude-md` needs no change. Its tests now read the 0.1.25 template.
+
+### Open
+- Nothing propagates template changes. d20mob and hireling each get the new bullet by hand, on their own pull requests, when Will says so.
+
+---
+
 ## [2026-11-03] 0.1.24: lane endings
 
 **Category:** `fix`
