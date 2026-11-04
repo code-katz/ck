@@ -837,24 +837,65 @@ else fail "the cost table for the fixture session is wrong: $out"; fi
 out=$(cost $CF/s2.jsonl)
 grep -qF '| main | mystery-1 | 10 · ? |' <<<"$out" && grep -qF '**20 · ?**' <<<"$out" && ! grep -qF '$0.00' <<<"$out" \
   && ok "a model the pricing page does not list is priced as ?, never \$0" || fail "an unknown model is not marked ?: $out"
-mkdir -p "$TMP/costbin" "$TMP/costhome"
-printf '%s\n' '#!/bin/sh' 'case "$1 $2" in' \
-  "  \"pr view\") echo '{\"number\": 7, \"state\": \"MERGED\", \"mergeCommit\": {\"oid\": \"abc1234def\"}, \"url\": \"https://github.com/o/r/pull/7\"}' ;;" \
-  "  \"pr comment\") printf '%s\\n' \"\$*\" >> \"$TMP/comments\" ;;" 'esac' > "$TMP/costbin/gh"
+mkdir -p "$TMP/costbin" "$TMP/costhome/.claude/projects/p" "$TMP/sub"
+cat > "$TMP/costbin/gh" <<EOF
+#!/bin/sh
+echo "\$(pwd -P) \$*" >> "$TMP/ghcalls"
+case "\$1 \$2" in
+  "pr view") cat "$TMP/pr.json" ;;
+  "pr comment") printf '%s\n' "\$*" >> "$TMP/comments" ;;
+esac
+EOF
 chmod +x "$TMP/costbin/gh"
+# What gh pr view answers: pull request number, head branch, and how many seconds ago it merged.
+pr() { python3 -c 'import json,sys,time; n,b,age=sys.argv[1],sys.argv[2],int(sys.argv[3]); t=lambda s: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time()-s)); print(json.dumps({"number": int(n), "state": "MERGED", "mergeCommit": {"oid": "abc1234def"}, "url": "https://github.com/o/r/pull/"+n, "headRefName": b, "mergedAt": t(age), "createdAt": t(age+3600)}))' "$@" > "$TMP/pr.json"; }
 cp $CF/s1.jsonl "$TMP/s3.jsonl"; cp -R $CF/s1 "$TMP/s3"
 echo '{"type": "pr-link", "prNumber": 7}' >> "$TMP/s3.jsonl"
-hook() { printf '{"transcript_path": "%s", "cwd": "%s", "tool_input": {"command": "%s"}}' "$1" "$TMP" "$2"; }
+hook() { python3 -c 'import json,sys; print(json.dumps({"transcript_path": sys.argv[1], "cwd": sys.argv[2], "tool_input": {"command": sys.argv[3]}}))' "$1" "$TMP" "$2"; }
+said() { python3 -c 'import json,sys; t=sys.stdin.read().strip(); print(json.loads(t)["systemMessage"] if t else "")'; }
 quiet=$(hook $CF/s1.jsonl "" | cost stop)
-line=$(hook "$TMP/s3.jsonl" "" | cost stop | python3 -c 'import json,sys; print(json.load(sys.stdin)["systemMessage"])' 2>&1)
+line=$(hook "$TMP/s3.jsonl" "" | cost stop | said 2>&1)
 [[ -z "$quiet" && "$line" == "ck cost so far: 2.4M · \$15.10 ("* ]] \
   && ok "the Stop hook is quiet until the session has a pull request, then prints the cost so far" || fail "the Stop hook printed '$quiet' then '$line'"
+pr 7 s3-branch 30
 hook "$TMP/s3.jsonl" "git status" | cost merge
-hook "$TMP/s3.jsonl" "gh pr merge 7 --merge" | cost merge
-hook "$TMP/s3.jsonl" "gh pr merge 7 --merge" | cost merge
+hook "$TMP/s3.jsonl" 'git commit -m "after gh pr merge 7"' | cost merge
+[[ ! -e "$TMP/ghcalls" ]] && ok "a Bash call that does not start gh pr merge, even one that mentions it, runs no gh" || fail "gh ran for a mention: $(cat "$TMP/ghcalls")"
+line=$(hook "$TMP/s3.jsonl" "cd sub && gh pr merge 7 --merge" | cost merge | said)
+hook "$TMP/s3.jsonl" "cd sub && gh pr merge 7 --merge" | cost merge
+[[ "$(head -1 "$TMP/ghcalls")" == "$(cd "$TMP/sub" && pwd -P) pr view 7 --json "* && $(grep -c 'Fixture session cost summary' "$TMP/comments") == 1 \
+  && "$line" == 'ck cost for o/r#7: $15.10 (session total $15.10)' ]] \
+  && ok "after cd and gh pr merge, gh looks up the pull request in that folder, comments once, and the session gets one line" \
+  || fail "cd then merge: gh calls $(head -1 "$TMP/ghcalls"); line '$line'"
+sed 's/"id": "m1"/"id": "m9"/; s/"output_tokens": 100000/"output_tokens": 0/; s/"cache_creation_input_tokens": 1000000/"cache_creation_input_tokens": 0/; s/"ephemeral_1h_input_tokens": 1000000/"ephemeral_1h_input_tokens": 0/' \
+  <(sed -n 2p $CF/s1.jsonl) >> "$TMP/s3.jsonl"
+pr 8 s3-branch 30
+line=$(hook "$TMP/s3.jsonl" 'R=o/r; gh pr merge 8 --repo $R --squash' | cost merge | said)
+grep -q 'pr view 8 --repo o/r --json' "$TMP/ghcalls" && [[ "$line" == 'ck cost for o/r#8: $4.00 (session total $19.10)' ]] \
+  && ok "gh pr merge --repo \$R looks up that repository, and a second merge costs only what the session spent since the first" \
+  || fail "--repo then merge: $(tail -1 "$TMP/ghcalls"); line '$line'"
+pr 9 s3-branch 7200
+out=$(hook "$TMP/s3.jsonl" "gh pr merge 9 --merge" | cost merge)
+[[ -z "$out" && $(grep -c 'cost summary' "$TMP/comments") == 2 ]] && ! grep -q 'pull/9"' "$TMP/costhome/.claude/ck-cost.jsonl" \
+  && ok "a pull request that merged two hours ago gets no comment and no row" || fail "an old merge was charged: '$out'"
+sed -n 2p $CF/s1.jsonl | sed 's/"id": "m1"/"id": "b1"/; s/"output_tokens": 100000/"output_tokens": 0/; s/"cache_creation_input_tokens": 1000000/"cache_creation_input_tokens": 0/; s/"ephemeral_1h_input_tokens": 1000000/"ephemeral_1h_input_tokens": 0/; s/^{/{"gitBranch":"feat",/' > "$TMP/costhome/.claude/projects/p/b1.jsonl"
+echo '{"type": "custom-title", "customTitle": "Builder session"}' >> "$TMP/costhome/.claude/projects/p/b1.jsonl"
+pr 10 feat 30
+line=$(hook "$TMP/s3.jsonl" "gh pr merge https://github.com/o/r/pull/10 --merge" | cost merge | said)
 hist=$(cost history)
-[[ $(grep -c 'Fixture session cost summary' "$TMP/comments" 2>/dev/null) == 1 ]] && grep -qF '| [o/r#7](https://github.com/o/r/pull/7) | abc1234 | Fixture session | 2.4M | $15.10 |' <<<"$hist" \
-  && ok "after gh pr merge the hook posts the table to the pull request once and logs it, and history lists it" || fail "the merge hook: $(grep -c 'cost summary' "$TMP/comments" 2>/dev/null) comments, history: $hist"
+data=$(tail -1 "$TMP/comments" | sed -n 's/.*<!-- ck-cost \(.*\) -->.*/\1/p' | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["cost"], d["builders"][0]["title"], d["merged_by"]["cost"])')
+grep -q 'pr view https://github.com/o/r/pull/10 --json' "$TMP/ghcalls" \
+  && [[ "$line" == 'ck cost for o/r#10: $4.00, built by Builder session. This session: $0.00 since its last merge, $19.10 in total.' ]] \
+  && grep -qF 'Merged by Fixture session, which spent $0.00 since its last merge' "$TMP/comments" && [[ "$data" == '4.0 Builder session 0.0' ]] \
+  && ok "a pull request built in another session is charged to it, the merging session's cost is shown apart, and the comment carries the numbers as data" \
+  || fail "builder: line '$line'; data '$data'"
+grep -qF '| [o/r#7](https://github.com/o/r/pull/7) | abc1234 | Fixture session | $15.10 |  |' <<<"$hist" \
+  && grep -qF '| [o/r#8](https://github.com/o/r/pull/8) | abc1234 | Fixture session | $4.00 |  |' <<<"$hist" \
+  && grep -qF '| [o/r#10](https://github.com/o/r/pull/10) | abc1234 | Builder session | $4.00 | $0.00 |' <<<"$hist" \
+  && grep -qF 'Pull requests: $23.10. Coordination: $0.00.' <<<"$hist" \
+  && ok "history lists each pull request's own cost and the coordination apart, not running totals" || fail "history: $hist"
+[[ "$(cost --current b1 | head -1)" == '**Builder session cost summary**' && "$(cost --current b1 history | head -1)" == '**Merged pull requests**' ]] \
+  && ok "/ck:cost shows the session it is typed in, and history still works" || fail "--current: $(cost --current b1 | head -1)"
 python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("cost.py\" stop" in x["command"] for e in h["Stop"] for x in e["hooks"]); assert any("cost.py\" merge" in x["command"] for e in h["PostToolUse"] for x in e["hooks"])' \
   && grep -qx 'disable-model-invocation: true' skills/cost/SKILL.md \
   && ok "hooks.json runs the cost hooks, and /ck:cost runs only when typed" || fail "the cost hooks or /ck:cost are not wired"

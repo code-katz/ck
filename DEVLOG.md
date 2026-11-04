@@ -5,6 +5,35 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-03] 0.1.23: a pull request's own cost, on the right pull request
+
+**Category:** `fix`
+**Tags:** `ck`, `cost`, `hooks`
+**Risk Level:** `low`
+**Breaking Change:** `no` (old log rows still read; `history` columns change)
+
+### Summary
+An assessment on 2026-11-01 found the 0.1.19 cost numbers right per session but attached to the wrong thing: 15 of 31 merges were off by more than $1. Will approved the fixes on a proof page on 2026-11-03, choosing every recommendation and the deletion of the stray comment.
+
+- **The pull request's cost**, not the session's running total. The sessions that worked on the pull request's branch (found by the `gitBranch` in their transcripts) are charged what they spent since their previous row in the log. A session that only merged it is shown apart, and is charged only when no session worked on that branch. In a replay of the 31 merges, hireling#13 goes from $17.65 to $60.77 and d20mob#364 from $27.61 to $2.62.
+- **The right pull request.** The hook follows a `cd` before the merge, reads `--repo` and `-R` (including a `$R` set in the same command), and accepts a URL. It does nothing unless the pull request merged in the last 10 minutes, so a wrong lookup can miss but not comment on an old pull request. Only `gh pr merge` where a command starts counts; a mention runs no `gh`. This fixes the $30.62 table posted on code-katz/ck#10 for claude-plugins#10, and the two missed merges, d20mob#365 and hireling#9.
+- **In the session:** one line after the merge, such as "ck cost for o/r#8: $4.00 (session total $19.10)". A coordinator's line names the builder and gives its own cost since its last merge. Will chose one line over the table because a hook's message in Claude Code puts a "PostToolUse:Bash says:" prefix on every line, which breaks a table.
+- **On the pull request:** the headline, the builder's table, and a hidden `<!-- ck-cost {...} -->` line with the numbers as data, so a repository keeps its own cost history (Will's ask).
+- **Each log row** also records the ck version, the first request's prompt size, and the number of requests, so a later release can be compared on what it changed. Comparing pull request dollars would need about 900 pull requests per version to see a 20% saving.
+- **`/ck:cost history`** lists each pull request's cost and the coordination apart, with the total, and what sessions spent after their last merge (12% of spend in the assessment).
+- **`/ck:cost`** shows the session it is typed in (`${CLAUDE_SESSION_ID}`), not the most recently written transcript in the repository.
+
+### Outside the repository
+- `~/.claude/ck-cost.jsonl` was rebuilt into the new rows from the transcripts (45 pull requests, 53 rows), with a copy in `ck-cost.jsonl.bak-2026-11-03`.
+- The stray comment on code-katz/ck#10 was deleted with Will's word.
+
+### Open
+- How the desktop app draws a message from a PostToolUse hook was not seen: a test hook in a worktree's local settings did not fire in a desktop session. The Stop hook's line is recorded the same way. The first real merge on 0.1.23 shows it.
+- The cost after a pull request merges counts toward that session's next merge, or appears in `history`'s after-merge line.
+- The 28 tables posted before 0.1.23 show session totals and stay as they are.
+
+---
+
 ## [2026-10-30] 0.1.21: short listings and a lighter memory gate
 
 **Category:** `refactor`

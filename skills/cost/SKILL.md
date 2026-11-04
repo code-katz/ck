@@ -8,7 +8,7 @@ argument-hint: "[history | <session id>]"
 Run this exact command from the folder Claude Code was opened in, and nothing else:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/cost.py" $ARGUMENTS
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/cost.py" --current "${CLAUDE_SESSION_ID}" $ARGUMENTS
 ```
 
 Show what it printed, exactly as printed, as Markdown, with nothing before or after it. If it printed an error, show that line and stop.
