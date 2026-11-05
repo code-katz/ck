@@ -5,6 +5,26 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-05] 0.1.26: the drawing's link in How we work
+
+**Category:** `fix`
+**Tags:** `ck`, `drawings`, `claude-md`, `kai`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project changes only when its How we work is updated)
+
+### Summary
+In d20mob's drawing lane `[A31-P7-S1] [Kai Opus] The tale, drawn`, the session kept sending pictures of mockup 38 and no link to the page, and Will had to ask for the HTML link again and again. Nothing in ck asked for one: "Drawings first" said only to show the frames early, Kai's skill said to screenshot a mockup before showing it, and a d20mob memory told sessions to send a picture. Will wants the link every time.
+
+### Detail
+- **The link in "Drawings first".** New `templates/how-we-work/0.1.26.md`, copied from 0.1.25 with the stamp changed and one rule added to **Drawings first**: every message that shows or changes a drawing gives the page's link with the picture, every time, without being asked, as a clickable markdown link to the file (`file:///...`), which opens in the User's browser at any time. A `localhost` address is used only when a page has to be served, and the message then says it works only while that session's server runs.
+- **The same line in Kai's skill.** Kai's Mockup QA Loop (`profiles/kai.md`, regenerated into `skills/kai/SKILL.md` and `agents/kai.md`) said to screenshot a mockup and show it, with no link; it now carries the rule. A `git grep` across `skills/` found no other place that shows a drawing without a link: `/ck:do`'s draw step and `/ck:design`'s gallery already give one.
+- `scripts/claude-md.py` takes the newest template as current, so `/ck:claude-md` needs no change. Its tests now read the 0.1.26 template.
+
+### Open
+- Nothing propagates template changes. d20mob and hireling each take the new rule with `/ck:claude-md`, on their own pull requests, when Will says so.
+
+---
+
 ## [2026-11-04] 0.1.25: the model check in How we work
 
 **Category:** `fix`
