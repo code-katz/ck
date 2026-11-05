@@ -30,8 +30,8 @@
 - The memory gate has not yet been tried in an interactive session.
 - 0.1.20 to 0.1.26 have not been checked in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
-- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) are in neither yet.
-- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03 and 2026-11-04 the four main installs were set by hand, to 0.1.24 and then 0.1.25.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went into d20mob the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400)); hireling's is open as [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65).
+- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03, 2026-11-04 and 2026-11-05 the main installs were set by hand, to 0.1.24, 0.1.25 and then 0.1.26. On 2026-11-05 it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
@@ -110,7 +110,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | 2 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
 | 3 | **Try ck-next (0.1.20 to 0.1.26) in d20mob** | ck-next serves 0.1.26 since 2026-11-05, and the checks here have not been recorded in a d20mob session | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, and a lane that runs a gate skill ends with only its finished sentence; then stable moves to `v0.1.26` |
 | 4 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
-| 5 | **The stage's model and the drawing's link in d20mob and hireling** | Their coordinators write their own briefs. hireling's Phase 2 briefs never carried the model check, and d20mob's A31-P6 coordinator dropped it after its context was compacted on 2026-11-04, so stages opened on a cheaper model and went to work. d20mob's drawing lane A31-P7-S1 sent pictures of mockup 38 with no link until you asked, several times | Each project takes How we work 0.1.26 with `/ck:claude-md`, on its own pull request when you say so; then a stage opened on the wrong model stops and waits for go, and a drawing comes with its link |
+| 5 | **The stage's model and the drawing's link in d20mob and hireling** | Their coordinators write their own briefs. hireling's Phase 2 briefs never carried the model check, and d20mob's A31-P6 coordinator dropped it after its context was compacted on 2026-11-04, so stages opened on a cheaper model and went to work. d20mob's drawing lane A31-P7-S1 sent pictures of mockup 38 with no link until you asked, several times. d20mob has both rules since 2026-11-05 (#400); hireling's pull request (#65) is open | Each project's How we work is stamped 0.1.26, on its own pull request when you say so (d20mob done; hireling on #65); then a stage opened on the wrong model stops and waits for go, and a drawing comes with its link |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -131,7 +131,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   How we work 0.1.26 in d20mob and hireling; try ck-next 0.1.26 in d20mob -> stable
+Now:   How we work 0.1.26 in hireling (#65); try ck-next 0.1.26 in d20mob -> stable
 Next:  your call on lanes -> 0.1.27 (lanes or the small release) -> ck-next -> a d20mob phase -> stable
 Beside: try 0.1.19 in d20mob (already on stable)
 2026-11-06: measure d20mob's 400K auto-compact test
@@ -161,6 +161,24 @@ Later: template changes reach projects; the lean review's remaining recommendati
 ---
 
 ## Revision History
+
+## [2026-11-05] How we work 0.1.26 in d20mob; the main installs on 0.1.26
+
+**Change Type:** `progress`
+**Triggered by:** `delivery`
+**Items Affected:** What's missing or fragile; Tier 1 item 5; Recommended Sequencing
+
+### What Changed
+d20mob's How we work took the stage's model rule and the drawing's link sentence and is stamped 0.1.26 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400)). hireling's matching pull request, [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65), is open. The main ck, d20mob and hireling installs run ck 0.1.26.
+
+### Why
+Both rules were added by hand on one pull request per project, keeping each project's own wording, rather than with `/ck:claude-md`, which only runs when you type it and rebuilds the whole section through a review page. `claude plugin update` again moved old worktree installs in d20mob and hireling instead of the main folders, so those two main installs were set by hand.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-05] 0.1.26 shipped: the drawing's link; ck-next on 0.1.26
 
