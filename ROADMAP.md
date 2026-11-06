@@ -23,16 +23,17 @@
 - Lane endings (0.1.24): a lane ends with its own finished sentence and leaves the next lane and the next command to the coordinator. d20mob and hireling carry the new "Finishing a session" sentence.
 - The stage's model (0.1.25): How we work tells a stage session to check its own model before anything else, whoever wrote its brief, and to stop and wait for go when it is on another. Until then the stop came only from the brief, and coordinators that wrote their own briefs left it out.
 - The drawing's link (0.1.26): How we work and Kai tell a session that every message showing or changing a drawing gives the page's link with the picture, as a clickable `file:///` link, without being asked. Until then a drawing lane could send only pictures.
-- Main is at 0.1.26. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.26`. Rollback in a project is two commands.
+- The model and effort follow the job (0.1.27): a plan row's Who names a job word (design, build, edit, review, write), and the job, not the persona, sets the stage's model and effort, from one line each in `tiers.conf`: design is Opus 5.5 at high, build, review and write Opus 5.5 at medium, edit Sonnet 5.5 at medium. A row can pin any other point; Fable is pinned only after Opus at high fell short, or for security or concurrency code. Stage chips carry the model and the effort, the stage checks both, and `/ck:cost history` shows cost by model and effort.
+- Main is at 0.1.27. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.27`. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
-- 0.1.20 to 0.1.26 have not been checked in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- 0.1.20 to 0.1.27 have not been checked in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
-- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went into d20mob the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400)); hireling's is open as [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65).
-- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03, 2026-11-04 and 2026-11-05 the main installs were set by hand, to 0.1.24, 0.1.25 and then 0.1.26. On 2026-11-05 it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
-- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went into d20mob the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400)); hireling's is open as [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65). The model and effort rule (How we work 0.1.27) is in neither: until it is, their own rule reads a `[Akira design]` tag's second word as a model, and only the check on ck's own cards covers effort.
+- `claude plugin update` in a repository with worktree installs can update the wrong one; on 2026-11-03, 2026-11-04 and 2026-11-05 the main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26 and then 0.1.27. On 2026-11-05, twice, it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
+- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
 ---
@@ -68,7 +69,8 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.23 | 2026-11-03 | A pull request's own cost, on the right pull request, with one line in the session | Tag `v0.1.23` |
 | 0.1.24 | 2026-11-03 | Lane endings: no pipeline table or next command in a lane; How we work 0.1.24 | Tag `v0.1.24` |
 | 0.1.25 | 2026-11-04 | The stage's model: a stage session on the wrong model stops and waits, whoever wrote its brief; How we work 0.1.25 | Tag `v0.1.25` |
-| 0.1.26 | 2026-11-05 | The drawing's link: every message that shows or changes a drawing gives the page's link with the picture; How we work 0.1.26 | Tag `v0.1.26`; **ck-next** |
+| 0.1.26 | 2026-11-05 | The drawing's link: every message that shows or changes a drawing gives the page's link with the picture; How we work 0.1.26 | Tag `v0.1.26` |
+| 0.1.27 | 2026-11-05 | The model and effort follow the job: five job words in Who, each a model and an effort in `tiers.conf`, pins for any other point, chips with both, cost by model and effort; How we work 0.1.27 | Tag `v0.1.27`; **ck-next** |
 
 ---
 
@@ -81,7 +83,7 @@ Carried forward from the roadmap's revision 3 (2026-10-26). ck2 is abandoned: a 
 | 1 | **A team per project** | `.claude/ck-team.conf` invites or drops personas; `/ck:team` shows and changes it; every session is told who is on the team | Built | Done: 0.1.20, rebuilt and re-scoped; `/ck:noon` and the other switch commands work everywhere, with no warning line |
 | 2 | **`/ck:proof`** | Any file, or a document written from a request, becomes a page you comment on until approved; with the proof loop rules and one document contract for a proposal, an analysis, or a note | Built | Removed: 0.1.13 already makes a proof page for any document |
 | 3 | **Ask the owner first** | Before a judgment question reaches you, the stage's owning persona answers it on its own model, and the session asks with "<Owner> recommends" | Built | Not planned: a stage session already runs as its owner, on the owner's model |
-| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Tested, not built: one persona session on a model chosen for the job wrote more correct code than lanes in one run of each stage; your call, Tier 1 item 1 |
+| 4 | **Lanes for `/ck:do`** | A small task runs in background lanes (builder, checker, reducer, researcher, scout, writer) on its own branch, with a limit on the size of the change | Built | Not built: one persona session on a model chosen for the job wrote more correct code than lanes in one run of each stage, so 0.1.27 sets the model and effort by the job instead |
 | 5 | **`/ck:start` as a phase coordinator** | One session per phase: a card per ready stage, or auto mode for the whole phase, and a hand-over at the phase's end; `plan.py` prints the board, ready stages, and cards | Built | Partly: 0.1.17 puts up a chip per ready stage; no auto mode or phase hand-over |
 | 6 | **`/ck:lean`** | Asks whether a branch's code is as little as it needs to be | Built | Not planned; a one-off lean review was done instead ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)) |
 | 7 | **The cost script** | `cost.py` prices a piece of work from session transcripts, by stage, phase, agent, and model | Built | Done: 0.1.19, `/ck:cost`, rebuilt small; 0.1.23 charges each pull request its own cost |
@@ -106,11 +108,10 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **The model follows the task, not the persona: lanes or the small release** | A stage runs on its owner's tier, so Akira writes on Fable whether the job is a design call or a small edit, and each d20mob plan row needs a ruling to say otherwise. The lanes session's test ([revision 5](https://claude.ai/artifact/3NfTciKu6movQW8yN7aDsP)) found lanes lost to one persona session on the model that fits the job, in one run of each stage. By your rule, that makes the small release the build, as 0.1.27 | You choose lanes or the small release; then a plan's Who column names no model, and in d20mob a stage runs on a model chosen for the job with no per-row ruling |
-| 2 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
-| 3 | **Try ck-next (0.1.20 to 0.1.26) in d20mob** | ck-next serves 0.1.26 since 2026-11-05, and the checks here have not been recorded in a d20mob session | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, and a lane that runs a gate skill ends with only its finished sentence; then stable moves to `v0.1.26` |
-| 4 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
-| 5 | **The stage's model and the drawing's link in d20mob and hireling** | Their coordinators write their own briefs. hireling's Phase 2 briefs never carried the model check, and d20mob's A31-P6 coordinator dropped it after its context was compacted on 2026-11-04, so stages opened on a cheaper model and went to work. d20mob's drawing lane A31-P7-S1 sent pictures of mockup 38 with no link until you asked, several times. d20mob has both rules since 2026-11-05 (#400); hireling's pull request (#65) is open | Each project's How we work is stamped 0.1.26, on its own pull request when you say so (d20mob done; hireling on #65); then a stage opened on the wrong model stops and waits for go, and a drawing comes with its link |
+| 1 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
+| 2 | **Try ck-next (0.1.20 to 0.1.27) in d20mob** | ck-next serves 0.1.27 since 2026-11-05, and the checks here have not been recorded in a d20mob session | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, and a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each; then stable moves to `v0.1.27` |
+| 3 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
+| 4 | **How we work 0.1.27 in d20mob and hireling** | Their coordinators write their own briefs. hireling's Phase 2 briefs never carried the model check, and d20mob's A31-P6 coordinator dropped it after its context was compacted on 2026-11-04, so stages opened on a cheaper model and went to work. d20mob's drawing lane A31-P7-S1 sent pictures of mockup 38 with no link until you asked, several times. d20mob has both rules since 2026-11-05 (#400); hireling's pull request (#65) is open. 0.1.27 names stages by job word and adds effort to the check | Each project's How we work is stamped 0.1.27, on its own pull request when you say so; then a stage opened on the wrong model or effort stops and waits for go, and a drawing comes with its link |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -118,6 +119,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
+| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, as 0.1.28, with its own plan |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -131,8 +133,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   How we work 0.1.26 in hireling (#65); try ck-next 0.1.26 in d20mob -> stable
-Next:  your call on lanes -> 0.1.27 (lanes or the small release) -> ck-next -> a d20mob phase -> stable
+Now:   How we work 0.1.27 in d20mob and hireling; a d20mob phase on ck-next 0.1.27 (0.1.20 to 0.1.27) -> stable
+Next:  0.1.28, a release in one command, with its own plan
 Beside: try 0.1.19 in d20mob (already on stable)
 2026-11-06: measure d20mob's 400K auto-compact test
 Later: template changes reach projects; the lean review's remaining recommendations
@@ -144,8 +146,7 @@ Later: template changes reach projects; the lean review's remaining recommendati
 
 1. Is the install drill on Clare's machine still wanted?
 2. What happens to the ck2 repository: archive it on GitHub, or leave it as it is?
-3. Is effort set per lane as well as the model, and where is it set?
-4. Why does idle compaction never fire in the sessions the evaluation measured, and should it be reported to Anthropic?
+3. Why does idle compaction never fire in the sessions the evaluation measured, and should it be reported to Anthropic?
 
 ---
 
@@ -155,12 +156,30 @@ Later: template changes reach projects; the lean review's remaining recommendati
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.26 are on ck-next, untried |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.27 are on ck-next, untried |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-11-05] 0.1.27 shipped: the model and effort follow the job; ck-next on 0.1.27
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; Releases; ck2 features row 4; Tier 1 (item 1 done, the rest renumbered, items 2 and 4 widened); Tier 2 item 3 added; Recommended Sequencing; Open Questions; OKR
+
+### What Changed
+Releases gains 0.1.27 (the model and effort follow the job, [code-katz/ck#62](https://github.com/code-katz/ck/pull/62)), tagged `v0.1.27`, and ck-next serves it. Stable stays on 0.1.19. Tier 1 item 1, lanes or the small release, is done as the small release and leaves the list; the others move up one. Trying ck-next in d20mob now covers 0.1.27's job words and cost by point, and the How we work item now asks for 0.1.27. Tier 2 gains a release in one command, the next release on the releases page.
+
+### Why
+You approved D1 on 2026-11-05: build 0.1.27 as F1 alone, from the [releases page](https://claude.ai/artifact/QkUUNvaGtBUZiZVHoCmUr6) and the [effort evidence](https://claude.ai/artifact/8PaMAB8pArBfdY9Qo1rQd5). 45% of your spend ran on Fable and 62% at `xhigh`, and Opus 5.5 at medium matched Fable 5.1 at high on coding for about a fifth of the cost per solved task. Auto mode refused the tag and the release, so you ran them, and `claude plugin update` again moved old worktree installs in d20mob and hireling, so those main installs were set by hand.
+
+### Open Questions Resolved / Added
+- Resolved: is effort set per lane as well as the model, and where is it set? -> per job word, one `job` line each in `tiers.conf`, with any other point pinned in the row.
+- Added: none.
+
+---
 
 ## [2026-11-05] How we work 0.1.26 in d20mob; the main installs on 0.1.26
 
