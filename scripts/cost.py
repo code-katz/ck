@@ -118,8 +118,10 @@ def add(row, t, dollars):
 
 
 def read(transcript, prices):
-    """{(lane, model): {kind: [tokens, dollars or None]}}, the title, Claude Code's record, the pull request link."""
+    """{(lane, model): {kind: [tokens, dollars or None]}}, the title, Claude Code's record, the pull request link, and
+    {"<model> <effort>": [tokens, dollars or None]} over the transcripts' replies, by the effort each one ran at."""
     rows = defaultdict(lambda: {k: [0, 0.0] for k in KINDS})
+    points = defaultdict(lambda: {k: [0, 0.0] for k in KINDS})
     names, state, pr, seen = {}, None, None, set()
     base = Path(transcript)
     files = [(base, "main")]
@@ -138,19 +140,21 @@ def read(transcript, prices):
                 continue
             kind = d.get("type")
             if kind == "assistant" and isinstance(d.get("message"), dict):
-                last[d["message"].get("id") or id(d)] = d["message"]
+                last[d["message"].get("id") or id(d)] = d["message"], d.get("effort")
             elif lane == "main" and kind in ("custom-title", "ai-title"):
                 names[kind] = d.get("customTitle") or d.get("aiTitle") or names.get(kind)
             elif lane == "main" and kind == "cost-state":
                 state = d
             elif lane == "main" and kind == "pr-link":
                 pr = d
-        for key, m in last.items():
+        for key, (m, effort) in last.items():
             if key in seen or not isinstance(m.get("usage"), dict) or m.get("model") == "<synthetic>":
                 continue
             seen.add(key)
             t = tokens(m["usage"])
-            add(rows[(lane, m.get("model"))], t, priced(prices, m.get("model"), t))
+            dollars = priced(prices, m.get("model"), t)
+            add(rows[(lane, m.get("model"))], t, dollars)
+            add(points[" ".join(filter(None, (short(m.get("model")), effort)))], t, dollars)
     for model, v in ((state or {}).get("modelUsage") or {}).items():
         mine = combine(r for (_, mo), r in list(rows.items()) if mo == model)
         extra = {k: max(0, (v.get(f) or 0) - mine[k][0]) for k, f in zip(KINDS, FIELDS)}
@@ -165,7 +169,7 @@ def read(transcript, prices):
                 d["write"] = min(max(rest, d["write"]), hi)
             add(rows[("background", model)], t, d)
     title = names.get("custom-title") or names.get("ai-title") or "Session " + base.stem[:8]
-    return rows, title, state, pr
+    return rows, title, state, pr, {p: list(total(r)) for p, r in points.items()}
 
 
 def combine(rows):
@@ -207,7 +211,7 @@ def short(model):
 
 
 def table(session, prices, source):
-    rows, title, state, _ = session
+    rows, title, state = session[:3]
     out = [f"**{title} cost summary**", "", "| Lane | Model " + HEAD, "|---|---|--:|--:|--:|--:|--:|"]
     for lane, model in sorted(rows, key=lambda r: (r[0] != "main", r[0] == "background", r[0], r[1] or "")):
         r = rows[(lane, model)]
@@ -239,7 +243,7 @@ def newest(cwd):
 
 
 def stop(hook, prices, source):
-    rows, _, _, pr = read(hook["transcript_path"], prices)
+    rows, _, _, pr, _ = read(hook["transcript_path"], prices)
     if not pr:
         return
     models = {m: total(combine(r for (_, mo), r in rows.items() if mo == m)) for _, m in rows}
@@ -347,7 +351,7 @@ def version():
 
 def charge(path, prices, log):
     """One session's totals now, and what it spent since its previous row in the log."""
-    rows, title, state, pr = read(path, prices)
+    rows, title, state, pr, points = read(path, prices)
     whole = combine(rows.values())
     n, d = total(whole)
     prev = next((e for e in reversed(log) if e.get("session") == Path(path).stem), None)
@@ -356,7 +360,8 @@ def charge(path, prices, log):
     return {"session": Path(path).stem, "title": title, "tokens": n, "dollars": d,
             "cost_tokens": n - (prev.get("tokens") or 0) if prev else n,
             "cost": minus(d, prev.get("dollars")) if prev else d,
-            "by_kind": {k: whole[k] for k in KINDS}, "by_model": models, "opening": opening, "requests": requests,
+            "by_kind": {k: whole[k] for k in KINDS}, "by_model": models, "by_point": points,
+            "opening": opening, "requests": requests,
             "table": (rows, title, state, pr)}
 
 
@@ -387,7 +392,8 @@ def merge(hook, prices, source):
         body += ["", table(b["table"], prices, source)]
         if b["cost"] != b["dollars"]:
             body.append(f"The table is the whole session; {money(b['cost'])} of it came after its previous merge.")
-    keep = ("session", "title", "cost", "cost_tokens", "dollars", "tokens", "by_kind", "by_model", "opening", "requests")
+    keep = ("session", "title", "cost", "cost_tokens", "dollars", "tokens", "by_kind", "by_model", "by_point", "opening",
+            "requests")
     data = {"pr": name, "url": info["url"], "commit": commit, "merged_at": info.get("mergedAt"), "cost": cost,
             "tokens": sum(b["cost_tokens"] for b in built), "ck": version(),
             "builders": [{k: b[k] for k in keep} for b in built], "merged_by": merged and {k: merged[k] for k in keep}}
@@ -400,7 +406,8 @@ def merge(hook, prices, source):
         for role, s in [("built", b) for b in built] + ([("merged", merged)] if merged else []):
             f.write(json.dumps({"date": time.strftime("%Y-%m-%d"), "url": info["url"], "commit": commit, "session": s["session"],
                                 "title": s["title"], "tokens": s["tokens"], "dollars": s["dollars"], "role": role,
-                                "ck": data["ck"], "opening": s["opening"], "requests": s["requests"]}) + "\n")
+                                "ck": data["ck"], "opening": s["opening"], "requests": s["requests"],
+                                "by_point": s["by_point"]}) + "\n")
 
     if merged:
         line = (f"ck cost for {name}: {money(cost)}, built by {', '.join(b['title'] for b in built)}. "
@@ -415,12 +422,17 @@ def merge(hook, prices, source):
 def history():
     """One row per pull request: its cost, and the merging session's when another session built it. A row in the log
     holds a session's running total, so each cost is that row minus the session's row before it."""
-    log, last, prs = entries(), {}, {}
+    log, last, prs, points = entries(), {}, {}, defaultdict(float)
     for e in log:
         if not e.get("url") or not e.get("session"):
             continue
         prev = last.get(e["session"])
         spent = minus(e.get("dollars"), prev.get("dollars")) if prev else e.get("dollars")
+        if e.get("role", "built") == "built" and "by_point" in e:
+            # A row holds running totals, so a point's cost is this row's figure less the session's previous one.
+            before = (prev or {}).get("by_point") or {}
+            for p, (_, d) in e["by_point"].items():
+                points[p] = plus([points[p], minus(d, (before.get(p) or [0, 0.0])[1])])
         last[e["session"]] = e
         p = prs.setdefault(e["url"], {"date": e.get("date"), "commit": e.get("commit"), "by": [], "cost": 0.0, "coord": None})
         if e.get("role", "built") == "built":
@@ -437,6 +449,9 @@ def history():
                    + ("" if p["coord"] is None else money(p["coord"])) + " |")
     built, coord = plus(p["cost"] for p in prs.values()), plus(p["coord"] for p in prs.values() if p["coord"] is not None)
     out += ["", f"Pull requests: {money(built)}. Coordination: {money(coord)}."]
+    if points:
+        out += ["", "**Pull requests by model and effort**, from ck 0.1.27 on", "", "| Model and effort | Cost |", "|---|--:|"]
+        out += [f"| {p} | {money(d)} |" for p, d in sorted(points.items(), key=lambda i: -(i[1] or 0))]
     prices, _ = pricing()
     after, sessions = 0.0, 0
     for s, e in last.items():

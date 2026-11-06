@@ -5,6 +5,31 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-05] 0.1.27: the model and effort follow the job
+
+**Category:** `feature`
+**Tags:** `ck`, `plan`, `start`, `tiers`, `effort`, `cost`, `claude-md`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a Who cell in the older form is still read, by its model's tier)
+
+### Summary
+F1 of the releases page after 0.1.24, approved by Will as D1 on 2026-11-05. A stage ran on its owner's tier, so Akira worked on Fable whether the job was a design call or a rename, every stage inherited its coordinator's effort, and Will ruled on d20mob rows by hand. 45% of his spend ran on Fable and 62% at `xhigh`. The lanes test found one persona on the model that fits the job wrote better code in five of six blind verdicts, and the effort evidence (Anthropic's SWE-bench Pro runs, cost per solved task) set the point each kind of job runs at.
+
+### Detail
+- **Job words.** Who reads `<Persona>, <job>`, one of `design` (Opus 5.5 at high), `build`, `review` and `write` (Opus at medium) and `edit` (Sonnet 5.5 at medium). Each is a `job` line in `tiers.conf`, so moving a job to another point is one line. `<Persona>, <job>, <Model> <effort>` pins any other point on the four-model, five-effort grid. The persona lines stay for `/ck:do`, the workflows and `/ck:panel`.
+- **Older plans.** `<Persona>, <Model>` is read by its tier: Fable as `design`, Opus as `build`, Sonnet or Haiku as `edit`. `plan.py check` adds one note line saying how many rows give that form. No plan file is rewritten.
+- **The card.** `plan.py card` names the session `[P2-S4] [Akira design] <title>`, prints `job`, the model's id and `effort`, and the model check now covers both. A build card carries Will's goal line, "As much coded as necessary, as little code as possible." `rows` and `ready` print the point, such as `Opus high`, where they printed the model word.
+- **Opening and checking a stage.** `/ck:start` passes `model` and `effort` on the chip. A chip cannot open above its coordinator on either axis; when the point is above, the coordinator says so and the stage's own check stops it. A session reads its own effort with `get_session` and `self`, checked in this build. The board's refresh sets a running stage's effort as well as its model.
+- **The Fable rule.** The plan contract and the draft workflow pin `Fable high` only for a stage that Opus at high has already fallen short on, or, on trial, for security or concurrency code, and never `xhigh` or `max` unless the author asks.
+- **How we work 0.1.27.** The session title's tag is `[{persona} {job}]`, and "The stage's model" becomes "The stage's model and effort", with the five points in words for a brief that names none.
+- **Cost by point.** `cost.py` keeps each reply's effort, logs the cost by model and effort with each pull request, and `/ck:cost history` adds a table of cost per point for pull requests merged from 0.1.27 on.
+
+### Open
+- d20mob and hireling take How we work 0.1.27 with `/ck:claude-md`, on their own pull requests, when Will says so. Until then their own rule reads the tag's second word as a model; the card's check covers ck's cards.
+- Left for later: re-running a failed build stage at high, moving the six Fable personas in `tiers.conf`, and job words in `/ck:do`.
+
+---
+
 ## [2026-11-05] 0.1.26: the drawing's link in How we work
 
 **Category:** `fix`

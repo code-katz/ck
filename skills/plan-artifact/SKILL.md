@@ -46,8 +46,8 @@ One `### Phase <n>. <name>` heading per phase, numbered in order from 0 or from 
 ```
 | Stage | What | Who | State |
 |---|---|---|---|
-| P2-S0 | The accounts screens, drawn in three versions for you to pick | Kai, Opus | not started; could start now |
-| P2-S1 | The accounts screens, built from the one you picked | Sasha, Sonnet | not started; follows S0 |
+| P2-S0 | The accounts screens, drawn in three versions for you to pick | Kai, design | not started; could start now |
+| P2-S1 | The accounts screens, built from the one you picked | Sasha, build | not started; follows S0 |
 ```
 
 3. One line, `Ends when: <something the author can judge for themselves>`.
@@ -56,7 +56,14 @@ The columns:
 
 - **Stage** is `P<phase>-S<stage>`. Stages are numbered from 0 within their phase, in order, with no gaps. Once a plan is approved a stage keeps its id: a stage that is added or split off later takes the next free number, at the end of its phase's table, and its Follows says where it sits in the order of work. In an item plan a stage's full id puts the item first, `A31-P2-S0`; the table still shows `P2-S0`.
 - **What** is the job in one plain phrase, with no file names.
-- **Who** is one owner: `<Persona>, <Model>` with a persona from the roster and one of `Fable`, `Opus`, `Sonnet`, `Haiku`; or `You`, for a job that is the author's own (a decision, a seat to fill, a pick on a page); or `Open`, when nobody on the roster or the team document can own it yet. The model is the persona's own tier unless the author chose another for this job.
+- **Who** is one owner: `<Persona>, <job>`, with a persona from the roster and one of five job words; or `You`, for a job that is the author's own (a decision, a seat to fill, a pick on a page); or `Open`, when nobody on the roster or the team document can own it yet. The job word, not the persona, sets the stage's model and effort, from its line in ck's `tiers.conf`:
+  - `design`, Opus at high effort: a design or research call, long reasoning across many files, a hard bug.
+  - `build`, Opus at medium: implementation with an approach to decide, such as a migration.
+  - `edit`, Sonnet at medium: a small or mechanical change, such as plain HTML, moving tests, or a rename.
+  - `review`, Opus at medium: reading a change or a plan for faults.
+  - `write`, Opus at medium: a document, a page, copy.
+
+  To run a stage at another point, pin it after the job: `<Persona>, <job>, <Model> <effort>`, with a model of `Fable`, `Opus`, `Sonnet`, or `Haiku` and an effort of `low`, `medium`, `high`, `xhigh`, or `max`, such as `Akira, design, Fable high`. Pin Fable only for a stage that Opus at high has already fallen short on, or, on trial, for security or concurrency code; pin `xhigh` or `max` only when the author asks. A Who cell in the older form, `<Persona>, <Model>`, is read by its tier: Fable as `design`, Opus as `build`, Sonnet or Haiku as `edit`.
 - **State** is one of four, in these exact words:
   - `done`, or `done (<pull request number>)`
   - `running in its session`
@@ -81,7 +88,7 @@ One entry per row, in the table's order, and no entry without a row:
 - Hands back: a draft pull request
 ```
 
-- The title after the id names the session: `[P2-S1] [Sasha Sonnet] Build the accounts screens`, or `[A31-P2-S1] [...]` in an item plan. That whole name must be 59 characters or fewer, so keep the title short. A fix to a stage that is done runs in a session of its own, named with ` fix` after the stage's id, the stage's owner, and a title for the fix: `[A31-P1-S5 fix] [Akira Fable] Mend the scan's natural 1`. It has no row and changes no State.
+- The title after the id names the session: `[P2-S1] [Sasha build] Build the accounts screens`, or `[A31-P2-S1] [...]` in an item plan. That whole name must be 59 characters or fewer, so keep the title short. A fix to a stage that is done runs in a session of its own, named with ` fix` after the stage's id, the stage's owner, and a title for the fix: `[A31-P1-S5 fix] [Akira design] Mend the scan's natural 1`. It has no row and changes no State.
 - **Kind** is one of: `build` (changes the product and its tests), `drawing` (mockups only, no product code), `words` (one text file, no code), `tests` (tests only, no product code), `check` (changes nothing and reports), `design round` (the author types `/ck:design <feature>`; no session is opened for it), `yours` (a row whose owner is `You`).
 - **Does** is two sentences at most.
 - **Files** is what the session may change, by folder or file, or `none`.

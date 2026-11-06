@@ -12,6 +12,10 @@ Usage:
   plan.py board FILE [--all]
   plan.py card FILE ID [--fix TEXT --title TITLE] [--plugin-root DIR] [--roster PATH]
 
+A Who cell is You, Open, or <Persona>, <job>: one of the job words in tiers.conf, each a model and an
+effort. <Persona>, <job>, <Model> <effort> pins another point. A cell in the older form, <Persona>,
+<Model>, is read as the job of that model's tier: Fable as design, Opus as build, Sonnet or Haiku as edit.
+
 Standard library only. Output goes to stdout. A usage error, an unreadable file, or a file
 that is not a staged plan is one plain line on stderr and exit status 2, never a traceback.
 A command that will not do what was asked of a plan it can read (a row it cannot write, a
@@ -42,9 +46,12 @@ LABELS = ['Kind', 'Does', 'Files', 'Reads', 'Follows', 'Done when', 'Hands back'
 REQUIRED = LABELS[:7]
 KINDS = ['build', 'drawing', 'words', 'tests', 'check', 'design round', 'yours']
 MODELS = ['Fable', 'Opus', 'Sonnet', 'Haiku']
+EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
+OLD_JOB = {'Fable': 'design', 'Opus': 'build', 'Sonnet': 'edit', 'Haiku': 'edit'}   # the older Who form
 NAME_LIMIT = 59
 WORD_LIMIT = 3500
 ROSTER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'profiles', 'ROSTER.md')
+TIERS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tiers.conf')
 
 
 def off_team(path):
@@ -68,7 +75,8 @@ STAGE_RE = re.compile('P' + N + '-S' + N)                  # a Stage cell
 REF_RE = re.compile('(?:P' + N + '-)?S' + N)               # S1 or P1-S3, as the contract writes them
 ID_RE = re.compile('(?:(.+)-)?P' + N + '-S' + N, re.I)     # P2-S1 or A31-P2-S1, typed by a caller
 SEP_RE = re.compile(r',\s*and\b|,|\band\b')               # between the names of a list
-WHO_RE = re.compile(r'([^,\s][^,]*), (' + '|'.join(MODELS) + ')')
+WHO_RE = re.compile(r'([^,\s][^,]*), (?:([a-z]+)(?:, (%s) (%s))?|(%s))'
+                    % ('|'.join(MODELS), '|'.join(EFFORTS), '|'.join(MODELS)))
 DONE_RE = re.compile(r'done(?: \(([0-9]+)\))?')            # the number is the stage's pull request
 APPROVED_RE = re.compile('approved [0-9]{4}-[0-9]{2}-[0-9]{2}')
 STRAY_RE = re.compile('[\ud800-\udfff]')                   # a byte the command line could not read as text
@@ -88,13 +96,16 @@ KIND_LINE = {
     'tests': 'This is a tests stage: tests only, and no change to product code.',
     'check': 'This is a check stage: you change nothing, and you report what you find.',
 }
-# One paragraph of every card's prompt. No tool can choose a new session's model before its first
-# turn, so the session is told which model its stage is planned for and checks for itself.
-MODEL_CHECK = ('Before anything else, check your own model. This stage is planned for %(model)s. If you can tell '
-               'that your model is not one of the %(model)s models, do no work: say "This session is on <your model>, and the plan '
-               'puts this stage on %(model)s. Pick %(model)s in the model menu, then say go." and stop. When the '
-               'author then says go, carry on, on whatever model you are then. If you cannot tell which model you '
-               'are, say so in one line and carry on.')
+# One paragraph of every card's prompt. A chip cannot open above its coordinator's model or effort,
+# so the session is told the point its stage is planned for and checks for itself.
+MODEL_CHECK = ('Before anything else, check your own model and effort. This stage is planned for %(model)s at '
+               '%(effort)s effort. If you can tell that your model is not one of the %(model)s models, or that your '
+               'effort is not %(effort)s, do no work: say "This session is on <your model> at <your effort> effort, '
+               'and the plan puts this stage on %(model)s at %(effort)s. Pick them in the model menu, then say go." '
+               'and stop. When the author then says go, carry on, on whatever model and effort you are then. If you '
+               'cannot tell your model or your effort, say so in one line and carry on.')
+# A build card's line after its stage line: the author's own goal, aimed at over-building.
+GOAL = 'As much coded as necessary, as little code as possible.'
 USAGE = {
     'find': 'find [ID] [--root DIR]',
     'check': 'check FILE [--roster PATH]',
@@ -148,9 +159,40 @@ def is_rule(line):
 
 
 def who_parts(who):
-    """(persona, model) for a Who cell written <Persona>, <Model>; None for anything else."""
+    """(persona, job, pinned model or None, pinned effort or None, True for the older form) for a Who cell
+    written <Persona>, <job>[, <Model> <effort>] or <Persona>, <Model>; None for anything else. The job word
+    is checked against tiers.conf by check and card, not here."""
     m = WHO_RE.fullmatch(who)
-    return (m.group(1), m.group(2)) if m and m.group(1) == m.group(1).strip() else None
+    if not m or m.group(1) != m.group(1).strip():
+        return None
+    if m.group(5):
+        return m.group(1), OLD_JOB[m.group(5)], None, None, True
+    return m.group(1), m.group(2), m.group(3), m.group(4), False
+
+
+def read_tiers(path=TIERS):
+    """({job: (model word, effort)}, {model word: model id}) from tiers.conf; empty when it is not there."""
+    jobs, ids = {}, {}
+    if os.path.isfile(path):
+        for line in read_text(path).split('\n'):
+            parts = line.split()
+            model = next((p for p in parts if p.startswith('claude-')), None)
+            word = next((w for w in MODELS if model and w.lower() in model), None)
+            if word:
+                ids.setdefault(word, model)
+            if len(parts) == 4 and parts[0] == 'job' and word and parts[3] in EFFORTS:
+                jobs[parts[1]] = (word, parts[3])
+    return jobs, ids
+
+
+def point(who, jobs):
+    """(model word, effort) a Who cell's stage runs at, or None when its job is not in tiers.conf."""
+    parts = who_parts(who)
+    if not parts:
+        return None
+    if parts[2]:
+        return parts[2], parts[3]
+    return jobs.get(parts[1])
 
 
 # ---------------------------------------------------------------- reading the plan
@@ -198,11 +240,14 @@ class Row:
 
     @property
     def owner(self):
-        """(owner, model): You, Open, or the persona as written, and the model or None."""
+        """(owner, job): You, Open, or the persona as written, and its job word or None."""
         if self.who in ('You', 'Open'):
             return self.who, None
-        name, _, model = self.who.partition(',')
-        return name.strip(), model.strip() or None
+        parts = who_parts(self.who)
+        if parts:
+            return parts[0], parts[1]
+        name, _, rest = self.who.partition(',')
+        return name.strip(), rest.strip() or None
 
 
 class Entry:
@@ -449,6 +494,10 @@ def join_list(names):
     return ', '.join(names[:-1]) + ' and ' + names[-1] if len(names) > 1 else ''.join(names)
 
 
+def either(names):
+    return ', '.join(names[:-1]) + ' or ' + names[-1]
+
+
 def read_text(path):
     try:
         with open(path, 'rb') as handle:
@@ -589,13 +638,18 @@ def check_rows(plan, roster, say):
         if count[key] > 1:
             say('%s appears %d times in the stage tables.' % (plan.shown(key), count[key]))
     # 5. Owners.
+    jobs = read_tiers()[0]
     for row in plan.rows:
         who = who_parts(row.who)
         if row.who in ('You', 'Open') or not row.sound:
             continue
         if not who:
-            say('%s: Who is "%s", which is not You, Open, or <Persona>, <Model> with a model of %s.'
-                % (tag(row), row.who, ', '.join(MODELS[:3]) + ', or ' + MODELS[3]))
+            say('%s: Who is "%s", which is not You, Open, or <Persona>, <job> with a job of %s, '
+                'and after it, if pinned, a model of %s and an effort of %s.'
+                % (tag(row), row.who, either(sorted(jobs) or ['design']),
+                   either(MODELS), either(EFFORTS)))
+        elif who[1] not in jobs:
+            say('%s: Who is "%s", and %s is not a job word in tiers.conf.' % (tag(row), row.who, who[1]))
         elif roster is not None and who[0].lower() not in roster:
             say('%s: the persona %s is not on the roster.' % (tag(row), who[0]))
 
@@ -744,14 +798,24 @@ def cmd_check(args, opts):
         if who and outside(who[0]):
             lines.append('note: %s: %s is not on this project\'s team; /ck:team invite %s adds them'
                          % (tag(row), who[0], who[0].lower()))
+    old = [row for row in plan.rows if row.sound and (who_parts(row.who) or (0,) * 5)[4]]
+    if old:
+        lines.append('note: %d %s the older Who form, <Persona>, <Model>, read by its tier: Fable as design, Opus as '
+                     'build, Sonnet or Haiku as edit' % (len(old), 'row gives' if len(old) == 1 else 'rows give'))
     if roster is None:
         lines.append('roster: not found, names not checked')
     return status, lines + ['words: %d' % plan.words]
 
 
+def shown_point(row, jobs):
+    """The point a row runs at, as `Opus high`, or None."""
+    at = point(row.who, jobs)
+    return ' '.join(at) if at else None
+
+
 def cmd_rows(args, opts):
-    plan = load(args[0])
-    return 0, [tabbed([plan.full_id(row), row.stage, row.owner[0], row.owner[1],
+    plan, jobs = load(args[0]), read_tiers()[0]
+    return 0, [tabbed([plan.full_id(row), row.stage, row.owner[0], shown_point(row, jobs),
                        row.entry.fields.get('Kind') if row.entry else None,
                        # A State that is none of the four forms is not started and never ready.
                        'not started' if row.progress == 'unknown' else row.progress,
@@ -760,8 +824,9 @@ def cmd_rows(args, opts):
 
 
 def cmd_ready(args, opts):
-    plan = load(args[0])
-    return 0, [tabbed([plan.full_id(row), row.owner[0], row.owner[1], row.entry.fields.get('Kind'), row.entry.title])
+    plan, jobs = load(args[0]), read_tiers()[0]
+    return 0, [tabbed([plan.full_id(row), row.owner[0], shown_point(row, jobs), row.entry.fields.get('Kind'),
+                       row.entry.title])
                for row in plan.rows if plan.ready(row)]          # a ready row always has its entry
 
 
@@ -901,7 +966,13 @@ def cmd_card(args, opts):
     if entry is None:
         return 1, ['%s has no entry under Stage by stage' % full]
     if not who_parts(row.who):
-        return 1, ['%s has no persona and model the plan allows: %s' % (full, row.who)]
+        return 1, ['%s has no persona and job the plan allows: %s' % (full, row.who)]
+    jobs, ids = read_tiers()
+    at = point(row.who, jobs)
+    if at is None:
+        return 1, ['%s: %s is not a job word in tiers.conf' % (full, row.owner[1])]
+    if at[0] not in ids:
+        return 1, ['%s: tiers.conf has no model id for %s' % (full, at[0])]
     if off_team(path)(row.owner[0]):
         return 1, ['%s: %s is not on this project\'s team. Type /ck:team invite %s, or give the row another owner '
                    'with /ck:plan' % (full, row.owner[0], row.owner[0].lower())]
@@ -914,10 +985,11 @@ def cmd_card(args, opts):
     if not fix and plan.follows(row) is None:                # a fix never asks what its stage follows
         return 1, ['%s has a Follows that cannot be worked from (run check): %s'
                    % (full, fields.get('Follows') or '(none)')]
-    persona, model = row.owner
+    persona, job = row.owner
+    check = MODEL_CHECK % {'model': at[0], 'effort': at[1]}
     if fix:
         words, title = fix
-        head = '[%s fix] [%s %s] ' % (full, persona, model)
+        head = '[%s fix] [%s %s] ' % (full, persona, job)
         session = head + title
         if len(session) > NAME_LIMIT:                        # a fix has no row, so check never sees its name
             return 1, ['the name "%s" is %d characters, %d over the %d a session name may have: give a title of '
@@ -965,7 +1037,7 @@ def cmd_card(args, opts):
             'Stage %s: %s. It is done%s. This session fixes one fault in it: %s.' % (
                 full, entry.title, ', under pull request ' + number if number else '', title),
             '',
-            MODEL_CHECK % {'model': model},
+            check,
             '',
             'Do the work yourself in this session. Do not use helper agents, workflows, or other sessions unless '
             'the author tells you to. Fix this one fault and nothing else: the rest of the stage, and the stages '
@@ -1013,8 +1085,9 @@ def cmd_card(args, opts):
             '',
             ('Stage %s: %s. %s' % (full, entry.title, KIND_LINE.get(kind, 'This is a %s stage.' % kind if kind else ''))
              ).rstrip(),
+        ] + (['', GOAL] if kind == 'build' else []) + [
             '',
-            MODEL_CHECK % {'model': model},
+            check,
             '',
             'Do the work yourself in this session. Do not use helper agents, workflows, or other sessions unless '
             'the author tells you to. Stay inside this stage: the stages before and after it belong to other '
@@ -1049,7 +1122,9 @@ def cmd_card(args, opts):
         'id': full,
         'title': session,
         'persona': persona.lower(),
-        'model': model,
+        'job': job,
+        'model': ids[at[0]],
+        'effort': at[1],
         'kind': kind,
         'ready': ready,
         'blocked_by': blocked,
