@@ -16,7 +16,7 @@ The site gets a home. A reader notices nothing yet.
 | Stage | What | Who | State |
 |---|---|---|---|
 | P1-S0 | Pick the host for the rulebook site | You | done |
-| P1-S1 | The site's home on the host, with the checks running on every change | Alex, Sonnet | done (12) |
+| P1-S1 | The site's home on the host, with the checks running on every change | Alex, edit | done (12) |
 
 Ends when: the empty site opens at its address and a failing check stops a change.
 
@@ -26,10 +26,10 @@ Every entry carries the icon the game uses for it. A reader sees the crown besid
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P2-S0 | Each entry's icon beside its heading, drawn for you to OK | Kai, Opus | running in its session |
-| P2-S1 | The icons beside the headings, built from the drawing | Sasha, Sonnet | not started; follows S0 |
-| P2-S2 | A line of words for each icon, for readers who cannot see it | Travolta, Opus | not started; could start now |
-| P2-S3 | The page checked against the drawing and the reading rules | Robin, Sonnet | not started; follows S1 and S2 |
+| P2-S0 | Each entry's icon beside its heading, drawn for you to OK | Kai, build | running in its session |
+| P2-S1 | The icons beside the headings, built from the drawing | Sasha, edit | not started; follows S0 |
+| P2-S2 | A line of words for each icon, for readers who cannot see it | Travolta, build | not started; could start now |
+| P2-S3 | The page checked against the drawing and the reading rules | Robin, edit | not started; follows S1 and S2 |
 | P2-S4 | Someone to own the search box | Open | not started; could start now |
 
 Ends when: you open the rulebook and every entry shows its icon, at phone width too.
@@ -40,8 +40,8 @@ A reader can find an entry by typing part of its name.
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P3-S0 | The search screens, in three versions for you to pick | Kai, Opus | not started; follows P2-S3 |
-| P3-S1 | Search, built from the version you picked | Sasha, Sonnet | not started; follows S0 |
+| P3-S0 | The search screens, in three versions for you to pick | Kai, build | not started; follows P2-S3 |
+| P3-S1 | Search, built from the version you picked | Sasha, edit | not started; follows S0 |
 
 Ends when: typing "boss" in the search box brings up Bosses.
 

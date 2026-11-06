@@ -111,9 +111,9 @@ opus=$(grep -c ' claude-opus-5-5$' tiers.conf)
 sonnet=$(grep -c ' claude-sonnet-5-5$' tiers.conf)
 if [[ "$tier_lines" == "${#personas[@]}" ]]; then ok "one tier line per persona ($tier_lines)"; else fail "tiers.conf has $tier_lines persona lines, expected ${#personas[@]}"; fi
 if [[ "$fable" == 6 && "$opus" == 11 && "$sonnet" == 4 ]]; then ok "six Fable 5.1, eleven Opus 5.5, four Sonnet 5.5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
-unknown=$(grep -E '^[a-z]+ ' tiers.conf | awk '{print $1}' | while read -r n; do [[ -f "profiles/$n.md" ]] || echo "$n"; done)
+unknown=$(grep -E '^[a-z]+ claude-' tiers.conf | awk '{print $1}' | while read -r n; do [[ -f "profiles/$n.md" ]] || echo "$n"; done)
 if [[ -z "$unknown" ]]; then ok "every tier line names a profile"; else fail "tier lines without a profile: $unknown"; fi
-other=$(grep -E '^[a-z]+ ' tiers.conf | grep -vE ' claude-(fable-5-1|opus-5-5|sonnet-5-5)$' || true)
+other=$(grep -E '^[a-z]+ ' tiers.conf | grep -v '^job ' | grep -vE ' claude-(fable-5-1|opus-5-5|sonnet-5-5)$' || true)
 if [[ -z "$other" ]]; then ok "every model is one of the three tier IDs"; else fail "unexpected models: $other"; fi
 
 # ─── 6. River's behaviors in the interactive skills ─────────────────────────
@@ -689,7 +689,7 @@ for need in ('<plan.py> approve', '<plan.py> refresh', '<plan.py> check', 'docs/
 # The script makes the fix card and puts the model check in every card; the contract names a fix's session.
 for need in ('check your own model', '--fix'):
     if script and need not in script: problems.append(f'scripts/plan.py lacks: {need}')
-if '[A31-P1-S5 fix] [Akira Fable]' not in contract: problems.append('the contract lacks the name of a fix session, "[A31-P1-S5 fix] [Akira Fable]"')
+if '[A31-P1-S5 fix] [Akira design]' not in contract: problems.append('the contract lacks the name of a fix session, "[A31-P1-S5 fix] [Akira design]"')
 for p in problems: print(p)
 sys.exit(1 if problems else 0)
 EOF
@@ -721,7 +721,7 @@ CM="python3 scripts/claude-md.py"
 mkdir -p "$TMP/cm"
 state_of() { $CM status "$@" | sed -n 's/^state: //p'; }
 # A tailored draft: the current template with every blank filled.
-sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.26.md > "$TMP/cm/draft.md"
+sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.27.md > "$TMP/cm/draft.md"
 
 # The command runs only when the User types it, and ships no hook of its own.
 if grep -qx 'disable-model-invocation: true' skills/claude-md/SKILL.md && ! grep -q 'claude-md' hooks/hooks.json; then
@@ -733,12 +733,12 @@ fi
 # A new section: the file is made with the heading and the draft, stamped with the template's version.
 $CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md" >/dev/null; rc=$?
 if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat "$TMP/cm/draft.md")" && "$(state_of "$TMP/cm/new.md")" == stamped ]] \
-   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.26' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
-  ok "a new section is written under the heading, stamped 0.1.26, not behind"
+   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.27' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
+  ok "a new section is written under the heading, stamped 0.1.27, not behind"
 else
   fail "a new section: exit $rc, state $(state_of "$TMP/cm/new.md")"
 fi
-cp templates/how-we-work/0.1.26.md "$TMP/cm/blank.md"
+cp templates/how-we-work/0.1.27.md "$TMP/cm/blank.md"
 out=$($CM write "$TMP/cm/blank2.md" --section "$TMP/cm/blank.md"); rc=$?
 [[ $rc -eq 1 && "$out" == *'{{lanes}}'* && ! -e "$TMP/cm/blank2.md" ]] && ok "a draft with a blank left in it is refused, and the blank is named" || fail "a draft with a blank: exit $rc, '$out'"
 

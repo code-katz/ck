@@ -16,8 +16,8 @@ The rules of the new fight are settled and its screen is drawn. Players notice n
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P0-S0 | The new fight's rules, settled in a memo | Reiner, Opus | done (279) |
-| P0-S1 | The new fight screen, drawn | Kai, Opus | running in its session |
+| P0-S0 | The new fight's rules, settled in a memo | Reiner, build | done (279) |
+| P0-S1 | The new fight screen, drawn | Kai, build | running in its session |
 
 Ends when: you have ruled on the memo and said OK to the drawing.
 
@@ -27,9 +27,9 @@ Creatures live in their own tables and everything reads them from there. Players
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P1-S0 | Today's roster saved in tests, before anything changes | Akira, Fable | not started; could start now |
-| P1-S1 | The creature tables | Akira, Fable | not started; follows S0 |
-| P1-S2 | The fight reads the new tables | Akira, Fable | not started; follows S1 and P0-S1 |
+| P1-S0 | Today's roster saved in tests, before anything changes | Akira, design | not started; could start now |
+| P1-S1 | The creature tables | Akira, design | not started; follows S0 |
+| P1-S2 | The fight reads the new tables | Akira, design | not started; follows S1 and P0-S1 |
 
 Ends when: every test that passed before the refactor passes after it.
 

@@ -81,29 +81,30 @@ def roster_with_role(name, role):
     return roster_text([(row[0], role) + row[2:] if row[0] == name else row for row in ROSTER_ROWS])
 
 
-# What rows prints for the two examples: full id, stage, owner, model, kind,
-# state, ready, title.
-ROW_FIELDS = ("full id", "stage", "owner", "model", "kind", "state", "ready", "title")
-READY_FIELDS = ("full id", "owner", "model", "kind", "title")
+# What rows prints for the two examples: full id, stage, owner, the point the
+# row runs at, kind, state, ready, title. The examples' Who cells are in the
+# older form, <Persona>, <Model>, so each point is that tier's job's.
+ROW_FIELDS = ("full id", "stage", "owner", "point", "kind", "state", "ready", "title")
+READY_FIELDS = ("full id", "owner", "point", "kind", "title")
 
 RELEASE_ROWS = [
     ("P1-S0", "P1-S0", "You", "-", "yours", "done", "no", "Pick the host"),
-    ("P1-S1", "P1-S1", "Alex", "Sonnet", "build", "done", "no", "Set up the site's home"),
-    ("P2-S0", "P2-S0", "Kai", "Opus", "drawing", "running", "no", "Draw the rulebook icons"),
-    ("P2-S1", "P2-S1", "Sasha", "Sonnet", "build", "not started", "no", "Build the rulebook icons"),
-    ("P2-S2", "P2-S2", "Travolta", "Opus", "words", "not started", "yes", "Words for each icon"),
-    ("P2-S3", "P2-S3", "Robin", "Sonnet", "check", "not started", "no", "Check the rulebook page"),
+    ("P1-S1", "P1-S1", "Alex", "Sonnet medium", "build", "done", "no", "Set up the site's home"),
+    ("P2-S0", "P2-S0", "Kai", "Opus medium", "drawing", "running", "no", "Draw the rulebook icons"),
+    ("P2-S1", "P2-S1", "Sasha", "Sonnet medium", "build", "not started", "no", "Build the rulebook icons"),
+    ("P2-S2", "P2-S2", "Travolta", "Opus medium", "words", "not started", "yes", "Words for each icon"),
+    ("P2-S3", "P2-S3", "Robin", "Sonnet medium", "check", "not started", "no", "Check the rulebook page"),
     ("P2-S4", "P2-S4", "Open", "-", "build", "not started", "yes", "Own the search box"),
-    ("P3-S0", "P3-S0", "Kai", "Opus", "design round", "not started", "no", "Draw the search screens"),
-    ("P3-S1", "P3-S1", "Sasha", "Sonnet", "build", "not started", "no", "Build search"),
+    ("P3-S0", "P3-S0", "Kai", "Opus medium", "design round", "not started", "no", "Draw the search screens"),
+    ("P3-S1", "P3-S1", "Sasha", "Sonnet medium", "build", "not started", "no", "Build search"),
 ]
 
 ITEM_ROWS = [
-    ("A31-P0-S0", "P0-S0", "Reiner", "Opus", "words", "done", "no", "Rule the new round"),
-    ("A31-P0-S1", "P0-S1", "Kai", "Opus", "drawing", "running", "no", "Draw the new fight"),
-    ("A31-P1-S0", "P1-S0", "Akira", "Fable", "tests", "not started", "yes", "Save today's roster"),
-    ("A31-P1-S1", "P1-S1", "Akira", "Fable", "build", "not started", "no", "Make the creature tables"),
-    ("A31-P1-S2", "P1-S2", "Akira", "Fable", "build", "not started", "no", "The fight reads the tables"),
+    ("A31-P0-S0", "P0-S0", "Reiner", "Opus medium", "words", "done", "no", "Rule the new round"),
+    ("A31-P0-S1", "P0-S1", "Kai", "Opus medium", "drawing", "running", "no", "Draw the new fight"),
+    ("A31-P1-S0", "P1-S0", "Akira", "Opus high", "tests", "not started", "yes", "Save today's roster"),
+    ("A31-P1-S1", "P1-S1", "Akira", "Opus high", "build", "not started", "no", "Make the creature tables"),
+    ("A31-P1-S2", "P1-S2", "Akira", "Opus high", "build", "not started", "no", "The fight reads the tables"),
 ]
 
 REQUIRED_FIELDS = ("Kind", "Does", "Files", "Reads", "Follows", "Done when", "Hands back")
@@ -134,19 +135,34 @@ FINISH_REPORT = (
 )
 FINISH_OTHER = "Hand back %s. Then stop."
 NO_FILES = "Nothing. You read, run the checks, and report."
-CARD_KEYS = ("id", "title", "persona", "model", "kind", "ready", "blocked_by", "tldr", "prompt")
+CARD_KEYS = ("id", "title", "persona", "job", "model", "effort", "kind", "ready", "blocked_by", "tldr", "prompt")
 
-# The paragraph every card carries about the session's own model. %(model)s is
-# the model word of the row's Who cell; "<your model>" is printed as it stands,
-# for the session to fill in.
+# The paragraph every card carries about the session's own model and effort.
+# "<your model>" and "<your effort>" are printed as they stand, for the session
+# to fill in.
 MODEL_CHECK = (
-    "Before anything else, check your own model. This stage is planned for %(model)s. If you can "
-    'tell that your model is not one of the %(model)s models, do no work: say "This session is on <your model>, and '
-    'the plan puts this stage on %(model)s. Pick %(model)s in the model menu, then say go." and stop. '
-    "When the author then says go, carry on, on whatever model you are then. If you cannot tell which "
-    "model you are, say so in one line and carry on."
+    "Before anything else, check your own model and effort. This stage is planned for %(model)s at %(effort)s "
+    "effort. If you can tell that your model is not one of the %(model)s models, or that your effort is not "
+    '%(effort)s, do no work: say "This session is on <your model> at <your effort> effort, and the plan puts this '
+    'stage on %(model)s at %(effort)s. Pick them in the model menu, then say go." and stop. When the author then '
+    "says go, carry on, on whatever model and effort you are then. If you cannot tell your model or your effort, "
+    "say so in one line and carry on."
 )
+GOAL = "As much coded as necessary, as little code as possible."
 MODELS = ("Fable", "Opus", "Sonnet", "Haiku")
+# The job words in tiers.conf and the point each runs at, and the job an older
+# Who cell's model word is read as.
+POINTS = {"design": ("Opus", "high"), "build": ("Opus", "medium"), "edit": ("Sonnet", "medium"),
+          "review": ("Opus", "medium"), "write": ("Opus", "medium")}
+OLD_JOB = {"Fable": "design", "Opus": "build", "Sonnet": "edit", "Haiku": "edit"}
+IDS = {"Fable": "claude-fable-5-1", "Opus": "claude-opus-5-5", "Sonnet": "claude-sonnet-5-5"}
+# The note check adds for a plan whose Who cells are in the older form.
+OLD_FORM = "the older Who form"
+
+
+def job_of(word):
+    """The job word for a Who cell's second part: a job word, or an older model word."""
+    return OLD_JOB.get(word, word)
 
 # A fix card's fixed text, copied from the specification.
 FIX_FINISH_PR = (
@@ -315,7 +331,7 @@ def title_of(length):
 
 
 def session_name(full_id, persona, model, title):
-    return "[%s] [%s %s] %s" % (full_id, persona, model, title)
+    return "[%s] [%s %s] %s" % (full_id, persona, job_of(model), title)
 
 
 def phase_block(text, number):
@@ -422,12 +438,14 @@ class Ctx(object):
         return target
 
     def script_in(self, home):
-        """Copies the script to home/scripts/plan.py, to test what it finds beside itself."""
+        """Copies the script to home/scripts/plan.py, and tiers.conf beside scripts/, to test what it finds
+        beside itself."""
         if not os.path.isfile(self.script):
             raise Missing()
         target = os.path.join(home, "scripts", "plan.py")
         os.makedirs(os.path.dirname(target))
         shutil.copyfile(self.script, target)
+        shutil.copyfile(os.path.join(REPO, "tiers.conf"), os.path.join(home, "tiers.conf"))
         return target
 
     def _show(self, arg):
@@ -598,7 +616,7 @@ def problem_lines(t, res, text, roster_missing=False):
         t.bad("the last line should be %r, got %s" % (want, show(got[-1] if got else None)), res)
     else:
         got = got[:-1]
-    got = [line for line in got if not line.startswith("words:")]
+    got = [line for line in got if not line.startswith("words:") and OLD_FORM not in line]
     if ROSTER_MISSING in got:
         if not roster_missing:
             t.bad("says the roster was not found, though --roster names a file that is there", res)
@@ -686,8 +704,11 @@ def card(t, path, stage, roster=None, root=None, cwd=None, fix=(), stdin=None):
 
 
 def has(t, data, res, **want):
+    """model: the Who cell's job word or older model word; the card's model is the id of that job's model."""
     if data is None:
         return
+    if want.get("model") in MODELS or want.get("model") in POINTS:
+        want["model"] = IDS[POINTS[job_of(want["model"])][0]]
     for key in sorted(want):
         if key not in data:
             t.bad("the card has no %r" % key, res)
@@ -727,8 +748,9 @@ def prompt_lacks(t, data, res, part, what):
 
 
 def model_check(model):
-    """The model-check paragraph, one line, for a row planned on this model."""
-    return MODEL_CHECK % {"model": model}
+    """The model-check paragraph, one line, for a row whose Who cell gives this job word or older model word."""
+    at = POINTS[job_of(model)]
+    return MODEL_CHECK % {"model": at[0], "effort": at[1]}
 
 
 def prompt(persona, role, model, plan, full, title, kind, does, done_when, path, reads,
@@ -746,6 +768,7 @@ def prompt(persona, role, model, plan, full, title, kind, does, done_when, path,
         "",
         "Stage %s: %s. %s" % (full, title, KIND_SENTENCE[kind]),
         "",
+    ] + ([GOAL, ""] if kind == "build" else []) + [
         model_check(model),
         "",
         "Do the work yourself in this session. Do not use helper agents, workflows, or other sessions unless the "
@@ -804,7 +827,7 @@ def refuses(t, path, stage, sentence):
 
 def fix_name(full, persona, model, title):
     """The session name of a fix card."""
-    return "[%s fix] [%s %s] %s" % (full, persona, model, title)
+    return "[%s fix] [%s %s] %s" % (full, persona, job_of(model), title)
 
 
 def fix_tldr(full, title):
@@ -1121,11 +1144,11 @@ def _(t):
 @case("check: a persona that is not on the roster, once per row")
 def _(t):
     t.at("one row")
-    text = set_col(release_text(), "P2-S1", 3, "Zelda, Sonnet")
+    text = set_col(release_text(), "P2-S1", 3, "Zelda, edit")
     reported(t, check(t, text), text, ("p2-s1",), count=1)
 
     t.at("two rows")
-    text = set_col(text, "P3-S1", 3, "Zelda, Sonnet")
+    text = set_col(text, "P3-S1", 3, "Zelda, edit")
     res = check(t, text)
     lines = reported(t, res, text, ("p2-s1",), count=2)
     named(t, res, lines, "P3-S1")
@@ -1142,7 +1165,7 @@ def _(t):
 @case("check: a roster that is not there is one line, and names go unchecked")
 def _(t):
     t.at("a good file but for an unknown persona")
-    text = set_col(release_text(), "P2-S1", 3, "Zelda, Sonnet")
+    text = set_col(release_text(), "P2-S1", 3, "Zelda, edit")
     res = check(t, text, roster=t.nowhere("ROSTER.md"))
     good(t, res, text, roster_missing=True)
     prints(t, res, [ROSTER_MISSING, words_line(text)])
@@ -1529,9 +1552,9 @@ def _(t):
     text = set_state(text, "P2-S3", "done")
     want = [
         ("P1-S0", "You", "-", "yours", "Pick the host"),
-        ("P2-S2", "Travolta", "Opus", "words", "Words for each icon"),
+        ("P2-S2", "Travolta", "Opus medium", "words", "Words for each icon"),
         ("P2-S4", "Open", "-", "build", "Own the search box"),
-        ("P3-S0", "Kai", "Opus", "design round", "Draw the search screens"),
+        ("P3-S0", "Kai", "Opus medium", "design round", "Draw the search screens"),
     ]
     res = t.run("ready", t.plan(text))
     exits(t, res, 0)
@@ -1904,7 +1927,7 @@ def _(t):
     data, res = card(t, t.plan(item_text()), "A31-P1-S1")
     has(t, data, res,
         id="A31-P1-S1",
-        title="[A31-P1-S1] [Akira Fable] Make the creature tables",
+        title="[A31-P1-S1] [Akira design] Make the creature tables",
         persona="akira",
         model="Fable",
         kind="build",
@@ -1969,7 +1992,7 @@ def _(t):
         data, res = card(t, path, "P2-S2", root=given)
         has(t, data, res,
             id="P2-S2",
-            title="[P2-S2] [Travolta Opus] Words for each icon",
+            title="[P2-S2] [Travolta build] Words for each icon",
             persona="travolta",
             model="Opus",
             kind="words",
@@ -2003,7 +2026,7 @@ def _(t):
     data, res = card(t, path, "P2-S3")
     has(t, data, res,
         id="P2-S3",
-        title="[P2-S3] [Robin Sonnet] Check the rulebook page",
+        title="[P2-S3] [Robin edit] Check the rulebook page",
         persona="robin",
         model="Sonnet",
         kind="check",
@@ -2079,11 +2102,11 @@ def _(t):
 def _(t):
     t.at("release example")
     data, res = card(t, t.plan(release_text()), "P2-S1")
-    has(t, data, res, id="P2-S1", title="[P2-S1] [Sasha Sonnet] Build the rulebook icons")
+    has(t, data, res, id="P2-S1", title="[P2-S1] [Sasha edit] Build the rulebook icons")
 
     t.at("item example")
     data, res = card(t, t.plan(item_text()), "P1-S2")
-    has(t, data, res, id="A31-P1-S2", title="[A31-P1-S2] [Akira Fable] The fight reads the tables")
+    has(t, data, res, id="A31-P1-S2", title="[A31-P1-S2] [Akira design] The fight reads the tables")
 
 
 @case("card: refuses a row that is the author's own job")
@@ -2184,7 +2207,7 @@ def _(t):
     for typed in ("P1-S1", "A31-P1-S1", "a31-p1-s1", "p1-s1"):
         t.at(typed)
         data, res = card(t, t.plan(item_text()), typed)
-        has(t, data, res, id="A31-P1-S1", title="[A31-P1-S1] [Akira Fable] Make the creature tables")
+        has(t, data, res, id="A31-P1-S1", title="[A31-P1-S1] [Akira design] Make the creature tables")
 
     t.at("p2-s2 on the release example")
     data, res = card(t, t.plan(release_text()), "p2-s2")
@@ -2218,15 +2241,47 @@ def _(t):
                "the line for a followed stage in another phase")
 
 
-@case("card: the model check names the row's model word, each of the four")
+@case("card: each job word, and each older model word read as its tier's job, sets the model check")
 def _(t):
     followed = [("P1-S0", "Save today's roster", "not started; could start now")]
-    for model in MODELS:
-        t.at("Akira, %s" % model)
-        path = t.plan(set_col(item_text(), "P1-S1", 3, "Akira, %s" % model))
+    for word in list(POINTS) + list(MODELS):
+        t.at("Akira, %s" % word)
+        path = t.plan(set_col(item_text(), "P1-S1", 3, "Akira, %s" % word))
         data, res = card(t, path, "A31-P1-S1")
-        has(t, data, res, model=model, title="[A31-P1-S1] [Akira %s] Make the creature tables" % model)
-        prompt_is(t, data, res, creature_prompt(path, followed, model=model))
+        has(t, data, res, model=word, job=job_of(word), effort=POINTS[job_of(word)][1],
+            title="[A31-P1-S1] [Akira %s] Make the creature tables" % job_of(word))
+        prompt_is(t, data, res, creature_prompt(path, followed, model=word))
+
+
+@case("card: a pinned point is the card's model and effort, under the job's name")
+def _(t):
+    path = t.plan(set_col(item_text(), "P1-S1", 3, "Akira, design, Fable xhigh"))
+    data, res = card(t, path, "A31-P1-S1")
+    has(t, data, res, job="design", model="claude-fable-5-1", effort="xhigh",
+        title="[A31-P1-S1] [Akira design] Make the creature tables")
+    prompt_has(t, data, res, MODEL_CHECK % {"model": "Fable", "effort": "xhigh"}, "the pinned point's check")
+
+
+@case("check and card: a job word that is not in tiers.conf, and a pin with no job")
+def _(t):
+    for who, says in (("Akira, mend", "mend is not a job word in tiers.conf"),
+                      ("Akira, Opus high", "is not You, Open, or <Persona>, <job>")):
+        t.at(who)
+        text = set_col(item_text(), "P1-S1", 3, who)
+        reported(t, check(t, text), text, [says], count=1)
+
+
+@case("check: a note says how many rows give the older Who form, and only then")
+def _(t):
+    res = check(t, item_text())
+    if any(OLD_FORM in line for line in res.lines()):
+        t.bad("notes the older form in a plan that has none", res)
+    text = set_col(set_col(item_text(), "P1-S1", 3, "Akira, Fable"), "P1-S2", 3, "Akira, Opus")
+    res = check(t, text)
+    exits(t, res, 0)
+    if "note: 2 rows give the older Who form, <Persona>, <Model>, read by its tier: Fable as design, Opus as " \
+            "build, Sonnet or Haiku as edit" not in res.lines():
+        t.bad("no note for two rows in the older form", res)
 
 
 # ---- general rules --------------------------------------------------------
@@ -2564,9 +2619,9 @@ def _(t):
         exits(t, res, 0)
         quiet(t, res)
         table(t, res, [
-            ("P1-S0", "P1-S0", "Kai", "Opus", "build", "done", "no", "Job 0"),
-            ("P1-S1", "P1-S1", "Sasha", "Sonnet", "build", "not started", "no", "Job 1"),
-            ("P1-S2", "P1-S2", "Robin", "Sonnet", "build", "not started", "no", "Job 2"),
+            ("P1-S0", "P1-S0", "Kai", "Opus medium", "build", "done", "no", "Job 0"),
+            ("P1-S1", "P1-S1", "Sasha", "Sonnet medium", "build", "not started", "no", "Job 1"),
+            ("P1-S2", "P1-S2", "Robin", "Sonnet medium", "build", "not started", "no", "Job 2"),
         ], ROW_FIELDS)
 
 
@@ -2695,10 +2750,10 @@ def _(t):
 @case("attack: check notes a row that is done or running ahead of what it follows")
 def _(t):
     rows = [
-        ("P1-S0", "First job", "Kai, Opus", "not started; could start now"),
-        ("P1-S1", "Second job", "Sasha, Sonnet", "done"),
-        ("P1-S2", "Third job", "Robin, Sonnet", "not started; could start now"),
-        ("P1-S3", "Fourth job", "Akira, Fable", "running in its session"),
+        ("P1-S0", "First job", "Kai, build", "not started; could start now"),
+        ("P1-S1", "Second job", "Sasha, edit", "done"),
+        ("P1-S2", "Third job", "Robin, edit", "not started; could start now"),
+        ("P1-S3", "Fourth job", "Akira, design", "running in its session"),
     ]
     text = mini(rows, {"P1-S1": "S0", "P1-S2": "S1", "P1-S3": "S0"})
     res = check(t, text)
@@ -2769,7 +2824,7 @@ def _(t):
 FIX_WORDS = "The memo never says who acts first on a tie."
 FIX_TITLE = "Settle ties in the round"
 ROUND_FULL = "A31-P0-S0"
-ROUND_NAME = "[A31-P0-S0 fix] [Reiner Opus] "
+ROUND_NAME = "[A31-P0-S0 fix] [Reiner build] "
 ROUND_TLDR = "Settle ties in the round. A fix to A31-P0-S0, which is done and stays done."
 STILL_RUNNING = "%s is still running in its session: tell that session what to fix"
 NOT_DONE = "%s is not done, so there is nothing to fix yet"
@@ -2835,7 +2890,7 @@ def _(t):
     path, data, res = round_card(t)
     has(t, data, res,
         id="A31-P0-S0",
-        title="[A31-P0-S0 fix] [Reiner Opus] Settle ties in the round",
+        title="[A31-P0-S0 fix] [Reiner build] Settle ties in the round",
         persona="reiner",
         model="Opus",
         kind="words",
@@ -2899,7 +2954,7 @@ def _(t):
     data, res = fix_card(t, path, "P1-S1", words, title)
     has(t, data, res,
         id="P1-S1",
-        title="[P1-S1 fix] [Alex Sonnet] Run the checks on forks too",
+        title="[P1-S1 fix] [Alex edit] Run the checks on forks too",
         persona="alex",
         model="Sonnet",
         kind="build",
@@ -2924,12 +2979,12 @@ def _(t):
     ))
 
 
-@case("card --fix: the model check names the stage's model word, each of the four")
+@case("card --fix: each job word, and each older model word read as its tier's job, sets the model check")
 def _(t):
-    for model in MODELS:
+    for model in list(POINTS) + list(MODELS):
         t.at("Reiner, %s" % model)
         path, data, res = round_card(t, set_col(item_text(), "P0-S0", 3, "Reiner, %s" % model))
-        has(t, data, res, model=model, title="[A31-P0-S0 fix] [Reiner %s] Settle ties in the round" % model)
+        has(t, data, res, model=model, title="[A31-P0-S0 fix] [Reiner %s] Settle ties in the round" % job_of(model))
         prompt_has(t, data, res, model_check(model), "the model check, on one line")
         prompt_is(t, data, res, round_fix(path, model=model))
 
@@ -3107,7 +3162,7 @@ def _(t):
 
 @case("card --fix: a name of exactly 59 characters passes")
 def _(t):
-    title = title_of(29)
+    title = title_of(28)
     name = ROUND_NAME + title
     if len(name) != 59:
         raise Setup("the name is %d characters, not 59" % len(name))
@@ -3118,13 +3173,13 @@ def _(t):
 
 @case("card --fix: a name of 60 characters is refused, with its three numbers")
 def _(t):
-    title = title_of(30)
+    title = title_of(29)
     name = ROUND_NAME + title
     if len(name) != 60:
         raise Setup("the name is %d characters, not 60" % len(name))
     fix_refuses(t, t.plan(item_text()), "P0-S0",
                 'the name "%s" is 60 characters, 1 over the 59 a session name may have: '
-                "give a title of 29 characters or fewer" % name,
+                "give a title of 28 characters or fewer" % name,
                 title=title)
 
 
@@ -3133,32 +3188,32 @@ def _(t):
     t.at("the worked example's row, a title of 75")
     title = title_of(75)
     name = ROUND_NAME + title
-    if len(name) != 105:
-        raise Setup("the name is %d characters, not 105" % len(name))
+    if len(name) != 106:
+        raise Setup("the name is %d characters, not 106" % len(name))
     fix_refuses(t, t.plan(item_text()), "P0-S0",
-                'the name "%s" is 105 characters, 46 over the 59 a session name may have: '
-                "give a title of 29 characters or fewer" % name,
+                'the name "%s" is 106 characters, 47 over the 59 a session name may have: '
+                "give a title of 28 characters or fewer" % name,
                 title=title)
 
-    t.at("P1-S1 of the release example, a title of 34")
-    title = title_of(34)
-    name = "[P1-S1 fix] [Alex Sonnet] " + title
+    t.at("P1-S1 of the release example, a title of 36")
+    title = title_of(36)
+    name = "[P1-S1 fix] [Alex edit] " + title
     if len(name) != 60:
         raise Setup("the name is %d characters, not 60" % len(name))
     fix_refuses(t, t.plan(release_text()), "P1-S1",
                 'the name "%s" is 60 characters, 1 over the 59 a session name may have: '
-                "give a title of 33 characters or fewer" % name,
+                "give a title of 35 characters or fewer" % name,
                 title=title)
 
-    t.at("P1-S1 of the release example, a title of 33")
-    title = title_of(33)
+    t.at("P1-S1 of the release example, a title of 35")
+    title = title_of(35)
     data, res = fix_card(t, t.plan(release_text()), "P1-S1", FIX_WORDS, title)
-    has(t, data, res, title="[P1-S1 fix] [Alex Sonnet] " + title)
+    has(t, data, res, title="[P1-S1 fix] [Alex edit] " + title)
 
 
 @case("card --fix: a name too long whatever the title still prints the line, with a room below 1")
 def _(t):
-    for letters, length, over, room in ((35, 60, 1, 0), (36, 61, 2, -1)):
+    for letters, length, over, room in ((34, 60, 1, 0), (35, 61, 2, -1)):
         persona = "Reiner" + "x" * (letters - 6)
         t.at("a persona of %d letters" % letters)
         name = fix_name(ROUND_FULL, persona, "Opus", "y")
@@ -3175,7 +3230,7 @@ def _(t):
 
 @case("card --fix: the 59 are characters, not bytes")
 def _(t):
-    title = " ".join(["\u00e9" * 5] * 5)
+    title = " ".join(["\u00e9" * 5] * 4 + ["\u00e9" * 4])
     name = ROUND_NAME + title
     if len(name) != 59 or len(name.encode("utf-8")) <= 59:
         raise Setup("the name should be 59 characters and more than 59 bytes")
@@ -3186,13 +3241,13 @@ def _(t):
     t.at("60 characters")
     fix_refuses(t, t.plan(item_text()), "P0-S0",
                 'the name "%s\u00e9" is 60 characters, 1 over the 59 a session name may have: '
-                "give a title of 29 characters or fewer" % name,
+                "give a title of 28 characters or fewer" % name,
                 title=title + "\u00e9")
 
 
 @case("card --fix: the 59 are counted on the title as tidied")
 def _(t):
-    tidy = title_of(29)
+    tidy = title_of(28)
     raw = "  " + tidy.replace(" ", " \t ") + " \n"
     path, data, res = round_card(t, title=raw)
     has(t, data, res, title=ROUND_NAME + tidy)
@@ -3516,7 +3571,7 @@ def _(t):
     raw = "  Settle \t ties\n in   the\r\n round \n"
     path, data, res = round_card(t, title=raw)
     has(t, data, res,
-        title="[A31-P0-S0 fix] [Reiner Opus] Settle ties in the round",
+        title="[A31-P0-S0 fix] [Reiner build] Settle ties in the round",
         tldr="Settle ties in the round. A fix to A31-P0-S0, which is done and stays done.")
     prompt_is(t, data, res, round_fix(path))
 
@@ -3639,7 +3694,7 @@ def _(t):
         data, res = fix_card(t, path, "P2-S2", words, title, root=given)
         has(t, data, res,
             id="P2-S2",
-            title="[P2-S2 fix] [Travolta Opus] Shorten the crown's line",
+            title="[P2-S2 fix] [Travolta build] Shorten the crown's line",
             persona="travolta",
             model="Opus",
             kind="words",
@@ -3759,7 +3814,7 @@ def _(t):
     data, res = fix_card(t, path, "P2-S3", words, title)
     has(t, data, res,
         id="P2-S3",
-        title="[P2-S3 fix] [Robin Sonnet] Fail a misplaced icon",
+        title="[P2-S3 fix] [Robin edit] Fail a misplaced icon",
         persona="robin",
         model="Sonnet",
         kind="check",
@@ -3790,7 +3845,7 @@ def _(t):
     # P3-S1 of the release example follows the design round, which is not started.
     path = t.plan(set_state(release_text(), "P3-S1", "done (50)"))
     data, res = fix_card(t, path, "P3-S1", "The box loses its text on a phone.", "Keep the search text")
-    has(t, data, res, id="P3-S1", title="[P3-S1 fix] [Sasha Sonnet] Keep the search text",
+    has(t, data, res, id="P3-S1", title="[P3-S1 fix] [Sasha edit] Keep the search text",
         ready=True, blocked_by=[])
     prompt_lacks(t, data, res, "- Stage ", "a fix card lists no stage it follows")
     prompt_lacks(t, data, res, "P3-S0", "a fix card lists no stage it follows")
@@ -3805,7 +3860,7 @@ def _(t):
     ):
         t.at(label)
         data, res = fix_card(t, t.plan(text), "P1-S0", FIX_WORDS, FIX_TITLE)
-        has(t, data, res, id="P1-S0", title="[P1-S0 fix] [Kai Opus] Settle ties in the round",
+        has(t, data, res, id="P1-S0", title="[P1-S0 fix] [Kai build] Settle ties in the round",
             ready=True, blocked_by=[])
 
 
