@@ -3,13 +3,18 @@
 
 Usage:
   render-review.py --in docs/PRD.md --out .ck/runs/<id>/review.html --title "Ardennes Hour PRD" \
-      [--question "Imagine this shipped and did not move the number. What went wrong?"] [--meta "Revision 1"]
+      [--question "Imagine this shipped and did not move the number. What went wrong?"] [--meta "Revision 1"] [--project name]
+
+The project's name leads the banner line and the title ("<project>: <title>", unless the title
+already starts with it). It is the main checkout's folder of the git repository that holds --in,
+or --in's folder outside a repository; --project overrides it.
 
 Standard library only. The page carries the five comment steps in its banner, a sticky
 table of contents from the ## and ### headings, tables and code that scroll inside their
 own container, and light and dark themes. Publish the output with the Artifact tool.
 """
 import argparse, html, re, sys, pathlib
+from project_name import project_name, with_project
 
 def slug(text):
     s = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
@@ -206,7 +211,10 @@ def main():
     ap.add_argument('--title', required=True)
     ap.add_argument('--question', default='')
     ap.add_argument('--meta', default='')
+    ap.add_argument('--project', help="the project's name; default: the main checkout's folder of the git repository holding --in")
     a = ap.parse_args()
+    project = a.project or project_name(a.src)
+    title = with_project(a.title, project)
     md = pathlib.Path(a.src).read_text()
     body, toc = render(md)
     q = ''
@@ -217,9 +225,9 @@ def main():
     mermaid = ('<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js"></script>\n'
                '<script>mermaid.initialize({startOnLoad:true,theme:window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"neutral"});</script>\n'
                ) if 'class="mermaid"' in body else ''
-    page = (f'<title>{html.escape(a.title)}</title>\n<style>{CSS}</style>\n{mermaid}'
-            f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · review page</p>'
-            f'<h1>{html.escape(a.title)}</h1>{meta}</div>'
+    page = (f'<title>{html.escape(title)}</title>\n<style>{CSS}</style>\n{mermaid}'
+            f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">{html.escape(project)} · review page</p>'
+            f'<h1>{html.escape(title)}</h1>{meta}</div>'
             f'<div class="howto"><div><h2>How to comment</h2>{STEPS}</div>{q}</div></div></header>\n'
             f'<div class="page"><nav class="toc" aria-label="Contents">{toc_html(toc)}</nav><article>\n{body}\n</article></div>\n')
     pathlib.Path(a.out).parent.mkdir(parents=True, exist_ok=True)

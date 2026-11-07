@@ -5,6 +5,24 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-07] 0.1.29: every ck page names its project
+
+**Category:** `fix`
+**Tags:** `ck`, `review-page`, `gallery`, `do`
+**Risk Level:** `low`
+**Breaking Change:** `no` (callers pass the same flags)
+
+### Summary
+A d20mob staged plan was published as "Phase 9, the ten: staged plan" under the banner line "Code Katz · review page", so nothing on the page said d20mob, and Will could not tell it apart in his artifact list. The review page skill asked for `--title "<product>: <document>"`, but nothing enforced it, and /ck:plan passed a title with no product. Now the renderers find the project's name themselves.
+
+### Detail
+- **The review page.** `scripts/render-review.py` puts the project's name in the banner line ("<project> · review page") and at the front of the `<title>` and the heading ("<project>: <title>"), and skips the prefix when the title already starts with the name. The name is the main checkout's folder of the git repository that holds `--in` (`git rev-parse --path-format=absolute --git-common-dir`, then its parent), so a page built in a worktree still names the project; outside a repository it is the file's folder. `--project` overrides it. Every gate (/ck:prd, /ck:plan, /ck:claude-md and the rest) gets it with no change.
+- **The gallery pages.** A `git grep` across `skills/`, `workflows/` and `scripts/` found two other ways a page gets published. `scripts/render-gallery.py` (brand galleries, design galleries, and `chosen.html`) had "Code Katz · gallery review" and "Code Katz · chosen design"; it now names the project the same way, from the repository that holds the variants JSON, with the same `--project` flag. The gallery contract says so. The workflows that call it need no change.
+- **The /ck:do mockup.** A persona writes `mockup.html` by hand and the session publishes it. The step's rules now ask for the `<title>` `<project>: <what you drew>` and one line above the mockup, `<project> · mockup`, with the session filling in the name.
+- `scripts/project_name.py` holds the lookup both renderers use. One test renders a page from a file in a temporary repository named `demo`, then with `--project x`.
+
+---
+
 ## [2026-11-06] 0.1.28: two endings, never "nothing is needed"
 
 **Category:** `fix`

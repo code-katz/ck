@@ -24,10 +24,14 @@ author writes files once and nobody pastes SVG into JSON:
     <dir>/<label>/<screen>.<state>.html   its empty, loading, and error states (and success, with --chosen)
 A brand variant without a mark or a surface, or a design screen without its file, is an error that names the file.
 
+The project's name leads the banner line and the title, found as render-review.py finds it, from the
+git repository that holds the JSON; --project overrides it.
+
 Standard library only. Every asset is inline; the page loads nothing but Google Fonts. Fails if the output
 would exceed 16 MB or if labels are not consecutive capital letters from A.
 """
 import argparse, html, json, pathlib, re, sys
+from project_name import project_name, with_project
 
 STEPS = """<ol>
 <li>Open this link signed in to your Claude account.</li>
@@ -164,10 +168,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--in', dest='src'); ap.add_argument('--dir'); ap.add_argument('--out', required=True)
     ap.add_argument('--chosen', help='render only this label as the chosen design, with its success states, no strip, no comment steps')
+    ap.add_argument('--project', help="the project's name; default: the main checkout's folder of the git repository holding the JSON")
     a = ap.parse_args()
     if not a.src and not a.dir: sys.exit('give --in <variants.json> or --dir <round directory>')
     src = pathlib.Path(a.src) if a.src else pathlib.Path(a.dir) / 'variants.json'
     if not src.exists(): sys.exit(f'{src} does not exist')
+    project = a.project or project_name(src)
     d = json.loads(src.read_text())
     kind = d.get('kind', 'brand'); product = d.get('product', ''); rnd = d.get('round', '')
     variants = d.get('variants') or []
@@ -185,6 +191,7 @@ def main():
     if a.dir: fill_from_dir(d, pathlib.Path(a.dir), states)
     title = f'{product}: {rnd}' if rnd else product
     if chosen: title = f'{product}: {rnd.split(":")[0]}, chosen variant {chosen}' if rnd else f'{product}: chosen variant {chosen}'
+    title = with_project(title, project)
     strip = ''.join(f'<a href="#variant-{esc(l)}">{esc(l)} · {esc(v.get("name",""))}</a>' for l, v in zip(labels, variants))
     skin = f' {esc(d["skin"])}' if d.get('skin') else ''
     body = []
@@ -195,10 +202,10 @@ def main():
                     f'{render}<h3>Rationale</h3><p>{esc(v.get("rationale",""))}</p><h3>Trade-off</h3><p>{esc(v.get("tradeoff",""))}</p>'
                     f'<h3>Satisfies</h3><p>{esc(v.get("satisfies",""))}</p>{design_states(v, states) if kind == "design" else ""}</section>')
     if chosen:
-        head = (f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · chosen design</p><h1>{esc(title)}</h1>'
+        head = (f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">{esc(project)} · chosen design</p><h1>{esc(title)}</h1>'
                 f'<p class="meta">{esc(variants[0].get("name",""))}: every screen with its default, empty, loading, error, and success states.{skin}</p></div></div></header>\n')
     else:
-        head = (f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">Code Katz · gallery review</p><h1>{esc(title)}</h1>'
+        head = (f'<header class="banner"><div class="banner-inner"><div><p class="eyebrow">{esc(project)} · gallery review</p><h1>{esc(title)}</h1>'
                 f'<p class="meta">{len(variants)} labeled variants. Comment on the one you want, and on what to change.{skin}</p></div>'
                 f'<div class="howto"><h2>How to comment</h2>{STEPS}</div></div></header>\n'
                 f'<nav class="strip" aria-label="Variants">{strip}</nav>\n')
