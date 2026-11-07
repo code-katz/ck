@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-06.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-07.
 
 ---
 
@@ -26,13 +26,13 @@
 - The model and effort follow the job (0.1.27): a plan row's Who names a job word (design, build, edit, review, write), and the job, not the persona, sets the stage's model and effort, from one line each in `tiers.conf`: design is Opus 5.5 at high, build, review and write Opus 5.5 at medium, edit Sonnet 5.5 at medium. A row can pin any other point; Fable is pinned only after Opus at high fell short, or for security or concurrency code. Stage chips carry the model and the effort, the stage checks both, and `/ck:cost history` shows cost by model and effort.
 - Two endings (0.1.28): How we work tells a session that every message to the User ends with what is left in the session, in order, and the words for the first step ("Say merge 95"), or with "This session can be closed." It never says "nothing is needed". Until then the template itself told sessions to say so, and d20mob and hireling sessions said it while a merge, a "log it" and a branch deletion were still waiting.
 - Main is at 0.1.28. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) on `v0.1.19`, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder) on `v0.1.28`. Rollback in a project is two commands.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.28` since 2026-11-06. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
-- 0.1.20 to 0.1.28 have not been checked in a real d20mob session. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- 0.1.20 to 0.1.28 have not been checked in a real d20mob session, and stable serves them. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
-- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went into d20mob the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400)); hireling's is open as [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65). The model and effort rule (How we work 0.1.27) is in neither: until it is, their own rule reads a `[Akira design]` tag's second word as a model, and only the check on ck's own cards covers effort. The two endings (How we work 0.1.28) are in neither, so their sessions can still say "nothing is needed" with work waiting.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)).
 - `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-06 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27 and then 0.1.28. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28`.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
@@ -63,7 +63,7 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.16 | 2026-10-27 | A shorter `/ck:start`; a bar in a code span stays in its table cell | Tag `v0.1.16` |
 | 0.1.17 | 2026-10-27 | `/ck:start` puts up chips again | Tag `v0.1.17` |
 | 0.1.18 | 2026-10-27 | A shorter `/ck:do` with no cost guess; its git steps in `scripts/do.sh` | Tag `v0.1.18` |
-| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19`; **stable** |
+| 0.1.19 | 2026-10-28 | `/ck:cost`: a session's tokens and dollars by lane and kind, a cost line once there is a pull request, the table posted at merge | Tag `v0.1.19` |
 | 0.1.20 | 2026-10-30 | A team per project: `.claude/ck-team.conf`, `/ck:team show`, `invite` and `drop`, a session paragraph naming the team, and casting only from it | Tag `v0.1.20` |
 | 0.1.21 | 2026-10-30 | Short listings and a lighter memory gate (lean review R1 and R3) | Tag `v0.1.21` |
 | 0.1.22 | none | Held for lanes, which did not ship | Not released |
@@ -72,7 +72,7 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.25 | 2026-11-04 | The stage's model: a stage session on the wrong model stops and waits, whoever wrote its brief; How we work 0.1.25 | Tag `v0.1.25` |
 | 0.1.26 | 2026-11-05 | The drawing's link: every message that shows or changes a drawing gives the page's link with the picture; How we work 0.1.26 | Tag `v0.1.26` |
 | 0.1.27 | 2026-11-05 | The model and effort follow the job: five job words in Who, each a model and an effort in `tiers.conf`, pins for any other point, chips with both, cost by model and effort; How we work 0.1.27 | Tag `v0.1.27` |
-| 0.1.28 | 2026-11-06 | Two endings: every message ends with what is left in the session or "This session can be closed.", never "nothing is needed"; How we work 0.1.28 | Tag `v0.1.28`; **ck-next** |
+| 0.1.28 | 2026-11-06 | Two endings: every message ends with what is left in the session or "This session can be closed.", never "nothing is needed"; How we work 0.1.28 | Tag `v0.1.28`; **stable** and **ck-next** |
 
 ---
 
@@ -110,10 +110,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Try 0.1.19 by hand** | 0.1.19 went to stable on 2026-10-28 before anyone tried the memory gate, the shorter `/ck:do` or `/ck:cost` by hand | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, and `/ck:cost` prints a real table; if one fails, stable goes back to `v0.1.17` |
-| 2 | **Try ck-next (0.1.20 to 0.1.28) in d20mob** | ck-next serves 0.1.28 since 2026-11-06, and the checks here have not been recorded in a d20mob session | The four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, and a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, and no session says "nothing is needed" with work waiting; then stable moves to `v0.1.28` |
-| 3 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
-| 4 | **How we work 0.1.28 in d20mob and hireling** | Their coordinators write their own briefs. hireling's Phase 2 briefs never carried the model check, and d20mob's A31-P6 coordinator dropped it after its context was compacted on 2026-11-04, so stages opened on a cheaper model and went to work. d20mob's drawing lane A31-P7-S1 sent pictures of mockup 38 with no link until you asked, several times. d20mob has both rules since 2026-11-05 (#400); hireling's pull request (#65) is open. 0.1.27 names stages by job word and adds effort to the check. A hireling lane said "Nothing is needed from you" while the merge of pull request 95 waited; 0.1.28 gives every message two endings | Each project's How we work is stamped 0.1.28, on its own pull request when you say so; then a stage opened on the wrong model or effort stops and waits for go, a drawing comes with its link, and a session ends with what is left or "This session can be closed." |
+| 1 | **Try 0.1.19 to 0.1.28 in d20mob** | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), at your word, before any of 0.1.19 to 0.1.28 was tried by hand in a d20mob session | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, and no session says "nothing is needed" with work waiting; if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
+| 2 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -135,9 +133,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   How we work 0.1.28 in d20mob and hireling; a d20mob phase on ck-next 0.1.28 (0.1.20 to 0.1.28) -> stable
+Now:   a d20mob phase on 0.1.28 (stable and ck-next), checking 0.1.19 to 0.1.28
 Next:  0.1.29, a release in one command, with its own plan
-Beside: try 0.1.19 in d20mob (already on stable)
 2026-11-06: measure d20mob's 400K auto-compact test
 Later: template changes reach projects; the lean review's remaining recommendations
 ```
@@ -158,12 +155,30 @@ Later: template changes reach projects; the lean review's remaining recommendati
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.28 are on ck-next, untried |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.28 went to stable untried (2026-11-06) |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-11-07] Stable on 0.1.28; How we work 0.1.28 in d20mob and hireling
+
+**Change Type:** `progress`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; What's missing or fragile; Releases; Tier 1 (items 1 and 2 joined, item 4 done); Recommended Sequencing; OKR
+
+### What Changed
+On 2026-11-06 stable moved from `v0.1.19` to `v0.1.28` ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), so stable and ck-next serve the same version, and d20mob and hireling took How we work 0.1.28 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)), which leaves Tier 1. Trying 0.1.19 by hand and trying ck-next in d20mob become one item: try 0.1.19 to 0.1.28 in d20mob.
+
+### Why
+You asked to move the marketplace to 0.1.28. Both projects' sections matched the 0.1.26 template word for word, so only the four rules that changed and the stamp were replaced, by hand, instead of a full `/ck:claude-md` redraft. The OKR row now records 0.1.20 to 0.1.28 going to stable untried.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-06] 0.1.28 shipped: two endings, never "nothing is needed"; ck-next on 0.1.28
 
