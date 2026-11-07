@@ -10,7 +10,7 @@ One page shape for brand galleries and design galleries, so a review is the same
 
 ## The page, in order
 
-1. **Banner**: the product name; what is being reviewed and the round or revision; the four comment steps, verbatim:
+1. **Banner**: the project's name, in the banner line and at the front of the page's title (`scripts/render-gallery.py` finds it from the git repository); the product name; what is being reviewed and the round or revision; the four comment steps, verbatim:
    1. Open this link signed in to your Claude account.
    2. Switch the page to comment mode from the bar at the top.
    3. Click the variant or the passage you want to comment on and type. Do not send the comment to Claude; your session reads it.
@@ -38,5 +38,5 @@ One page shape for brand galleries and design galleries, so a review is the same
 2. Every variant has every part listed above, in order (States only for design galleries).
 3. No external asset references other than Google Fonts.
 4. The file is under 16 MB.
-5. The banner carries the four steps verbatim.
+5. The banner carries the four steps verbatim, and the banner line and the `<title>` name the project.
 6. For a design gallery: every PRD requirement named under Satisfies exists in `docs/PRD.md`.

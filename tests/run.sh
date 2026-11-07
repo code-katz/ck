@@ -291,6 +291,15 @@ python3 scripts/render-review.py --in "$TMP/bar-code.md" --out "$TMP/bar-code.ht
 printf '# T\n\n| Rule | Note |\n|---|---|\n| a \\| b | one |\n' > "$TMP/bar-esc.md"
 python3 scripts/render-review.py --in "$TMP/bar-esc.md" --out "$TMP/bar-esc.html" --title "Bar" >/dev/null 2>&1 \
   && grep -qF '<tr><td>a | b</td><td>one</td></tr>' "$TMP/bar-esc.html" && ok "render-review.py keeps an escaped bar in its table cell" || fail "render-review.py splits a table cell at an escaped bar"
+mkdir -p "$TMP/demo" && git -C "$TMP/demo" init -q && printf '# T\n\nBody.\n' > "$TMP/demo/doc.md"
+if python3 scripts/render-review.py --in "$TMP/demo/doc.md" --out "$TMP/demo.html" --title "Plan" >/dev/null 2>&1 \
+   && grep -qF '<title>demo: Plan</title>' "$TMP/demo.html" && grep -qF '>demo · review page<' "$TMP/demo.html" \
+   && python3 scripts/render-review.py --in "$TMP/demo/doc.md" --out "$TMP/x.html" --title "Plan" --project x >/dev/null 2>&1 \
+   && grep -qF '<title>x: Plan</title>' "$TMP/x.html" && grep -qF '>x · review page<' "$TMP/x.html"; then
+  ok "render-review.py names the project from its git repository, or from --project"
+else
+  fail "render-review.py does not name the project in the title and banner"
+fi
 if grep -q 'libs/mermaid' "$TMP/bold.html"; then fail "render-review.py loads mermaid on a page without a diagram"; else ok "render-review.py loads mermaid only when a page has a diagram"; fi
 
 # ─── 13. Gallery renderer ────────────────────────────────────────────────────
