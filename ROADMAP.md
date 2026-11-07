@@ -110,8 +110,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Try 0.1.19 to 0.1.28 in d20mob** | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), at your word, before any of 0.1.19 to 0.1.28 was tried by hand in a d20mob session | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, and no session says "nothing is needed" with work waiting; if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
-| 2 | **Measure d20mob's 400K auto-compact test** | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
+| 1 | **Try 0.1.19 to 0.1.28 in d20mob** (in progress since 2026-11-07) | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), at your word, before any of 0.1.19 to 0.1.28 was tried by hand in a d20mob session | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, and no session says "nothing is needed" with work waiting; if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
+| 2 | **Measure d20mob's 400K auto-compact test** (in progress since 2026-11-07) | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
 
 ### Tier 2: High Value, Plan for Next Sprint
 
@@ -120,6 +120,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
 | 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now as 0.1.29, with its own plan |
+| 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -133,10 +134,9 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   a d20mob phase on 0.1.28 (stable and ck-next), checking 0.1.19 to 0.1.28
-Next:  0.1.29, a release in one command, with its own plan
-2026-11-06: measure d20mob's 400K auto-compact test
-Later: template changes reach projects; the lean review's remaining recommendations
+Now:   a d20mob phase on 0.1.28 (stable and ck-next), checking 0.1.19 to 0.1.28; measuring d20mob's 400K auto-compact test (both in progress)
+Next:  0.1.29, a release in one command, with its own plan; the code-quality review command's design
+Later: the code-quality review command; template changes reach projects; the lean review's remaining recommendations
 ```
 
 ---
@@ -161,6 +161,24 @@ Later: template changes reach projects; the lean review's remaining recommendati
 ---
 
 ## Revision History
+
+## [2026-11-07] Tier 1 in progress; a code-quality review command in Tier 2
+
+**Change Type:** `add`
+**Triggered by:** `user request`
+**Items Affected:** Tier 1 items 1 and 2; Tier 2 item 4; Recommended Sequencing
+
+### What Changed
+Both Tier 1 items are in progress: trying 0.1.19 to 0.1.28 in d20mob, and measuring the 400K auto-compact test. Tier 2 gains item 4, a code-quality review command: one ck feature that reviews a project's code for patterns and practices, duplication, complexity, dead code, dependency versions and maintainability.
+
+### Why
+You asked whether the roadmap had such a command; it did not. Claude Code's `/simplify` and `/code-review` already cover part of it for a single change, so the design looks first at reusing them, and adds only what they leave out.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: can a ck command call `/simplify` and `/code-review` and gather their findings with its own on one page?
+
+---
 
 ## [2026-11-07] Stable on 0.1.28; How we work 0.1.28 in d20mob and hireling
 
