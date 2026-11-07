@@ -5,6 +5,26 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-06] 0.1.28: two endings, never "nothing is needed"
+
+**Category:** `fix`
+**Tags:** `ck`, `claude-md`, `sessions`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project changes only when its How we work is updated)
+
+### Summary
+In a hireling lane the session told Will "Nothing is needed from you on this record yet", and when asked, it said the merge of pull request 95 was still needed. d20mob and hireling sessions keep saying this while a merge, a "log it" and a branch deletion are still waiting. The cause was ck's own template, which since 0.1.12 said "when nothing is needed from the User, say so in those words" and, at a session's end, "If nothing else is left, say so". Will wants one of two things only: the things left to do, or "This session can be closed."
+
+### Detail
+- **Two endings in "The User's rules".** New `templates/how-we-work/0.1.28.md`, copied from 0.1.27. Every message to the User ends in one of two ways: with something left in this session (a merge, "log it", deleting the branch), it lists what is left in order and ends with the exact words for the first one ("Say merge 95"); with nothing left (the pull request merged, the records logged, the branch deleted), it ends "This session can be closed." It never says "nothing is needed" or any words that leave out work still waiting. A where-things-stand answer ends the same way.
+- **"Finishing a session" matches.** Once the branch is deleted, the session says "This session can be closed." Work outside the session is named in one line and left to the coordinator.
+- A `git grep` across `skills/`, `profiles/`, `agents/`, `templates/` and `scripts/` found no other place that tells a session how to end a message to the User; the "say so" lines it found are about other things, so no profile, skill or agent changed. The older templates stay as they are. The `/ck:claude-md` tests read the 0.1.28 template.
+
+### Open
+- d20mob and hireling take How we work 0.1.28 with `/ck:claude-md`, on their own pull requests, when Will says so.
+
+---
+
 ## [2026-11-05] 0.1.27: the model and effort follow the job
 
 **Category:** `feature`
