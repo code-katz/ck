@@ -36,6 +36,9 @@
 - A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)).
 - `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28 and then 0.1.29. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28` and `v0.1.29`.
+- Session titles lost the model in 0.1.27: the job word took its place, so a sidebar row reads `[P9-S5] [Robin write]` with no model. 0.1.30 fixes it.
+- Every item plan numbers its phases from Phase 1, so d20mob's plan for phases 9 to 11 came out as Phases 1 to 3; renamed by hand, it now fails ck's own plan check. 0.1.30 fixes it.
+- The `file:///` link that 0.1.26 asks for opens in the Code tab's own file pane, not in Chrome, so sessions add addresses to paste; `/ck:do` mockups give a claude.ai link instead. 0.1.31 sets one rule.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
 ---
@@ -75,6 +78,9 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.27 | 2026-11-05 | The model and effort follow the job: five job words in Who, each a model and an effort in `tiers.conf`, pins for any other point, chips with both, cost by model and effort; How we work 0.1.27 | Tag `v0.1.27` |
 | 0.1.28 | 2026-11-06 | Two endings: every message ends with what is left in the session or "This session can be closed.", never "nothing is needed"; How we work 0.1.28 | Tag `v0.1.28` |
 | 0.1.29 | 2026-11-07 | Every page names its project: review pages, galleries and `/ck:do` mockups carry the project's name in their title and banner line, from the git repository's main checkout; `--project` overrides it | Tag `v0.1.29`; **stable** and **ck-next** |
+| 0.1.30 | planned | Session titles carry the model again; a new plan's phases carry on from the project's last phase instead of starting at Phase 1 | In design |
+| 0.1.31 | planned | Drawing links that open: one rule for every page a session shows you, a claude.ai link, never an address to paste | In design |
+| 0.1.32 | planned | A release in one command | Not started |
 
 ---
 
@@ -121,7 +127,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
-| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now as 0.1.30, with its own plan |
+| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is on the releases page as 0.1.32, after the title and link fixes, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
 ### Tier 3: Strategic / Longer Horizon
@@ -136,8 +142,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   a d20mob phase on 0.1.29 (stable and ck-next), checking 0.1.19 to 0.1.29; measuring d20mob's 400K auto-compact test (both in progress)
-Next:  0.1.30, a release in one command, with its own plan; the code-quality review command's design
+Now:   a d20mob phase on 0.1.29 (stable and ck-next), checking 0.1.19 to 0.1.29; measuring d20mob's 400K auto-compact test; a regression review of 0.1.19 to 0.1.31 (all in progress)
+Next:  0.1.30, titles and phase numbers; 0.1.31, drawing links; 0.1.32, a release in one command; the code-quality review command's design
 Later: the code-quality review command; template changes reach projects; the lean review's remaining recommendations
 ```
 
@@ -163,6 +169,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-07] 0.1.29 complete; 0.1.30 and 0.1.31 planned
+
+**Change Type:** `update`
+**Triggered by:** `user request`
+**Items Affected:** What's missing or fragile; Releases; Tier 2 item 3; Recommended Sequencing
+
+### What Changed
+0.1.29 is complete: released, on stable and ck-next, and installed in ck, d20mob and hireling. Releases gains three planned rows: 0.1.30 (titles carry the model again; phases carry on from the project's last phase), 0.1.31 (drawing links that open) and 0.1.32 (a release in one command, moved from 0.1.30). What's missing or fragile gains the three faults those fix. A regression review of 0.1.19 to 0.1.31 is in progress.
+
+### Why
+You found the missing model in titles, phases restarting at 1 in d20mob, and drawing links given as addresses to paste. Each has a design session; the regression review looks for others like them.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: where should a new plan's phase count carry on from? (asked in the 0.1.30 session)
+
+---
 
 ## [2026-11-07] Stable on 0.1.29
 
