@@ -17,7 +17,7 @@ CK_FAULT
 
 ## Fix sessions on the board
 
-A session whose `cwd` is the project's folder or inside it (as `refresh.md` finds it), and whose title's first brackets hold a row's full id followed by ` fix`, such as `[A31-P1-S5 fix] [Akira design] Mend the scan's natural 1`, is a fix to that stage: it belongs to no row and changes no State. Pass over one whose title starts with `[dropped]` or whose pull request is CLOSED. When its pull request is OPEN, say in one line "A fix for `<id>` is open (`<number>`)." When it is MERGED and its title does not start with `[done]`, rename it with `mcp__ccd_session_mgmt__set_session_title` to `[done] ` and the title it has.
+A session whose `cwd` is the project's folder or inside it (as `refresh.md` finds it), and whose title's first brackets hold a row's full id followed by ` fix`, such as `[R1-P1-S5 fix] [Akira Opus high] Mend the scan's 1`, is a fix to that stage: it belongs to no row and changes no State. Pass over one whose title starts with `[dropped]` or whose pull request is CLOSED. When its pull request is OPEN, say in one line "A fix for `<id>` is open (`<number>`)." When it is MERGED and its title does not start with `[done]`, rename it with `mcp__ccd_session_mgmt__set_session_title` to `[done] ` and the title it has.
 
 ## Back fix
 

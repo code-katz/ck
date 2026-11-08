@@ -104,7 +104,7 @@ ITEM_ROWS = [
     ("A31-P0-S1", "P0-S1", "Kai", "Opus medium", "drawing", "running", "no", "Draw the new fight"),
     ("A31-P1-S0", "P1-S0", "Akira", "Opus high", "tests", "not started", "yes", "Save today's roster"),
     ("A31-P1-S1", "P1-S1", "Akira", "Opus high", "build", "not started", "no", "Make the creature tables"),
-    ("A31-P1-S2", "P1-S2", "Akira", "Opus high", "build", "not started", "no", "The fight reads the tables"),
+    ("A31-P1-S2", "P1-S2", "Akira", "Opus high", "build", "not started", "no", "The fight reads tables"),
 ]
 
 REQUIRED_FIELDS = ("Kind", "Does", "Files", "Reads", "Follows", "Done when", "Hands back")
@@ -163,6 +163,11 @@ OLD_FORM = "the older Who form"
 def job_of(word):
     """The job word for a Who cell's second part: a job word, or an older model word."""
     return OLD_JOB.get(word, word)
+
+
+def point_of(word):
+    """The point a session name shows for a job word or an older model word, as `Opus high`."""
+    return " ".join(POINTS[job_of(word)])
 
 # A fix card's fixed text, copied from the specification.
 FIX_FINISH_PR = (
@@ -331,7 +336,7 @@ def title_of(length):
 
 
 def session_name(full_id, persona, model, title):
-    return "[%s] [%s %s] %s" % (full_id, persona, job_of(model), title)
+    return "[%s] [%s %s] %s" % (full_id, persona, point_of(model), title)
 
 
 def phase_block(text, number):
@@ -827,7 +832,7 @@ def refuses(t, path, stage, sentence):
 
 def fix_name(full, persona, model, title):
     """The session name of a fix card."""
-    return "[%s fix] [%s %s] %s" % (full, persona, job_of(model), title)
+    return "[%s fix] [%s %s] %s" % (full, persona, point_of(model), title)
 
 
 def fix_tldr(full, title):
@@ -1306,6 +1311,54 @@ def _(t):
     t.at("the item example with P0-S1 and S1")
     text = set_state(item_text(), "P1-S2", "not started; follows P0-S1 and S1")
     good(t, check(t, text), text)
+
+
+def shift_phases(text, by):
+    """The plan with every phase number raised by `by`: headings, rows, entries and Follows."""
+    text = re.sub(r"### Phase (\d+)\.", lambda m: "### Phase %d." % (int(m.group(1)) + by), text)
+    return re.sub(r"\bP(\d+)-S", lambda m: "P%d-S" % (int(m.group(1)) + by), text)
+
+
+@case("check: an item's phases carry on across its plans, and the release still starts at 0 or 1")
+def _(t):
+    later = swap(shift_phases(item_text(), 7), "Item: A31", "Item: R1")
+    t.at("an item plan that starts at Phase 7")
+    good(t, check(t, later), later)
+
+    t.at("the release plan that starts at Phase 7")
+    res = check(t, shift_phases(release_text(), 7))
+    if not any("first phase must be numbered 0 or 1" in line for line in res.lines()):
+        t.bad("the release plan should still start at 0 or 1", res)
+
+    t.at("two plans of one item that share Phase 7")
+    folder = t.folder()
+    write_text(os.path.join(folder, "a.md"), later)
+    write_text(os.path.join(folder, "b.md"), swap(later, "### Phase 8.", "### Phase 9."))
+    res = t.run("check", os.path.join(folder, "b.md"), "--roster", t.roster())
+    if not any(line.startswith("Phase 7 is also in a.md, a plan of item R1") and line.endswith("Phase 9.")
+               for line in res.lines()):
+        t.bad("the shared phase should be named, with the phase this plan starts at", res)
+
+
+@case("next: the item a new plan goes under, and the phase it starts at")
+def _(t):
+    t.at("no plans: the first release, at Phase 1")
+    prints(t, t.run("next", "--root", t.folder()), ["R1\t1"])
+
+    project = t.project()
+    plans = os.path.join(project, "docs", "plan")
+    t.at("a typed item carries on from its plan")
+    prints(t, t.run("next", "A31", "--root", project), ["A31\t2"])
+
+    write_text(os.path.join(plans, "r1.md"), swap(shift_phases(item_text(), 8), "Item: A31", "Item: R1"))
+    write_text(os.path.join(plans, "r2.md"), swap(shift_phases(item_text(), 3), "Item: A31", "Item: R2"))
+    t.at("with no item: the highest release, after its highest phase")
+    prints(t, t.run("next", "--root", project), ["R2\t5"])
+    t.at("an earlier release, typed")
+    prints(t, t.run("next", "R1", "--root", project), ["R1\t10"])
+
+    t.at("an id that is not an item id")
+    exits(t, t.run("next", "r1", "--root", project), 1)
 
 
 @case("check: a session name over 59 characters says how many over")
@@ -1927,7 +1980,7 @@ def _(t):
     data, res = card(t, t.plan(item_text()), "A31-P1-S1")
     has(t, data, res,
         id="A31-P1-S1",
-        title="[A31-P1-S1] [Akira design] Make the creature tables",
+        title="[A31-P1-S1] [Akira Opus high] Make the creature tables",
         persona="akira",
         model="Fable",
         kind="build",
@@ -1992,7 +2045,7 @@ def _(t):
         data, res = card(t, path, "P2-S2", root=given)
         has(t, data, res,
             id="P2-S2",
-            title="[P2-S2] [Travolta build] Words for each icon",
+            title="[P2-S2] [Travolta Opus medium] Words for each icon",
             persona="travolta",
             model="Opus",
             kind="words",
@@ -2026,7 +2079,7 @@ def _(t):
     data, res = card(t, path, "P2-S3")
     has(t, data, res,
         id="P2-S3",
-        title="[P2-S3] [Robin edit] Check the rulebook page",
+        title="[P2-S3] [Robin Sonnet medium] Check the rulebook page",
         persona="robin",
         model="Sonnet",
         kind="check",
@@ -2102,11 +2155,11 @@ def _(t):
 def _(t):
     t.at("release example")
     data, res = card(t, t.plan(release_text()), "P2-S1")
-    has(t, data, res, id="P2-S1", title="[P2-S1] [Sasha edit] Build the rulebook icons")
+    has(t, data, res, id="P2-S1", title="[P2-S1] [Sasha Sonnet medium] Build the rulebook icons")
 
     t.at("item example")
     data, res = card(t, t.plan(item_text()), "P1-S2")
-    has(t, data, res, id="A31-P1-S2", title="[A31-P1-S2] [Akira design] The fight reads the tables")
+    has(t, data, res, id="A31-P1-S2", title="[A31-P1-S2] [Akira Opus high] The fight reads tables")
 
 
 @case("card: refuses a row that is the author's own job")
@@ -2207,7 +2260,7 @@ def _(t):
     for typed in ("P1-S1", "A31-P1-S1", "a31-p1-s1", "p1-s1"):
         t.at(typed)
         data, res = card(t, t.plan(item_text()), typed)
-        has(t, data, res, id="A31-P1-S1", title="[A31-P1-S1] [Akira design] Make the creature tables")
+        has(t, data, res, id="A31-P1-S1", title="[A31-P1-S1] [Akira Opus high] Make the creature tables")
 
     t.at("p2-s2 on the release example")
     data, res = card(t, t.plan(release_text()), "p2-s2")
@@ -2249,16 +2302,16 @@ def _(t):
         path = t.plan(set_col(item_text(), "P1-S1", 3, "Akira, %s" % word))
         data, res = card(t, path, "A31-P1-S1")
         has(t, data, res, model=word, job=job_of(word), effort=POINTS[job_of(word)][1],
-            title="[A31-P1-S1] [Akira %s] Make the creature tables" % job_of(word))
+            title="[A31-P1-S1] [Akira %s] Make the creature tables" % point_of(word))
         prompt_is(t, data, res, creature_prompt(path, followed, model=word))
 
 
-@case("card: a pinned point is the card's model and effort, under the job's name")
+@case("card: a pinned point is the card's model and effort, and its session name shows it")
 def _(t):
     path = t.plan(set_col(item_text(), "P1-S1", 3, "Akira, design, Fable xhigh"))
     data, res = card(t, path, "A31-P1-S1")
     has(t, data, res, job="design", model="claude-fable-5-1", effort="xhigh",
-        title="[A31-P1-S1] [Akira design] Make the creature tables")
+        title="[A31-P1-S1] [Akira Fable xhigh] Make the creature tables")
     prompt_has(t, data, res, MODEL_CHECK % {"model": "Fable", "effort": "xhigh"}, "the pinned point's check")
 
 
@@ -2817,15 +2870,15 @@ def _(t):
 #
 # A fix card is for a stage that is already done. The specification's worked
 # example is P0-S0 of the item example: Reiner, Opus, done (279), "Rule the new
-# round". Its session name leaves a title 29 characters. Where a case needs a
+# round". Its session name leaves a title 22 characters. Where a case needs a
 # plan the examples do not hold, it changes a copy of one or uses the small
 # plan of the cases above.
 
 FIX_WORDS = "The memo never says who acts first on a tie."
-FIX_TITLE = "Settle ties in the round"
+FIX_TITLE = "Settle round ties"
 ROUND_FULL = "A31-P0-S0"
-ROUND_NAME = "[A31-P0-S0 fix] [Reiner build] "
-ROUND_TLDR = "Settle ties in the round. A fix to A31-P0-S0, which is done and stays done."
+ROUND_NAME = "[A31-P0-S0 fix] [Reiner Opus medium] "
+ROUND_TLDR = "Settle round ties. A fix to A31-P0-S0, which is done and stays done."
 STILL_RUNNING = "%s is still running in its session: tell that session what to fix"
 NOT_DONE = "%s is not done, so there is nothing to fix yet"
 TOO_LONG = ('the name "%s" is %d characters, %d over the 59 a session name may have: '
@@ -2890,16 +2943,16 @@ def _(t):
     path, data, res = round_card(t)
     has(t, data, res,
         id="A31-P0-S0",
-        title="[A31-P0-S0 fix] [Reiner build] Settle ties in the round",
+        title="[A31-P0-S0 fix] [Reiner Opus medium] Settle round ties",
         persona="reiner",
         model="Opus",
         kind="words",
         ready=True,
         blocked_by=[],
-        tldr="Settle ties in the round. A fix to A31-P0-S0, which is done and stays done.")
+        tldr="Settle round ties. A fix to A31-P0-S0, which is done and stays done.")
     prompt_has(t, data, res,
                "Stage A31-P0-S0: Rule the new round. It is done, under pull request 279. "
-               "This session fixes one fault in it: Settle ties in the round.",
+               "This session fixes one fault in it: Settle round ties.",
                "the stage line")
     prompt_under(t, data, res, "## The fault", ["The memo never says who acts first on a tie."],
                  "the author's words")
@@ -2950,17 +3003,17 @@ def _(t):
 def _(t):
     path = t.plan(release_text(), "build-plan.md")
     words = "A change from a fork never runs the checks."
-    title = "Run the checks on forks too"
+    title = "Run checks on forks too"
     data, res = fix_card(t, path, "P1-S1", words, title)
     has(t, data, res,
         id="P1-S1",
-        title="[P1-S1 fix] [Alex edit] Run the checks on forks too",
+        title="[P1-S1 fix] [Alex Sonnet medium] Run checks on forks too",
         persona="alex",
         model="Sonnet",
         kind="build",
         ready=True,
         blocked_by=[],
-        tldr="Run the checks on forks too. A fix to P1-S1, which is done and stays done.")
+        tldr="Run checks on forks too. A fix to P1-S1, which is done and stays done.")
     prompt_is(t, data, res, fix_prompt(
         persona="Alex",
         role="DevOps & Platform Consultant",
@@ -2984,7 +3037,7 @@ def _(t):
     for model in list(POINTS) + list(MODELS):
         t.at("Reiner, %s" % model)
         path, data, res = round_card(t, set_col(item_text(), "P0-S0", 3, "Reiner, %s" % model))
-        has(t, data, res, model=model, title="[A31-P0-S0 fix] [Reiner %s] Settle ties in the round" % job_of(model))
+        has(t, data, res, model=model, title="[A31-P0-S0 fix] [Reiner %s] Settle round ties" % point_of(model))
         prompt_has(t, data, res, model_check(model), "the model check, on one line")
         prompt_is(t, data, res, round_fix(path, model=model))
 
@@ -3162,7 +3215,7 @@ def _(t):
 
 @case("card --fix: a name of exactly 59 characters passes")
 def _(t):
-    title = title_of(28)
+    title = title_of(22)
     name = ROUND_NAME + title
     if len(name) != 59:
         raise Setup("the name is %d characters, not 59" % len(name))
@@ -3173,13 +3226,13 @@ def _(t):
 
 @case("card --fix: a name of 60 characters is refused, with its three numbers")
 def _(t):
-    title = title_of(29)
+    title = title_of(23)
     name = ROUND_NAME + title
     if len(name) != 60:
         raise Setup("the name is %d characters, not 60" % len(name))
     fix_refuses(t, t.plan(item_text()), "P0-S0",
                 'the name "%s" is 60 characters, 1 over the 59 a session name may have: '
-                "give a title of 28 characters or fewer" % name,
+                "give a title of 22 characters or fewer" % name,
                 title=title)
 
 
@@ -3188,32 +3241,32 @@ def _(t):
     t.at("the worked example's row, a title of 75")
     title = title_of(75)
     name = ROUND_NAME + title
-    if len(name) != 106:
-        raise Setup("the name is %d characters, not 106" % len(name))
+    if len(name) != 112:
+        raise Setup("the name is %d characters, not 112" % len(name))
     fix_refuses(t, t.plan(item_text()), "P0-S0",
-                'the name "%s" is 106 characters, 47 over the 59 a session name may have: '
-                "give a title of 28 characters or fewer" % name,
+                'the name "%s" is 112 characters, 53 over the 59 a session name may have: '
+                "give a title of 22 characters or fewer" % name,
                 title=title)
 
-    t.at("P1-S1 of the release example, a title of 36")
-    title = title_of(36)
-    name = "[P1-S1 fix] [Alex edit] " + title
+    t.at("P1-S1 of the release example, a title of 27")
+    title = title_of(27)
+    name = "[P1-S1 fix] [Alex Sonnet medium] " + title
     if len(name) != 60:
         raise Setup("the name is %d characters, not 60" % len(name))
     fix_refuses(t, t.plan(release_text()), "P1-S1",
                 'the name "%s" is 60 characters, 1 over the 59 a session name may have: '
-                "give a title of 35 characters or fewer" % name,
+                "give a title of 26 characters or fewer" % name,
                 title=title)
 
-    t.at("P1-S1 of the release example, a title of 35")
-    title = title_of(35)
+    t.at("P1-S1 of the release example, a title of 26")
+    title = title_of(26)
     data, res = fix_card(t, t.plan(release_text()), "P1-S1", FIX_WORDS, title)
-    has(t, data, res, title="[P1-S1 fix] [Alex edit] " + title)
+    has(t, data, res, title="[P1-S1 fix] [Alex Sonnet medium] " + title)
 
 
 @case("card --fix: a name too long whatever the title still prints the line, with a room below 1")
 def _(t):
-    for letters, length, over, room in ((34, 60, 1, 0), (35, 61, 2, -1)):
+    for letters, length, over, room in ((28, 60, 1, 0), (29, 61, 2, -1)):
         persona = "Reiner" + "x" * (letters - 6)
         t.at("a persona of %d letters" % letters)
         name = fix_name(ROUND_FULL, persona, "Opus", "y")
@@ -3230,24 +3283,24 @@ def _(t):
 
 @case("card --fix: the 59 are characters, not bytes")
 def _(t):
-    title = " ".join(["\u00e9" * 5] * 4 + ["\u00e9" * 4])
+    title = " ".join(["\u00e9" * 5] * 3 + ["\u00e9" * 4])
     name = ROUND_NAME + title
     if len(name) != 59 or len(name.encode("utf-8")) <= 59:
         raise Setup("the name should be 59 characters and more than 59 bytes")
-    t.at("59 characters, 84 bytes")
+    t.at("59 characters, more bytes")
     path, data, res = round_card(t, title=title)
     has(t, data, res, title=name)
 
     t.at("60 characters")
     fix_refuses(t, t.plan(item_text()), "P0-S0",
                 'the name "%s\u00e9" is 60 characters, 1 over the 59 a session name may have: '
-                "give a title of 28 characters or fewer" % name,
+                "give a title of 22 characters or fewer" % name,
                 title=title + "\u00e9")
 
 
 @case("card --fix: the 59 are counted on the title as tidied")
 def _(t):
-    tidy = title_of(28)
+    tidy = title_of(22)
     raw = "  " + tidy.replace(" ", " \t ") + " \n"
     path, data, res = round_card(t, title=raw)
     has(t, data, res, title=ROUND_NAME + tidy)
@@ -3568,17 +3621,17 @@ def _(t):
 
 @case("card --fix: the title's white space is tidied")
 def _(t):
-    raw = "  Settle \t ties\n in   the\r\n round \n"
+    raw = "  Settle \t round\r\n   ties \n"
     path, data, res = round_card(t, title=raw)
     has(t, data, res,
-        title="[A31-P0-S0 fix] [Reiner build] Settle ties in the round",
-        tldr="Settle ties in the round. A fix to A31-P0-S0, which is done and stays done.")
+        title="[A31-P0-S0 fix] [Reiner Opus medium] Settle round ties",
+        tldr="Settle round ties. A fix to A31-P0-S0, which is done and stays done.")
     prompt_is(t, data, res, round_fix(path))
 
 
 @case("card --fix: quotation marks, a dollar sign and a backslash in the title are kept exactly")
 def _(t):
-    title = 'Fix "$5", $HOME, a\\new die'
+    title = 'Fix "$5", $HOME, a\\die'
     path, data, res = round_card(t, title=title)
     has(t, data, res, title=ROUND_NAME + title,
         tldr=title + ". A fix to A31-P0-S0, which is done and stays done.")
@@ -3588,10 +3641,10 @@ def _(t):
 @case("card --fix: the tldr adds a full stop unless the title ends in one, or in ! or ?")
 def _(t):
     for title, start in (
-        ("Settle ties in the round", "Settle ties in the round."),
-        ("Settle ties in the round.", "Settle ties in the round."),
-        ("Settle ties in the round!", "Settle ties in the round!"),
-        ("Who acts first on a tie?", "Who acts first on a tie?"),
+        ("Settle round ties", "Settle round ties."),
+        ("Settle round ties.", "Settle round ties."),
+        ("Settle round ties!", "Settle round ties!"),
+        ("Who goes first?", "Who goes first?"),
     ):
         t.at("--title %r" % title)
         path, data, res = round_card(t, title=title)
@@ -3606,7 +3659,7 @@ def _(t):
     path, data, res = round_card(t, set_state(item_text(), "P0-S0", "done"))
     prompt_has(t, data, res,
                "Stage A31-P0-S0: Rule the new round. It is done. "
-               "This session fixes one fault in it: Settle ties in the round.",
+               "This session fixes one fault in it: Settle round ties.",
                "the stage line, with no pull request in it")
     prompt_lacks(t, data, res, "under pull request", "the State has no number")
     prompt_lacks(t, data, res, "- Pull request", "the State has no number")
@@ -3622,7 +3675,7 @@ def _(t):
         path, data, res = round_card(t, set_state(item_text(), "P0-S0", "done (%s)" % number))
         prompt_has(t, data, res,
                    "Stage A31-P0-S0: Rule the new round. It is done, under pull request %s. "
-                   "This session fixes one fault in it: Settle ties in the round." % number,
+                   "This session fixes one fault in it: Settle round ties." % number,
                    "the stage line")
         prompt_has(t, data, res,
                    "- Pull request %s, which carried the stage: `gh pr view %s`." % (number, number),
@@ -3694,7 +3747,7 @@ def _(t):
         data, res = fix_card(t, path, "P2-S2", words, title, root=given)
         has(t, data, res,
             id="P2-S2",
-            title="[P2-S2 fix] [Travolta build] Shorten the crown's line",
+            title="[P2-S2 fix] [Travolta Opus medium] Shorten the crown's line",
             persona="travolta",
             model="Opus",
             kind="words",
@@ -3738,8 +3791,8 @@ def _(t):
 def _(t):
     want = ("Work on a branch of your own: if this checkout is on the repository's default branch, make a "
             "branch named for the fix first, and never commit to or push the default branch. Commit on your "
-            'branch, push it, and open a draft pull request titled "[A31-P0-S0 fix] Settle ties in the '
-            'round". Do not merge it. Then stop.')
+            'branch, push it, and open a draft pull request titled "[A31-P0-S0 fix] Settle round ties". '
+            'Do not merge it. Then stop.')
     for hands_back in ("a draft pull request", "a draft pull request.",
                        "a draft pull request, and a note for the author"):
         t.at("Hands back: %s" % hands_back)
@@ -3814,7 +3867,7 @@ def _(t):
     data, res = fix_card(t, path, "P2-S3", words, title)
     has(t, data, res,
         id="P2-S3",
-        title="[P2-S3 fix] [Robin edit] Fail a misplaced icon",
+        title="[P2-S3 fix] [Robin Sonnet medium] Fail a misplaced icon",
         persona="robin",
         model="Sonnet",
         kind="check",
@@ -3845,7 +3898,7 @@ def _(t):
     # P3-S1 of the release example follows the design round, which is not started.
     path = t.plan(set_state(release_text(), "P3-S1", "done (50)"))
     data, res = fix_card(t, path, "P3-S1", "The box loses its text on a phone.", "Keep the search text")
-    has(t, data, res, id="P3-S1", title="[P3-S1 fix] [Sasha edit] Keep the search text",
+    has(t, data, res, id="P3-S1", title="[P3-S1 fix] [Sasha Sonnet medium] Keep the search text",
         ready=True, blocked_by=[])
     prompt_lacks(t, data, res, "- Stage ", "a fix card lists no stage it follows")
     prompt_lacks(t, data, res, "P3-S0", "a fix card lists no stage it follows")
@@ -3860,7 +3913,7 @@ def _(t):
     ):
         t.at(label)
         data, res = fix_card(t, t.plan(text), "P1-S0", FIX_WORDS, FIX_TITLE)
-        has(t, data, res, id="P1-S0", title="[P1-S0 fix] [Kai build] Settle ties in the round",
+        has(t, data, res, id="P1-S0", title="[P1-S0 fix] [Kai Opus medium] Settle round ties",
             ready=True, blocked_by=[])
 
 

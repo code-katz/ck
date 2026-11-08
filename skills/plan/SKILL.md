@@ -18,13 +18,13 @@ The Workflow tool must be in this session's tool list, loaded or listed as defer
 Check what exists with this exact command and trust its output over any other listing: `ls ROADMAP.md docs/ARCHITECTURE.md docs/TEAM.md docs/PRD.md docs/brand-guide.md docs/build-plan.md CLAUDE.md 2>/dev/null`.
 
 - **No text follows the command: the release plan.** Its file is `docs/build-plan.md` and Quinn writes it. `ROADMAP.md` must exist. If it does not, stop with one action: "Run `/ck:roadmap` first. The plan stages the roadmap's steps in their approved order."
-- **Text follows the command: an item plan** for that piece of work, under `docs/plan/`. Its id is the id the author typed, taking the part after the last hyphen (`W6-A31` gives `A31`), when that is one capital letter followed by up to seven capitals or digits; otherwise pass no id and the workflow makes one. Its author is the persona `docs/TEAM.md` names for that kind of work when that is one of quinn, akira, sasha, alex, kai, or river, and otherwise akira.
+- **Text follows the command: an item plan** for that piece of work, under `docs/plan/`. Its id is the id the author typed, taking the part after the last hyphen (`W6-A31` gives `A31`), when that is one capital letter followed by up to seven capitals or digits; otherwise it is the release that `<plan.py> next` prints first. Then run `<plan.py> next <the id>`: its second column is the phase the plan starts at, so the item's phases carry on from its earlier plans. Its author is the persona `docs/TEAM.md` names for that kind of work when that is one of quinn, akira, sasha, alex, kai, or river, and otherwise akira.
 
 ## 2. Resume check
 
 First find this plan's file and its run record.
 
-- An item plan's file: run `<plan.py> find`. When a line under `docs/plan/` has this item's id in its second column, that file is this item's plan, whatever its date. With none, the plan is new and its file is `docs/plan/<today>-<slug>.md` (step 3).
+- An item plan's file: run `<plan.py> find`. When a line under `docs/plan/` has this item's id in its second column and `draft` in its third, that file is this item's plan, whatever its date. With none, the plan is new and its file is `docs/plan/<today>-<slug>.md` (step 3): an approved plan of the item stays as it is, and the new one carries on its phases.
 - The record: run `grep -rHoE --include=run.json '"(command|status|outputPath)" *: *"[^"]*"' .ck/runs 2>/dev/null | sort`. The record is the last folder listed whose command is `plan` and whose outputPath ends with `/` and this plan's path (`/docs/build-plan.md` for the release plan). No output means there is no record.
 
 Then decide, in this order:
@@ -63,7 +63,8 @@ Workflow({
     runId: "<runId>", runDir: "<runDir>", projectRoot: "<projectRoot>",
     pluginRoot: "${CLAUDE_PLUGIN_ROOT}", timestamp: "<the today line the block printed, not its createdAt: it becomes the plan's Date line>",
     item: "<the piece of work in the author's words; omit for the release plan>",
-    itemId: "<the item's id; omit when there is none>",
+    itemId: "<the item's id; omit for the release plan>",
+    firstPhase: <the phase an item plan starts at, from step 1; omit for the release plan>,
     author: "<quinn, or the item plan's author from step 1>",
     inputs: ["<projectRoot>/ROADMAP.md", ...],
     existing: "<the earlier plan's own file as an absolute path, never the plan-before.md copy; omit when there is none>",

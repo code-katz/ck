@@ -695,10 +695,9 @@ for word in ('running in its session', 'not started; could start now', 'not star
 if 'name: "ck:plan-draft"' not in plan or not pathlib.Path('workflows/plan-draft.js').exists(): problems.append('skills/plan does not launch ck:plan-draft, or the workflow is missing')
 for need in ('<plan.py> approve', '<plan.py> refresh', '<plan.py> check', 'docs/build-plan.md', 'docs/plan/', 'Run `/ck:roadmap` first', 'plan-before.md', 'git add -- "<the plan>" && git commit -m', 'pass the file as `existing`', 'passes the plan on disk as `existing`'):
     if need not in plan: problems.append(f'skills/plan lacks: {need}')
-# The script makes the fix card and puts the model check in every card; the contract names a fix's session.
+# The script makes the fix card and puts the model check in every card.
 for need in ('check your own model', '--fix'):
     if script and need not in script: problems.append(f'scripts/plan.py lacks: {need}')
-if '[A31-P1-S5 fix] [Akira design]' not in contract: problems.append('the contract lacks the name of a fix session, "[A31-P1-S5 fix] [Akira design]"')
 for p in problems: print(p)
 sys.exit(1 if problems else 0)
 EOF
@@ -730,7 +729,7 @@ CM="python3 scripts/claude-md.py"
 mkdir -p "$TMP/cm"
 state_of() { $CM status "$@" | sed -n 's/^state: //p'; }
 # A tailored draft: the current template with every blank filled.
-sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.28.md > "$TMP/cm/draft.md"
+sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.30.md > "$TMP/cm/draft.md"
 
 # The command runs only when the User types it, and ships no hook of its own.
 if grep -qx 'disable-model-invocation: true' skills/claude-md/SKILL.md && ! grep -q 'claude-md' hooks/hooks.json; then
@@ -742,12 +741,12 @@ fi
 # A new section: the file is made with the heading and the draft, stamped with the template's version.
 $CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md" >/dev/null; rc=$?
 if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat "$TMP/cm/draft.md")" && "$(state_of "$TMP/cm/new.md")" == stamped ]] \
-   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.28' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
-  ok "a new section is written under the heading, stamped 0.1.28, not behind"
+   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.30' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
+  ok "a new section is written under the heading, stamped 0.1.30, not behind"
 else
   fail "a new section: exit $rc, state $(state_of "$TMP/cm/new.md")"
 fi
-cp templates/how-we-work/0.1.28.md "$TMP/cm/blank.md"
+cp templates/how-we-work/0.1.30.md "$TMP/cm/blank.md"
 out=$($CM write "$TMP/cm/blank2.md" --section "$TMP/cm/blank.md"); rc=$?
 [[ $rc -eq 1 && "$out" == *'{{lanes}}'* && ! -e "$TMP/cm/blank2.md" ]] && ok "a draft with a blank left in it is refused, and the blank is named" || fail "a draft with a blank: exit $rc, '$out'"
 

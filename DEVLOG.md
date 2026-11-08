@@ -5,6 +5,30 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-08] 0.1.30: the model back in the title, and phases that carry on
+
+**Category:** `fix`
+**Tags:** `ck`, `plan`, `start`, `claude-md`
+**Risk Level:** `low`
+**Breaking Change:** `no` (older titles and plans still read; a project's sessions change when its How we work is updated)
+
+### Summary
+Will saw d20mob stage sessions titled `[P9-S5] [Robin write] ...` and asked why the model was missing. 0.1.27 had put the job word where the model was, so no title showed the model or the effort. The d20mob coordinator also never ran `/ck:start`: it wrote three titles itself, dropped the item prefix, and passed no model, so all three opened on Sonnet and stopped at the model check. Separately, `/ck:plan Phase 9, ...` wrote Phases 1 to 3 under a new item, R1, because every item plan started at Phase 1 and `plan.py check` refused any other start. The session renamed them to 9 to 11 by hand, and the approved plan then failed ck's own check. Will chose two fixes: the title carries the model and effort, and the release's phases carry on from plan to plan (R-P-S).
+
+### Detail
+- **The title shows the point.** `plan.py card` names a stage `[R1-P9-S5] [Robin Opus medium] <title>` and a fix `[R1-P9-S5 fix] [Robin Opus medium] <title>`: the model and effort the stage runs at, its job's or its pin's. `check` counts the 59 characters on this name. On d20mob's plan this puts 9 of 21 names over, by 2 to 9 characters; they need a word or two less before their cards are used.
+- **Phases carry on.** An item's plans share one phase count: a new plan starts one past the highest phase in its item's earlier plans under `docs/plan/`. `check` lets an item plan start at any phase and refuses two plans of one item that share a phase number, naming the phase the plan should start at. The release plan still starts at 0 or 1. New `plan.py next [ITEM]` prints the item and the phase a new plan starts at; with no item, the item is the release, the highest `R<n>` under `docs/plan/`, or `R1`.
+- **/ck:plan.** With no id typed, an item plan goes under the release `next` prints, and the workflow numbers its phases from `next`'s phase. An approved plan of the item stays as it is; only a draft is resumed.
+- **How we work 0.1.30.** The tag is `[{persona} {model} {effort}]`, and a stage session checks itself against the point its title names. A stage session is opened only by `/ck:start`, from its card, with its title, model and effort as the card gives them; a coordinator never writes them itself. Older tags with a job word or a model word still read.
+- The contract, the start skill, the fix file, the README and the draft workflow show the new names. A `git grep` across `skills/`, `workflows/`, `templates/`, `scripts/`, `agents/` and `profiles/` found no other place with the old tag. The `/ck:claude-md` tests read the 0.1.30 template. Two new plan cases cover `next` and the carry-on check; the title cases were refitted to the longer name.
+- **Where the other ids came from.** A31 and W6 are d20mob's own lane names from Wave 6 (W6-A31 was Akira's 31st lane), not ck's. A coordinator runs `/ck:start` for a whole plan, across all its phases; the next plan starts with `/ck:plan <the next piece>`, then `/ck:start` in a new session.
+
+### Open
+- d20mob and hireling take How we work 0.1.30 with `/ck:claude-md`, on their own pull requests, when Will says so. d20mob's R1 plan then needs nine shorter titles.
+- "A release in one command" moves to 0.1.31.
+
+---
+
 ## [2026-11-07] 0.1.29: every ck page names its project
 
 **Category:** `fix`
