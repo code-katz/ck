@@ -15,7 +15,7 @@ export const meta = {
 // of work, under docs/plan/. Normally launched by /ck:plan, which mints the run directory and owns the
 // review, with an object: runId, runDir (absolute cache directory), projectRoot (absolute path of the
 // project repository), pluginRoot, timestamp, item (the piece of work, in the author's words; omit for
-// the release plan), itemId (short id for an item plan), author (persona who writes it; default quinn
+// the release plan), itemId (short id for an item plan), firstPhase (the phase an item plan starts at), author (persona who writes it; default quinn
 // for the release, akira for an item), inputs (absolute paths of the documents that exist), existing
 // (absolute path of an earlier plan to carry over), outputPath, startAt (optional: draft | check). A
 // direct /ck:plan-draft [item] works too, with everything defaulted to the current project and no run
@@ -88,10 +88,11 @@ if (runs('draft')) {
   phase('Draft')
   doc = await agent(
     `The project repository is ${projectRoot}. ` + housekeeping + `${contractStep} It gives the file's shape, the four state forms, and the checklist. The sections, in order: ` + SECTIONS.map(s => '"' + s + '"').join(', ') + `. ${rosterStep}\n` +
-    `Length first: the plan is capped at 3,500 words. A What is one phrase, a Does is two sentences at most, and an entry's title is short enough that its session name, "[<stage>] [<Persona> <job>] <title>", is 59 characters or fewer.\n` +
+    `Length first: the plan is capped at 3,500 words. A What is one phrase, a Does is two sentences at most, and an entry's title is short enough that its session name, "[<stage>] [<Persona> <Model> <effort>] <title>" (the model and effort the stage's job runs at, and in an item plan the item and a hyphen before the stage), is 59 characters or fewer.\n` +
     (release
       ? `Write the release plan. Read: ${inputs.join(', ')}. ROADMAP.md is the spine: its steps, in their approved order, are what this plan stages, and the plan adds nothing to its scope. If ROADMAP.md does not exist, write nothing: return stages 0 and set stopReason to "Run /ck:roadmap first. It writes ROADMAP.md, the order this plan stages." That is the only case with a stopReason; otherwise leave the field out. From the architecture document take what must exist before what; from the team document take who owns each kind of work; from the PRD take the requirement numbers for each entry's Serves line; from the brand guide and the design folders see which screens have a chosen design.\n`
       : `Write an item plan for this piece of work, in the author's words: ${item}\n` + (a.itemId ? `Its id is ${a.itemId}.\n` : `Give it a short id, one capital letter followed by up to seven capitals or digits, and return it as itemId.\n`) +
+        (a.firstPhase ? `Number its phases from Phase ${a.firstPhase}: the item's earlier phases are in its earlier plans, and this plan carries on from them.\n` : '') +
         `Read: ${inputs.join(', ')}. Then find where the item lives in the code with your own searches, and read enough of it to split the work into stages that one session each can finish. If the item cannot be staged from what is here, write nothing: return stages 0 and say why in stopReason; otherwise leave that field out.\n`) +
     (a.existing ? `An earlier plan is at ${a.existing}. Read it and carry it over: keep its phases, its order, its owners, and its decisions. When it is a staged plan already, keep every stage's id as it is and keep the State of every row that is done or running; a stage that is new or split off takes the next free number in its phase, at the end of that phase's table, and its Follows says where it sits in the order of work. When it is not a staged plan, mark as done what it says is done.\n` : '') +
     `How to stage the work:\n` +

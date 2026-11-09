@@ -75,7 +75,7 @@ Ends when: every test that passed before the refactor passes after it.
 - Done when: the roster tests pass with creatures read from the tables.
 - Hands back: a draft pull request
 
-### P1-S2. The fight reads the tables
+### P1-S2. The fight reads tables
 
 - Kind: build
 - Does: Makes the fight read each creature from its table.

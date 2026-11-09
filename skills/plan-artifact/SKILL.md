@@ -23,7 +23,7 @@ Item: <ID>
 Reads: <the documents it was written from, by path>
 ```
 
-The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits, such as `A31`. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`.
+The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits: the release, `R` and its number, such as `R1`, or an id the author typed, such as `A31`. An item's phases carry on across its plans: a new plan of the item starts one past the highest phase in its earlier plans under `docs/plan/`, so a release's plans run Phase 1 to 8, then 9 to 11, and so on. `plan.py next` prints the item and the phase a new plan starts at. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`.
 
 ## Section order
 
@@ -38,7 +38,7 @@ One short paragraph: what is being built and which approved documents it comes f
 
 ### Phases
 
-One `### Phase <n>. <name>` heading per phase, numbered in order from 0 or from 1. Under each, in this order:
+One `### Phase <n>. <name>` heading per phase, numbered in order with no gap: the release plan from 0 or from 1, and an item plan from where its item's earlier plans left off. Under each, in this order:
 
 1. One or two plain sentences: what the phase is, and what the author or a user of the product would notice when it ends.
 2. The stage table, with exactly these columns:
@@ -54,7 +54,7 @@ One `### Phase <n>. <name>` heading per phase, numbered in order from 0 or from 
 
 The columns:
 
-- **Stage** is `P<phase>-S<stage>`. Stages are numbered from 0 within their phase, in order, with no gaps. Once a plan is approved a stage keeps its id: a stage that is added or split off later takes the next free number, at the end of its phase's table, and its Follows says where it sits in the order of work. In an item plan a stage's full id puts the item first, `A31-P2-S0`; the table still shows `P2-S0`.
+- **Stage** is `P<phase>-S<stage>`. Stages are numbered from 0 within their phase, in order, with no gaps. Once a plan is approved a stage keeps its id: a stage that is added or split off later takes the next free number, at the end of its phase's table, and its Follows says where it sits in the order of work. In an item plan a stage's full id puts the item first, `R1-P2-S0`; the table still shows `P2-S0`.
 - **What** is the job in one plain phrase, with no file names.
 - **Who** is one owner: `<Persona>, <job>`, with a persona from the roster and one of five job words; or `You`, for a job that is the author's own (a decision, a seat to fill, a pick on a page); or `Open`, when nobody on the roster or the team document can own it yet. The job word, not the persona, sets the stage's model and effort, from its line in ck's `tiers.conf`:
   - `design`, Opus at high effort: a design or research call, long reasoning across many files, a hard bug.
@@ -88,7 +88,7 @@ One entry per row, in the table's order, and no entry without a row:
 - Hands back: a draft pull request
 ```
 
-- The title after the id names the session: `[P2-S1] [Sasha build] Build the accounts screens`, or `[A31-P2-S1] [...]` in an item plan. That whole name must be 59 characters or fewer, so keep the title short. A fix to a stage that is done runs in a session of its own, named with ` fix` after the stage's id, the stage's owner, and a title for the fix: `[A31-P1-S5 fix] [Akira design] Mend the scan's natural 1`. It has no row and changes no State.
+- The title after the id names the session, with the model and effort the stage runs at: `[P2-S1] [Sasha Opus medium] Build the accounts screens`, or `[R1-P2-S1] [...]` in an item plan. That whole name must be 59 characters or fewer, so keep the title short: shorten the words, never the two tags. A fix to a stage that is done runs in a session of its own, named with ` fix` after the stage's id, the stage's owner and point, and a title for the fix: `[R1-P1-S5 fix] [Akira Opus high] Mend the scan's 1`. It has no row and changes no State.
 - **Kind** is one of: `build` (changes the product and its tests), `drawing` (mockups only, no product code), `words` (one text file, no code), `tests` (tests only, no product code), `check` (changes nothing and reports), `design round` (the author types `/ck:design <feature>`; no session is opened for it), `yours` (a row whose owner is `You`).
 - **Does** is two sentences at most.
 - **Files** is what the session may change, by folder or file, or `none`.
@@ -109,7 +109,7 @@ Seats that are not filled and decisions the plan needs, each with the stage it h
 1. The four sections are present, in order, with these headings.
 2. Every phase has its sentences, a stage table with the four columns, and an `Ends when:` line.
 3. Every row has one owner, written as the contract says, and every persona named is on the roster.
-4. Stage ids are `P<phase>-S<stage>`, numbered from 0 within each phase with no gaps, and every row has exactly one entry under Stage by stage with the same id.
+4. Stage ids are `P<phase>-S<stage>`, numbered from 0 within each phase with no gaps, and every row has exactly one entry under Stage by stage with the same id. No two plans of one item share a phase number.
 5. Every entry has Kind, Does, Files, Reads, Follows, Done when, and Hands back, and its Kind is from the list. A `You` row has Kind `yours`, and only a `You` row does.
 6. Every Follows names stages that exist and come earlier.
 7. Every State is one of the four forms, and a row that is not started names exactly the stages it follows that are not done.
