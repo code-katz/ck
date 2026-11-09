@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-07.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-09.
 
 ---
 
@@ -26,16 +26,17 @@
 - The model and effort follow the job (0.1.27): a plan row's Who names a job word (design, build, edit, review, write), and the job, not the persona, sets the stage's model and effort, from one line each in `tiers.conf`: design is Opus 5.5 at high, build, review and write Opus 5.5 at medium, edit Sonnet 5.5 at medium. A row can pin any other point; Fable is pinned only after Opus at high fell short, or for security or concurrency code. Stage chips carry the model and the effort, the stage checks both, and `/ck:cost history` shows cost by model and effort.
 - Two endings (0.1.28): How we work tells a session that every message to the User ends with what is left in the session, in order, and the words for the first step ("Say merge 95"), or with "This session can be closed." It never says "nothing is needed". Until then the template itself told sessions to say so, and d20mob and hireling sessions said it while a merge, a "log it" and a branch deletion were still waiting.
 - Every page names its project (0.1.29): review pages, gallery pages and `/ck:do` mockups carry the project's name in their title and banner line, found from the git repository's main checkout, so a d20mob page can be told apart in the artifact list. Until then the banner said "Code Katz · review page", and a d20mob staged plan was titled "Phase 9, the ten: staged plan".
-- Main is at 0.1.29. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.29` since 2026-11-07. Rollback in a project is two commands.
+- The model back in the title, and phases that carry on (0.1.30): `/ck:start` names a stage `[R1-P9-S5] [Robin Opus medium] ...`, with the model and effort its job runs at, and How we work 0.1.30 says a stage's session is opened only by `/ck:start` from its card. `/ck:plan` files a plan under the current release and numbers its phases from where the release's earlier plans left off (`plan.py next`), and `plan.py check` refuses two plans of one release that share a phase. Until then a d20mob coordinator wrote its own stage titles, which lost the model and the `R1` prefix, and a plan for Phase 9 was drafted as Phase 1 and renumbered by hand.
+- Main is at 0.1.30. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), stable on `v0.1.29` since 2026-11-07 and ck-next on `v0.1.30` since 2026-11-09. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
 - 0.1.20 to 0.1.29 have not been checked in a real d20mob session, and stable serves them. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
 - A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)).
-- `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28 and then 0.1.29. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
-- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28` and `v0.1.29`.
+- `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28, 0.1.29 and then 0.1.30. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
+- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28`, `v0.1.29` and `v0.1.30`.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
 ---
@@ -74,7 +75,8 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.26 | 2026-11-05 | The drawing's link: every message that shows or changes a drawing gives the page's link with the picture; How we work 0.1.26 | Tag `v0.1.26` |
 | 0.1.27 | 2026-11-05 | The model and effort follow the job: five job words in Who, each a model and an effort in `tiers.conf`, pins for any other point, chips with both, cost by model and effort; How we work 0.1.27 | Tag `v0.1.27` |
 | 0.1.28 | 2026-11-06 | Two endings: every message ends with what is left in the session or "This session can be closed.", never "nothing is needed"; How we work 0.1.28 | Tag `v0.1.28` |
-| 0.1.29 | 2026-11-07 | Every page names its project: review pages, galleries and `/ck:do` mockups carry the project's name in their title and banner line, from the git repository's main checkout; `--project` overrides it | Tag `v0.1.29`; **stable** and **ck-next** |
+| 0.1.29 | 2026-11-07 | Every page names its project: review pages, galleries and `/ck:do` mockups carry the project's name in their title and banner line, from the git repository's main checkout; `--project` overrides it | Tag `v0.1.29`; **stable** |
+| 0.1.30 | 2026-11-09 | The model back in the title, and phases that carry on: stage titles name the model and effort, stages open only through `/ck:start`, and a release's phases carry on from plan to plan (`plan.py next`); How we work 0.1.30 | Tag `v0.1.30`; **ck-next** |
 
 ---
 
@@ -121,7 +123,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
-| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now as 0.1.30, with its own plan |
+| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now as 0.1.31, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
 ### Tier 3: Strategic / Longer Horizon
@@ -136,8 +138,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   a d20mob phase on 0.1.29 (stable and ck-next), checking 0.1.19 to 0.1.29; measuring d20mob's 400K auto-compact test (both in progress)
-Next:  0.1.30, a release in one command, with its own plan; the code-quality review command's design
+Now:   a d20mob phase on 0.1.30 (ck-next; stable on 0.1.29), checking 0.1.19 to 0.1.30; measuring d20mob's 400K auto-compact test (both in progress)
+Next:  0.1.31, a release in one command, with its own plan; the code-quality review command's design
 Later: the code-quality review command; template changes reach projects; the lean review's remaining recommendations
 ```
 
@@ -163,6 +165,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-09] 0.1.30 shipped: the model back in the title, and phases that carry on; ck-next on 0.1.30
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; What's missing or fragile; Releases; Tier 2 item 3; Recommended Sequencing
+
+### What Changed
+Releases gains 0.1.30 (the model back in the title, and phases that carry on, [code-katz/ck#72](https://github.com/code-katz/ck/pull/72)), tagged `v0.1.30`, and ck-next serves it. Stable stays on 0.1.29. The main ck, d20mob and hireling installs run 0.1.30. A release in one command moves to 0.1.31.
+
+### Why
+Three d20mob Phase 9 sessions opened without the model or the `R1` prefix in their titles, because the coordinator wrote them itself instead of running `/ck:start`, and a plan asked for as Phase 9 was drafted as Phase 1, since ck numbered every plan's phases from 0 or 1. `claude plugin update` updated the main ck folder; the d20mob and hireling main installs were set by hand again. d20mob and hireling still carry How we work 0.1.28 until they take 0.1.30 with `/ck:claude-md`.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-07] Stable on 0.1.29
 
