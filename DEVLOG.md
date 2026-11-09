@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-09] 0.1.31: one link for every page
+
+**Category:** `fix`
+**Tags:** `ck`, `claude-md`, `kai`, `do`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project changes only when its How we work is updated)
+
+### Summary
+Will asked why a session "sometimes" gives him a link that opens in Chrome and sometimes a "cut n paste" address. A d20mob Kai lane gave `file:///` links to its plates mockups, then the same addresses in blocks "to paste, if the links do not open". The cause was two ck rules that disagreed: How we work's "Drawings first" (since 0.1.26) and Kai's own text told a session to give a `file:///` link, while the /ck:do draw step published the page and gave its `claude.ai` link. In the Code tab a link to a file opens in the app's file pane, not in Chrome; in the d20mob lane the `file:///` link drew "I need the html link", and every `claude.ai` link opened. Will chose one rule for every page.
+
+### Detail
+- **One link for every page.** New `templates/how-we-work/0.1.31.md`, copied from 0.1.30. "Drawings first" keeps the link with every picture; a new rule says how: every page shown to the User is published with the Artifact tool, its pictures and other local files beside it through the tool's `files` option, and the message gives its `claude.ai` link as plain text. Later versions publish from the same file, so the link stays. When a page cannot be published (it must be served while it runs, the tool is refused or missing, or a file is over 15 MB), the session opens it in Chrome itself with `open -a "Google Chrome"` and says so, and runs the same command on "open it again". Never a `file:///` link, a link to a project file, or an address to paste.
+- **Local pictures travel.** A test page published with a PNG through `files` served the picture back byte for byte. The d20mob plates pages (20 pictures, 5.1 MB, largest 0.5 MB) fit well inside the tool's limits (255 files and 64 MB a publish, 15 MB a file), so the Chrome fallback should be rare.
+- **Kai** (`profiles/kai.md`, then `scripts/generate.sh` for the agent and switch skill) follows the same rule.
+- **The draw step** (`skills/do/draw.md`) gives the link as plain text, not in code, where a link does not click, and on a refused publish opens the mockup in Chrome instead of giving its path.
+- A `git grep` across `skills/`, `workflows/`, `commands/`, `scripts/`, `hooks/` and `profiles/` found no other place that hands the User a page link. `/ck:claude-md` was run against a copy of d20mob's `CLAUDE.md`: it showed d20mob's 0.1.28 section behind 0.1.31, wrote only the two changed lines and the stamp, and a second run changed nothing. The `/ck:claude-md` tests read the 0.1.31 template.
+
+---
+
 ## [2026-11-08] 0.1.30: the model back in the title, and phases that carry on
 
 **Category:** `fix`
