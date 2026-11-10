@@ -30,11 +30,11 @@
 - One link for every page (0.1.31): How we work 0.1.31, Kai and the `/ck:do` draw step tell a session to publish every page it shows you with the Artifact tool, local pictures beside it, and give its `claude.ai` link, which opens in the browser; a page that cannot be published is opened in Chrome by the session. Until then How we work and Kai asked for a `file:///` link, which the Code tab opens in its file pane, and a d20mob Kai lane added addresses to paste.
 - Fable 5.2 (0.1.32): River, Akira, Morgan, Sage, Jordan and Reiner run on `claude-fable-5-2`, set once in `tiers.conf`, and a plan pin of "Fable" opens on it. Fable 5.2 costs $8 in and $40 out per million tokens against 5.1's $10 and $50, with the same context, output and effort range.
 - Main is at 0.1.32. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), stable on `v0.1.30` since 2026-11-09 and ck-next on `v0.1.32` since 2026-11-09. On Will's Mac, the user-wide stable install, which every other project uses, went from 0.1.19 to 0.1.30 the same day. Rollback in a project is two commands.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.32`: ck-next since 2026-11-09 and stable since 2026-11-10. On Will's Mac, the user-wide stable install, which every other project uses, went from 0.1.19 to 0.1.30 on 2026-11-09 and to 0.1.32 on 2026-11-10. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
-- 0.1.20 to 0.1.30 have not been checked in a real d20mob session, and stable serves them. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- 0.1.20 to 0.1.32 have not been checked in a real d20mob session, and stable serves them. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
 - A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)). How we work 0.1.30 went in on 2026-11-09, with the open stage titles shortened to fit the new tag ([d6veteran/d20mob#457](https://github.com/d6veteran/d20mob/pull/457), [d6veteran/hireling#110](https://github.com/d6veteran/hireling/pull/110)). How we work 0.1.31 is not in either yet.
 - `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28, 0.1.29, 0.1.30, 0.1.31 and then 0.1.32. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
@@ -78,9 +78,9 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.27 | 2026-11-05 | The model and effort follow the job: five job words in Who, each a model and an effort in `tiers.conf`, pins for any other point, chips with both, cost by model and effort; How we work 0.1.27 | Tag `v0.1.27` |
 | 0.1.28 | 2026-11-06 | Two endings: every message ends with what is left in the session or "This session can be closed.", never "nothing is needed"; How we work 0.1.28 | Tag `v0.1.28` |
 | 0.1.29 | 2026-11-07 | Every page names its project: review pages, galleries and `/ck:do` mockups carry the project's name in their title and banner line, from the git repository's main checkout; `--project` overrides it | Tag `v0.1.29` |
-| 0.1.30 | 2026-11-09 | The model back in the title, and phases that carry on: stage titles name the model and effort, stages open only through `/ck:start`, and a release's phases carry on from plan to plan (`plan.py next`); How we work 0.1.30 | Tag `v0.1.30`; **stable** |
+| 0.1.30 | 2026-11-09 | The model back in the title, and phases that carry on: stage titles name the model and effort, stages open only through `/ck:start`, and a release's phases carry on from plan to plan (`plan.py next`); How we work 0.1.30 | Tag `v0.1.30` |
 | 0.1.31 | 2026-11-09 | One link for every page: every page a session shows you is published and given as a `claude.ai` link, or opened in Chrome by the session when it cannot be; never a `file:///` link or an address to paste; How we work 0.1.31 | Tag `v0.1.31` |
-| 0.1.32 | 2026-11-09 | Fable 5.2: the six judgment seats and Fable pins move from Fable 5.1 to the cheaper Fable 5.2 | Tag `v0.1.32`; **ck-next** |
+| 0.1.32 | 2026-11-09 | Fable 5.2: the six judgment seats and Fable pins move from Fable 5.1 to the cheaper Fable 5.2 | Tag `v0.1.32`; **stable** and **ck-next** |
 
 ---
 
@@ -118,7 +118,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Try 0.1.19 to 0.1.30 in d20mob** (in progress since 2026-11-07) | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), to `v0.1.29` on 2026-11-07 ([code-katz/claude-plugins#12](https://github.com/code-katz/claude-plugins/pull/12)), and to `v0.1.30` on 2026-11-09 ([code-katz/claude-plugins#13](https://github.com/code-katz/claude-plugins/pull/13)), at your word, before any of 0.1.19 to 0.1.30 was tried by hand in a d20mob session | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, no session says "nothing is needed" with work waiting, each page ck publishes names d20mob (0.1.29), and a stage opened by `/ck:start` shows its model and effort in its title (0.1.30); if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
+| 1 | **Try 0.1.19 to 0.1.32 in d20mob** (in progress since 2026-11-07) | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), to `v0.1.29` on 2026-11-07 ([code-katz/claude-plugins#12](https://github.com/code-katz/claude-plugins/pull/12)), to `v0.1.30` on 2026-11-09 ([code-katz/claude-plugins#13](https://github.com/code-katz/claude-plugins/pull/13)), and to `v0.1.32` on 2026-11-10 ([code-katz/claude-plugins#14](https://github.com/code-katz/claude-plugins/pull/14)), at your word, before any of 0.1.19 to 0.1.32 was tried by hand in a d20mob session | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, no session says "nothing is needed" with work waiting, each page ck publishes names d20mob (0.1.29), and a stage opened by `/ck:start` shows its model and effort in its title (0.1.30); if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
 | 2 | **Measure d20mob's 400K auto-compact test** (in progress since 2026-11-07) | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
 
 ### Tier 2: High Value, Plan for Next Sprint
@@ -142,7 +142,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   a d20mob phase on 0.1.32 (ck-next; stable on 0.1.30), checking 0.1.19 to 0.1.32; measuring d20mob's 400K auto-compact test (both in progress)
+Now:   a d20mob phase on 0.1.32 (stable and ck-next), checking 0.1.19 to 0.1.32; measuring d20mob's 400K auto-compact test (both in progress)
 Next:  0.1.33, a release in one command, with its own plan; the code-quality review command's design
 Later: the code-quality review command; template changes reach projects; the lean review's remaining recommendations
 ```
@@ -163,12 +163,30 @@ Later: the code-quality review command; template changes reach projects; the lea
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.28 went to stable untried (2026-11-06); 0.1.29 went to stable untried (2026-11-07); 0.1.30 went to stable untried (2026-11-09) |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.28 went to stable untried (2026-11-06); 0.1.29 went to stable untried (2026-11-07); 0.1.30 went to stable untried (2026-11-09); 0.1.31 and 0.1.32 went to stable untried (2026-11-10) |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-11-10] Stable on 0.1.32
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; What's missing or fragile; Releases; Tier 1 item 1; Recommended Sequencing; OKRs
+
+### What Changed
+Stable moved from `v0.1.30` to `v0.1.32` ([code-katz/claude-plugins#14](https://github.com/code-katz/claude-plugins/pull/14)), so stable and ck-next serve the same version again, and the user-wide stable install on Will's Mac went from 0.1.30 to 0.1.32. 0.1.31 is served by neither channel. The d20mob trial now covers 0.1.19 to 0.1.32.
+
+### Why
+You asked to pin stable to 0.1.32. The OKR row records 0.1.31 and 0.1.32 going to stable untried.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-09] 0.1.32 shipped: Fable 5.2; ck-next on 0.1.32
 
