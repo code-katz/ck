@@ -27,16 +27,17 @@
 - Two endings (0.1.28): How we work tells a session that every message to the User ends with what is left in the session, in order, and the words for the first step ("Say merge 95"), or with "This session can be closed." It never says "nothing is needed". Until then the template itself told sessions to say so, and d20mob and hireling sessions said it while a merge, a "log it" and a branch deletion were still waiting.
 - Every page names its project (0.1.29): review pages, gallery pages and `/ck:do` mockups carry the project's name in their title and banner line, found from the git repository's main checkout, so a d20mob page can be told apart in the artifact list. Until then the banner said "Code Katz · review page", and a d20mob staged plan was titled "Phase 9, the ten: staged plan".
 - The model back in the title, and phases that carry on (0.1.30): `/ck:start` names a stage `[R1-P9-S5] [Robin Opus medium] ...`, with the model and effort its job runs at, and How we work 0.1.30 says a stage's session is opened only by `/ck:start` from its card. `/ck:plan` files a plan under the current release and numbers its phases from where the release's earlier plans left off (`plan.py next`), and `plan.py check` refuses two plans of one release that share a phase. Until then a d20mob coordinator wrote its own stage titles, which lost the model and the `R1` prefix, and a plan for Phase 9 was drafted as Phase 1 and renumbered by hand.
-- Main is at 0.1.30. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.30` since 2026-11-09. On Will's Mac, the user-wide stable install, which every other project uses, went from 0.1.19 to 0.1.30 the same day. Rollback in a project is two commands.
+- One link for every page (0.1.31): How we work 0.1.31, Kai and the `/ck:do` draw step tell a session to publish every page it shows you with the Artifact tool, local pictures beside it, and give its `claude.ai` link, which opens in the browser; a page that cannot be published is opened in Chrome by the session. Until then How we work and Kai asked for a `file:///` link, which the Code tab opens in its file pane, and a d20mob Kai lane added addresses to paste.
+- Main is at 0.1.31. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), stable on `v0.1.30` since 2026-11-09 and ck-next on `v0.1.31` since 2026-11-09. On Will's Mac, the user-wide stable install, which every other project uses, went from 0.1.19 to 0.1.30 the same day. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
 - 0.1.20 to 0.1.30 have not been checked in a real d20mob session, and stable serves them. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
-- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)). How we work 0.1.30 is open for both, with the open stage titles shortened to fit the new tag ([d6veteran/d20mob#457](https://github.com/d6veteran/d20mob/pull/457), [d6veteran/hireling#110](https://github.com/d6veteran/hireling/pull/110)).
-- `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28, 0.1.29 and then 0.1.30. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
-- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28`, `v0.1.29` and `v0.1.30`.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)). How we work 0.1.30 went in on 2026-11-09, with the open stage titles shortened to fit the new tag ([d6veteran/d20mob#457](https://github.com/d6veteran/d20mob/pull/457), [d6veteran/hireling#110](https://github.com/d6veteran/hireling/pull/110)). How we work 0.1.31 is not in either yet.
+- `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28, 0.1.29, 0.1.30 and then 0.1.31. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
+- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28`, `v0.1.29`, `v0.1.30` and `v0.1.31`.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
 ---
@@ -76,7 +77,8 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.27 | 2026-11-05 | The model and effort follow the job: five job words in Who, each a model and an effort in `tiers.conf`, pins for any other point, chips with both, cost by model and effort; How we work 0.1.27 | Tag `v0.1.27` |
 | 0.1.28 | 2026-11-06 | Two endings: every message ends with what is left in the session or "This session can be closed.", never "nothing is needed"; How we work 0.1.28 | Tag `v0.1.28` |
 | 0.1.29 | 2026-11-07 | Every page names its project: review pages, galleries and `/ck:do` mockups carry the project's name in their title and banner line, from the git repository's main checkout; `--project` overrides it | Tag `v0.1.29` |
-| 0.1.30 | 2026-11-09 | The model back in the title, and phases that carry on: stage titles name the model and effort, stages open only through `/ck:start`, and a release's phases carry on from plan to plan (`plan.py next`); How we work 0.1.30 | Tag `v0.1.30`; **stable** and **ck-next** |
+| 0.1.30 | 2026-11-09 | The model back in the title, and phases that carry on: stage titles name the model and effort, stages open only through `/ck:start`, and a release's phases carry on from plan to plan (`plan.py next`); How we work 0.1.30 | Tag `v0.1.30`; **stable** |
+| 0.1.31 | 2026-11-09 | One link for every page: every page a session shows you is published and given as a `claude.ai` link, or opened in Chrome by the session when it cannot be; never a `file:///` link or an address to paste; How we work 0.1.31 | Tag `v0.1.31`; **ck-next** |
 
 ---
 
@@ -123,7 +125,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
-| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now as 0.1.31, with its own plan |
+| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now after 0.1.32, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
 ### Tier 3: Strategic / Longer Horizon
@@ -138,8 +140,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   a d20mob phase on 0.1.30 (stable and ck-next), checking 0.1.19 to 0.1.30; measuring d20mob's 400K auto-compact test (both in progress)
-Next:  0.1.31, a release in one command, with its own plan; the code-quality review command's design
+Now:   a d20mob phase on 0.1.31 (ck-next; stable on 0.1.30), checking 0.1.19 to 0.1.31; measuring d20mob's 400K auto-compact test (both in progress)
+Next:  0.1.32 (in progress); a release in one command, with its own plan; the code-quality review command's design
 Later: the code-quality review command; template changes reach projects; the lean review's remaining recommendations
 ```
 
@@ -165,6 +167,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-09] 0.1.31 shipped: one link for every page; ck-next on 0.1.31
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; What's missing or fragile; Releases; Tier 2 item 3; Recommended Sequencing
+
+### What Changed
+Releases gains 0.1.31 (one link for every page, [code-katz/ck#74](https://github.com/code-katz/ck/pull/74)), tagged `v0.1.31`, and ck-next serves it. Stable stays on 0.1.30. The main ck, d20mob and hireling installs run 0.1.31; d20mob and hireling were set by hand again. How we work 0.1.31 is not yet in d20mob or hireling. The record that How we work 0.1.30 is open for both is corrected: both pull requests merged on 2026-11-09. Tier 2 item 3, a release in one command, moves after 0.1.32, which another session is preparing.
+
+### Why
+You asked why a session sometimes gives you a link that opens in Chrome and sometimes an address to paste. How we work and Kai asked for `file:///` links, which do not open in Chrome from the Code tab, while `/ck:do` published the page. You chose one rule: publish every page and give its `claude.ai` link.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-09] Stable on 0.1.30
 
