@@ -47,10 +47,10 @@ TIMEOUT = 60
 # real roster does not move these checks. Only the two "passes unchanged"
 # cases read profiles/ROSTER.md itself.
 ROSTER_ROWS = [
-    ("akira", "Backend Engineering Consultant", "claude-fable-5-1", "APIs and databases"),
+    ("akira", "Backend Engineering Consultant", "claude-fable-5-2", "APIs and databases"),
     ("alex", "DevOps & Platform Consultant", "claude-sonnet-5-5", "Infrastructure as code"),
     ("kai", "UX Design & Visual Art Consultant", "claude-opus-5-5", "Mockups"),
-    ("reiner", "Tabletop Game Designer", "claude-fable-5-1", "Core loop and mechanics"),
+    ("reiner", "Tabletop Game Designer", "claude-fable-5-2", "Core loop and mechanics"),
     ("robin", "QA & Testing Consultant", "claude-sonnet-5-5", "Test strategy"),
     ("sasha", "Frontend Engineering Consultant", "claude-sonnet-5-5", "Components"),
     ("tracy", "Fantasy Genre Advisor", "claude-opus-5-5", "Tabletop canon"),
@@ -155,7 +155,7 @@ MODELS = ("Fable", "Opus", "Sonnet", "Haiku")
 POINTS = {"design": ("Opus", "high"), "build": ("Opus", "medium"), "edit": ("Sonnet", "medium"),
           "review": ("Opus", "medium"), "write": ("Opus", "medium")}
 OLD_JOB = {"Fable": "design", "Opus": "build", "Sonnet": "edit", "Haiku": "edit"}
-IDS = {"Fable": "claude-fable-5-1", "Opus": "claude-opus-5-5", "Sonnet": "claude-sonnet-5-5"}
+IDS = {"Fable": "claude-fable-5-2", "Opus": "claude-opus-5-5", "Sonnet": "claude-sonnet-5-5"}
 # The note check adds for a plan whose Who cells are in the older form.
 OLD_FORM = "the older Who form"
 
@@ -2310,7 +2310,7 @@ def _(t):
 def _(t):
     path = t.plan(set_col(item_text(), "P1-S1", 3, "Akira, design, Fable xhigh"))
     data, res = card(t, path, "A31-P1-S1")
-    has(t, data, res, job="design", model="claude-fable-5-1", effort="xhigh",
+    has(t, data, res, job="design", model="claude-fable-5-2", effort="xhigh",
         title="[A31-P1-S1] [Akira Fable xhigh] Make the creature tables")
     prompt_has(t, data, res, MODEL_CHECK % {"model": "Fable", "effort": "xhigh"}, "the pinned point's check")
 

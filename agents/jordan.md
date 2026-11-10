@@ -1,7 +1,7 @@
 ---
 name: jordan
 description: Jordan, Data & ML Consultant.
-model: claude-fable-5-1
+model: claude-fable-5-2
 ---
 
 <!-- GENERATED from profiles/jordan.md by scripts/generate.sh; edit the profile, not this file. -->

@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-09] 0.1.32: Fable 5.2
+
+**Category:** `chore`
+**Tags:** `ck`, `models`, `tiers`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+Will: "Fable 5.2 is out, we need to update". The six judgment seats (River, Akira, Morgan, Sage, Jordan, Reiner) move from `claude-fable-5-1` to `claude-fable-5-2`. Fable 5.2 is cheaper ($8 in and $40 out per million tokens, cache reads $0.20, against $10, $50 and $0.25 for 5.1) with the same 1M context, 128K output and effort range, so the move lowers cost with no tradeoff. Fable 5.1 is still served.
+
+### Detail
+- **One source.** `tiers.conf` names the six seats on `claude-fable-5-2`; `scripts/generate.sh` rewrote the six agents, `profiles/ROSTER.md` and the roster skill from it. A plan pin says only "Fable", and `scripts/plan.py` maps the word to the id it finds in `tiers.conf`, so pins now open on 5.2 with no code change.
+- **Hard-coded ids.** The panel's product lens and the architecture reviewers' security lens (`workflows/panel.js`, `workflows/draft.js`, `skills/architecture/SKILL.md`) name `claude-fable-5-2`. The README's tier table and panel line say Fable 5.2.
+- **Cost.** `/ck:cost` already prices `claude-fable-5-2`: the pricing page lists "Claude Fable 5.2", which its parser keys as `claude-fable-5-2`.
+- **Left alone.** DEVLOG, `tests/drill/` and `docs/` keep 5.1 as history. The ROADMAP moves in its own PR.
+- The tests that count the tiers and check a pinned Fable stage's id now expect 5.2.
+
+---
+
 ## [2026-11-09] 0.1.31: one link for every page
 
 **Category:** `fix`

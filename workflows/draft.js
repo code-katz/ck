@@ -37,7 +37,7 @@ const ARTIFACTS = {
     maxWords: 3000,
     targetWords: 2500,
     lenses: [
-      { persona: 'river', lens: 'product', model: 'claude-fable-5-1', reads: ['docs/brief.md', 'docs/opportunity.md', 'ROADMAP.md'] },
+      { persona: 'river', lens: 'product', model: 'claude-fable-5-2', reads: ['docs/brief.md', 'docs/opportunity.md', 'ROADMAP.md'] },
       { persona: 'toni', lens: 'marketing', model: 'claude-opus-5-5', reads: ['docs/market-research.md', 'docs/opportunity.md'] },
       { persona: 'kai', lens: 'ux', model: 'claude-sonnet-5-5', reads: ['brand/', 'docs/design/'] },
     ],
@@ -54,7 +54,7 @@ const ARTIFACTS = {
     maxWords: 3000,
     targetWords: 2500,
     lenses: [
-      { persona: 'morgan', lens: 'security', model: 'claude-fable-5-1', reads: ['docs/PRD.md', 'SECURITY.md'] },
+      { persona: 'morgan', lens: 'security', model: 'claude-fable-5-2', reads: ['docs/PRD.md', 'SECURITY.md'] },
       { persona: 'alex', lens: 'platform', model: 'claude-sonnet-5-5', reads: ['infra/', 'Dockerfile', '.github/workflows/'] },
       { persona: 'jordan', lens: 'data', model: 'claude-opus-5-5', reads: ['docs/market-research.md', 'data/', 'schema/'] },
     ],
