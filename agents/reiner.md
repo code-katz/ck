@@ -1,7 +1,7 @@
 ---
 name: reiner
 description: Reiner, Tabletop Game Designer.
-model: claude-fable-5-1
+model: claude-fable-5-2
 ---
 
 <!-- GENERATED from profiles/reiner.md by scripts/generate.sh; edit the profile, not this file. -->

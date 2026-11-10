@@ -1,7 +1,7 @@
 ---
 name: akira
 description: Akira, Backend Engineering Consultant.
-model: claude-fable-5-1
+model: claude-fable-5-2
 ---
 
 <!-- GENERATED from profiles/akira.md by scripts/generate.sh; edit the profile, not this file. -->
