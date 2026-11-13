@@ -5,6 +5,24 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-13] 0.1.34: model names may be written down
+
+**Category:** `fix`
+**Tags:** `ck`, `claude-md`, `writing`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project changes only when its How we work is updated)
+
+### Summary
+Since 0.1.12 the How we work "Writing" rule said: "No AI model's name or identifier in a commit, a pull request, a code comment or a file; the attribution trailer the tool appends is the one exception." The sentence came from d20mob's own CLAUDE.md (d20mob commit c8d8751, 2026-10-04). On 2026-11-13 a d20mob stage session (d6veteran/d20mob#557, K7-P2-S2) obeyed it and replaced the three model names in a ck panel memo with "model 1/2/3", which left the memo useless: a panel's point is three lenses on three named models. The rule also contradicted ck's own records, where plan Who cells pin "Opus high", chip names carry "[River Opus medium]", and /ck:cost tables name models. Will called it nonsense.
+
+### Detail
+- **The sentence goes.** New `templates/how-we-work/0.1.34.md`, copied from 0.1.31 with that one sentence removed. The rest of "Writing" (no em-dashes, the User's local day) is word for word as before. `scripts/claude-md.py` takes the newest template as current, so nothing else points at it.
+- **Nowhere else.** No skill, profile, agent, workflow or other template told a session to keep model names out of files.
+- **Projects.** d20mob (`CLAUDE.md` line 75) and hireling (`CLAUDE.md` line 63) still carry the sentence until their How we work is updated.
+- The /ck:claude-md tests that stamp a new section now expect 0.1.34.
+
+---
+
 ## [2026-11-13] 0.1.33: the install a session loads
 
 **Category:** `fix`
