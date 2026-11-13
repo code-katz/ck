@@ -5,6 +5,23 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-13] 0.1.36: the release check
+
+**Category:** `process`
+**Tags:** `ck`, `releases`, `installs`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+0.1.30, 0.1.31 and 0.1.32 were each called fixed after the tests passed and a check in the ck folder, and none ran in a d20mob or hireling session (0.1.33 found why). Will was "pretty disappointed with a lot of the slop in ck" and chose a release check: a release is not done until a fresh session in each project loads it and the fix is seen working there.
+
+### Detail
+- **`installs.py verify <version>`** starts a fresh session in each folder with a ck-next install (by default the main folders: ck, d20mob, hireling), one short Haiku turn each, reads which ck the session's init message says it loaded, and fails unless every folder loaded the release. First run: all three on 0.1.33; asked for 0.1.32 in d20mob, it failed as it should.
+- **`RELEASING.md`** writes the release steps down for the first time, from branch to stable, with the check as step 7: `verify`, then the command the release changed run in a d20mob worktree on real material, both pasted into the pull request. `installed_plugins.json` is never edited by hand.
+- **Tests.** `verify` runs against a stand-in `claude` that prints the init message: it passes a matching load and fails a session that loaded an older ck.
+
+---
+
 ## [2026-11-13] 0.1.35: Iris welcomes AI art and credits the model
 
 **Category:** `fix`
