@@ -243,6 +243,29 @@ out=$(HOME="$TMP/home" bash scripts/check-prereqs.sh </dev/null); rc=$?
 mkdir -p "$TMP/home2"
 out=$(HOME="$TMP/home2" bash scripts/check-prereqs.sh </dev/null); rc=$?
 [[ $rc -eq 0 && -z "$out" ]] && ok "check-prereqs.sh is silent when it is absent" || fail "check-prereqs.sh with a clean home: exit $rc, output '$out'"
+# installs.py, on records laid out as d20mob's were on 2026-11-12: an old worktree's record first, on 0.1.29,
+# then the main folder's, on 0.1.32. A session there loaded 0.1.29.
+PL="$TMP/plugins"; C="$PL/cache/ck-next/ck"
+for v in 0.1.29 0.1.32; do mkdir -p "$C/$v/.claude-plugin"; printf '{"name":"ck","version":"%s"}' "$v" > "$C/$v/.claude-plugin/plugin.json"; done
+python3 - "$PL" <<'EOF'
+import json, sys
+pl, p = sys.argv[1], '/r/d20mob'
+rec = lambda path, v, sha: {'scope': 'local', 'projectPath': path, 'installPath': '%s/cache/ck-next/ck/%s' % (pl, v),
+                            'version': v, 'installedAt': 'x', 'lastUpdated': 'x', 'gitCommitSha': sha}
+json.dump({'version': 2, 'plugins': {'ck@ck-next': [rec(p + '/.claude/worktrees/old', '0.1.29', 'a1'), rec(p, '0.1.32', 'b2')]}},
+          open(pl + '/installed_plugins.json', 'w'))
+EOF
+out=$(echo '{"cwd":"/r/d20mob"}' | python3 scripts/installs.py check --root "$C/0.1.29"); rc=$?
+[[ $rc -eq 0 && -n "$out" ]] && ok "installs.py check speaks when the loaded ck is not the main folder's" || fail "installs.py check on a stale load: exit $rc, output '$out'"
+python3 scripts/installs.py set 0.1.99 --plugins "$PL" 2>/dev/null && fail "installs.py set took a version not in the cache" || ok "installs.py set refuses a version not in the cache"
+if python3 scripts/installs.py set 0.1.32 --plugins "$PL" >/dev/null \
+   && python3 -c 'import json,sys; r=json.load(open(sys.argv[1]))["plugins"]["ck@ck-next"]; assert [(x["version"], x["installPath"][-6:], x["gitCommitSha"]) for x in r] == [("0.1.32", "0.1.32", "b2")] * 2' "$PL/installed_plugins.json"; then
+  ok "installs.py set puts every record, the old worktree's too, on the release"
+else
+  fail "installs.py set: $(cat "$PL/installed_plugins.json")"
+fi
+out=$(echo '{"cwd":"/r/d20mob/.claude/worktrees/new"}' | python3 scripts/installs.py check --root "$C/0.1.32"); rc=$?
+[[ $rc -eq 0 && -z "$out" ]] && ok "installs.py check is silent when the loaded ck is the main folder's" || fail "installs.py check after set: exit $rc, output '$out'"
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"

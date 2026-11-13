@@ -5,6 +5,30 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-13] 0.1.33: the install a session loads
+
+**Category:** `fix`
+**Tags:** `ck`, `installs`, `start`, `plan`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+On 2026-11-12 a new d20mob coordinator, `[W6-K7] coordination`, ran `/ck:start` and named its chips `[K7-P1-S3] [River write] ...`, `[Robin write]` and `[Alex review]`: the job word, not the model and effort that 0.1.30 put in the title. A hireling coordinator did the same (`[P4-S1] [Iris build]`). The code was not at fault. Every d20mob and hireling session since 2026-11-07 had loaded **ck 0.1.29**, whose `session_name` wrote the job word, so 0.1.30, 0.1.31 and 0.1.32 never ran there. Claude Code reads the first install record that belongs to a session's repository, a worktree's record included. In d20mob that was record 9, an old A31 worktree's, on 0.1.29; the main folder's record, set by hand to 0.1.32, was record 10 and was never read. Hireling was the same (record 2, on 0.1.29). The ck folder's first record was its own, so ck sessions ran 0.1.32, which is why each release looked fixed from here. ROADMAP had noted that `claude plugin update` moved "an old worktree install" instead of the main folder, but not that the old record was the one sessions read.
+
+### Evidence
+- The coordinator's transcript: its skill's base directory and every `plan.py` call were under `cache/ck-next/ck/0.1.29`.
+- A headless session's init message names the ck it loaded. Before: d20mob and hireling `0.1.29`, ck `0.1.32`. After `installs.py set 0.1.32`: all three `0.1.32`.
+- `plan.py card` on the K7 plan as the coordinator read it (d20mob 2062805), from a d20mob worktree: 0.1.29 prints `[K7-P1-S3] [River write] The attorney's questions`; 0.1.32 and 0.1.33 print `[K7-P1-S3] [River Opus medium] The attorney's questions`, and the same for S5 (Robin) and S8 (Alex).
+
+### Detail
+- **`scripts/installs.py set <version>`** puts every `ck@ck-next` record, each old worktree's too, on one version, with its cache folder and commit, so whichever record Claude Code reads names the release. It refuses a version not in the plugin cache, and keeps the previous file as `installed_plugins.json.ck-backup`. This replaces setting the main folders' records by hand. On 2026-11-13 it moved 155 records (10 of them on 0.1.29) to 0.1.32.
+- **`installs.py check`**, a new SessionStart hook, says in one sentence when the ck a session loaded is not the version its project's main folder is installed at, with the command that fixes it. It is silent otherwise and never blocks a session.
+- **`Plan.session_name`** no longer falls back to the job word. A row whose job is not in `tiers.conf` is refused, and `check` reports it once, as before, without also measuring its name.
+- **Tests.** Section 10 runs `installs.py` on records laid out as d20mob's were: `check` speaks on the stale load, `set` refuses a version not in the cache, `set` puts both records on the release, and `check` is then silent.
+- **Left alone.** A chip still cannot open above its coordinator: `start_session` takes a model only "same family or cheaper" and an effort at or below the coordinator's, so a Sonnet coordinator opens Opus stages on Sonnet. Sessions already running keep 0.1.29 until they are started again.
+
+---
+
 ## [2026-11-09] 0.1.32: Fable 5.2
 
 **Category:** `chore`

@@ -421,11 +421,12 @@ class Plan:
         return 'not started; follows ' + waits if waits else 'not started; could start now'
 
     def session_name(self, row, jobs):
-        """[R1-P9-S5] [Robin Opus medium] <title>: the point the stage runs at, or its job word when
-        tiers.conf has none for it."""
+        """[R1-P9-S5] [Robin Opus medium] <title>: the model and effort the stage runs at. Refuses a row
+        whose job tiers.conf does not have, so no name ever carries a bare job word."""
         at = point(row.who, jobs)
-        return '[%s] [%s %s] %s' % (self.full_id(row), row.owner[0], ' '.join(at) if at else row.owner[1],
-                                    row.entry.title)
+        if at is None:
+            raise Refuse('%s: %s is not a job word in tiers.conf' % (self.full_id(row), row.owner[1]))
+        return '[%s] [%s %s] %s' % (self.full_id(row), row.owner[0], ' '.join(at), row.entry.title)
 
     # ------------------------------------------------------------ changing the file
 
@@ -562,7 +563,7 @@ def problems(plan, roster):
     check_item_phases(plan, found.append)
     jobs = read_tiers()[0]
     for row in plan.by_key.values():                         # 10. session names
-        if row.sound and who_parts(row.who) and row.entry:
+        if row.sound and point(row.who, jobs) and row.entry:   # a job not in tiers.conf is reported above
             name = plan.session_name(row, jobs)
             over = len(name) - NAME_LIMIT
             if over > 0:
