@@ -266,6 +266,11 @@ else
 fi
 out=$(echo '{"cwd":"/r/d20mob/.claude/worktrees/new"}' | python3 scripts/installs.py check --root "$C/0.1.32"); rc=$?
 [[ $rc -eq 0 && -z "$out" ]] && ok "installs.py check is silent when the loaded ck is the main folder's" || fail "installs.py check after set: exit $rc, output '$out'"
+# verify, with a stand-in claude that prints the init message a real session prints, naming the ck it loaded.
+mkdir -p "$TMP/stub" "$TMP/proj"
+printf '#!/bin/sh\necho "{\\"type\\":\\"system\\",\\"subtype\\":\\"init\\",\\"plugins\\":[{\\"name\\":\\"ck\\",\\"source\\":\\"ck@ck-next\\",\\"version\\":\\"$STUB_V\\"}]}"\n' > "$TMP/stub/claude"; chmod +x "$TMP/stub/claude"
+CK_CLAUDE="$TMP/stub/claude" STUB_V=0.1.32 python3 scripts/installs.py verify 0.1.32 "$TMP/proj" >/dev/null && ok "installs.py verify passes when a fresh session loads the release" || fail "installs.py verify on a matching load"
+CK_CLAUDE="$TMP/stub/claude" STUB_V=0.1.29 python3 scripts/installs.py verify 0.1.32 "$TMP/proj" >/dev/null 2>&1 && fail "installs.py verify passed a session that loaded 0.1.29" || ok "installs.py verify fails when a fresh session loads an older ck"
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"

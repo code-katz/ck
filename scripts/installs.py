@@ -12,14 +12,21 @@ record names. From 2026-11-07 to 2026-11-13 d20mob and hireling sessions ran ck 
   installs.py check [--root <plugin root>]
       The SessionStart hook: one sentence when the ck this session loaded is not the version its
       project's main folder is installed at. Silent otherwise, and never blocks a session.
+  installs.py verify <version> [--marketplace ck-next] [--plugins <dir>] [<folder> ...]
+      The release check: starts a fresh session in each folder (by default the main folder of every
+      ck@<marketplace> record), one short Haiku turn, and reads which ck it loaded. Fails unless every
+      folder loaded <version>.
 """
 import datetime
 import json
 import os
 import shutil
+import subprocess
 import sys
 
 KEY = 'ck@%s'
+PROBE = ['-p', '--model', 'claude-haiku-5-5', '--max-turns', '1', '--output-format', 'stream-json', '--verbose',
+         'Reply with ok.']
 
 
 def plugins_dir(opts):
@@ -85,6 +92,44 @@ def cmd_check(args, opts):
     return None
 
 
+def loaded_in(folder, market):
+    """The ck version a fresh session in this folder loads from the marketplace, or None."""
+    claude = os.environ.get('CK_CLAUDE', 'claude')
+    try:
+        out = subprocess.run([claude] + PROBE, cwd=folder, capture_output=True, text=True, timeout=180).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    for line in out.splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get('subtype') == 'init':
+            return next((p.get('version') for p in event.get('plugins', [])
+                         if p.get('name') == 'ck' and p.get('source') == KEY % market), None)
+    return None
+
+
+def cmd_verify(args, opts):
+    if not args:
+        return 'usage: installs.py verify <version> [--marketplace ck-next] [--plugins <dir>] [<folder> ...]'
+    version, folders, market = args[0], args[1:], opts.get('--marketplace', 'ck-next')
+    if not folders:
+        with open(records_path(plugins_dir(opts))) as f:
+            records = json.load(f).get('plugins', {}).get(KEY % market, [])
+        folders = sorted({r['projectPath'] for r in records if r.get('projectPath')
+                          and '/.claude/worktrees/' not in r['projectPath'] and os.path.isdir(r['projectPath'])})
+    if not folders:
+        return 'there is no folder with a %s install to verify' % (KEY % market)
+    wrong = 0
+    for folder in folders:
+        got = loaded_in(folder, market)
+        wrong += got != version
+        print('%s  %s: a fresh session loads %s' % ('ok  ' if got == version else 'FAIL', folder,
+                                                    'ck ' + got if got else 'no ck from ' + market))
+    return '%d of %d folders do not load ck %s' % (wrong, len(folders), version) if wrong else None
+
+
 def main(argv):
     args, opts, i = [], {}, 0
     while i < len(argv):
@@ -93,7 +138,7 @@ def main(argv):
         else:
             args.append(argv[i])
             i += 1
-    if not args or args[0] not in ('set', 'check'):
+    if not args or args[0] not in ('set', 'check', 'verify'):
         print(__doc__.strip(), file=sys.stderr)
         return 2
     if args[0] == 'check':
@@ -102,7 +147,7 @@ def main(argv):
         except (OSError, ValueError, AttributeError):
             pass                                             # a hook never blocks a session
         return 0
-    problem = cmd_set(args[1:], opts)
+    problem = (cmd_set if args[0] == 'set' else cmd_verify)(args[1:], opts)
     if problem:
         print('installs.py: ' + problem, file=sys.stderr)
         return 1
