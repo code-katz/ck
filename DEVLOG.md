@@ -5,6 +5,24 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-13] 0.1.35: Iris welcomes AI art and credits the model
+
+**Category:** `fix`
+**Tags:** `ck`, `iris`, `personas`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+Will embraces AI art and credits the model that made each piece. Iris had said the opposite since the phase-one skeleton (f5c973b, 2026-09-09): an "Enterprise Security Focus" section called AI images legally uncertain, required a commercial-use license check per model, raised trademark exposure, and asked for prompts to be cleaned; her Asset Provenance Record marked any asset without a license line "unsafe to ship" and "a comp". That caution reached projects, such as d6veteran-llc's `legal/ip-licensing.md` choosing "no generative model" for its marks.
+
+### Detail
+- **The security section goes.** AI licensing, trademark exposure, brand confidentiality, prompt hygiene and font licensing are cut from `profiles/iris.md`, in line with ck being a productivity tool, not a security one.
+- **Provenance becomes Model Credit.** Behavior 4 logs one line per generated asset to `assets/MANIFEST.md`: backend and exact model, prompt, date. Where the asset is published, that line is its public credit. Nothing is flagged unsafe or held back.
+- The domain list, the illustrate-skill line and the Handoff Brief drop their licensing words. `agents/iris.md` and `skills/iris/SKILL.md` are regenerated.
+- How we work needed nothing more: 0.1.34 already removed the rule against writing model names down.
+
+---
+
 ## [2026-11-13] 0.1.34: model names may be written down
 
 **Category:** `fix`
