@@ -5,6 +5,31 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-14] 0.1.39: the ck-only fixes from the regression review
+
+**Category:** `fix`
+**Tags:** `ck`, `next`, `plan`, `review-page`, `claude-md`, `tests`
+**Risk Level:** `low`
+**Breaking Change:** `no` (a project's How we work changes only when `/ck:claude-md` runs in it)
+
+### Summary
+The regression review of 0.1.19 to 0.1.36 (proof page https://claude.ai/artifact/NUrSssFe7KU9GXk5HfkupZ) found places where a later release left an older instruction standing against a newer one. Will chose to fix the ones that live only in ck first. Each is a sentence or a few lines.
+
+### Detail
+- **Lanes end with what is left.** `skills/next/SKILL.md` section 4 (0.1.24) told a lane running a gate skill to close with only the skill's finished sentence, so a plan-only lane never said "Say merge N", against 0.1.28's two endings. The lane still drops the table and the next command, then ends as How we work says: what is left in this session and the words for the first, or "This session can be closed."
+- **Cards end the same way.** The stage and fix cards from `plan.py card` ended "End with a short hand-off ... and any question for the author". Both now add one line: end with what is left and the words for the first one, or "This session can be closed." A project whose How we work is behind still gets the two endings from its card. 0.1.28's search had looked for "say so" wording and missed both places.
+- **No file path when a review page cannot be published.** `skills/review-page/SKILL.md` section 4 said "Your <document> is at `<path>`". It now opens the built page in Chrome, as 0.1.31 says for any page that cannot be published, names the file to edit, and runs the same command on "open it again".
+- **A guard on the template's base.** Each How we work release copies the newest template. When two are built at once, the second can copy a stale one: 0.1.31's draft was 0.1.28 plus its link rule until its rebase, so it lacked 0.1.30's title rule. A new check in section 20 of `tests/run.sh` fails when a line of the newest template goes back to an older template's wording that the one before it had changed. Given 0.1.28 restamped as a new template, it names the four lines that go back.
+- **How we work 0.1.39.** Copied from 0.1.38 with one change in "Personas, as lanes": a list of steps names each step's persona, model and effort, since 0.1.30's titles carry the model and effort, not the job word.
+- **`tiers.conf`** pointed at `templates/how-we-work/0.1.27.md`; it now says How we work, the newest file.
+- `tests/plan-cases.py` and section 20 of `tests/run.sh` read the new card line and the 0.1.39 template. 518 checks pass.
+
+### Open
+- d20mob and hireling take How we work 0.1.39 the next time `/ck:claude-md` runs in them; both carry 0.1.34's content under a 0.1.31 stamp.
+- The project findings of the review (plan check at approval, long names, phases after `docs/build-plan.md`, d20mob's team file) are a later release.
+
+---
+
 ## [2026-11-14] 0.1.38: Checks that cost
 
 **Category:** `process`
