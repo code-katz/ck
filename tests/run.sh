@@ -274,7 +274,7 @@ CK_CLAUDE="$TMP/stub/claude" STUB_V=0.1.29 python3 scripts/installs.py verify 0.
 
 # ─── 11. House style ─────────────────────────────────────────────────────────
 section "11. House style in user-facing skills"
-for f in skills/next/SKILL.md skills/do/SKILL.md skills/plan/SKILL.md skills/start/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
+for f in skills/next/SKILL.md skills/do/SKILL.md skills/issue/SKILL.md skills/plan/SKILL.md skills/start/SKILL.md skills/brief/SKILL.md skills/team/SKILL.md skills/roadmap/SKILL.md skills/market-research/SKILL.md skills/prd/SKILL.md skills/architecture/SKILL.md skills/opportunity/SKILL.md skills/brand-guide/SKILL.md skills/design/SKILL.md skills/review-page/SKILL.md; do
   prose=$(awk '/^```/ { fence = !fence; next } !fence' "$f")
   if printf '%s' "$prose" | grep -qiE '[0-9][0-9,.]*k? tokens'; then fail "$f prints a token count"; else ok "$f prints no token count"; fi
   if printf '%s' "$prose" | grep -q '—'; then fail "$f has an em-dash in prose"; else ok "$f has no em-dash in prose"; fi
@@ -627,6 +627,11 @@ EOF
 then ok "skills/do: typed only; every command, file, and do.sh command it names exists; no dollar sign before a digit"
 else while IFS= read -r l; do fail "skills/do: $l"; done < "$TMP/do/static.out"; fi
 if grep -q '^| `/ck:do <task>`' README.md; then ok "README.md has a row for /ck:do"; else fail "README.md has no row for /ck:do"; fi
+
+# /ck:issue runs only when typed and has its README row.
+f=skills/issue/SKILL.md
+if grep -qx 'name: issue' "$f" && grep -qx 'disable-model-invocation: true' "$f"; then ok "$f is typed only"; else fail "$f is not named issue and typed only"; fi
+if grep -q '^| `/ck:issue <report>`' README.md; then ok "README.md has a row for /ck:issue"; else fail "README.md has no row for /ck:issue"; fi
 
 # scripts/do.sh in a plain folder, a repository, and a linked worktree.
 DOSH="$PWD/scripts/do.sh"; w="$TMP/do"
