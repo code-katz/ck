@@ -1,6 +1,6 @@
 ---
 name: start
-description: Open the sessions a staged plan calls for, and keep its board. With a stage after the command, such as P2-S1 or A31-P2-S1, it offers a card that starts a new session for that one job, named from the row with the model and effort it runs at, for example "[R1-P2-S1] [Akira Opus high] Make the creature tables". With `fix`, a finished stage, and what is wrong, such as "fix R1-P1-S5 the scan fails on a natural 1", it offers a card for a session that fixes that one fault, named "[R1-P1-S5 fix] [Akira Opus high] Mend the scan's 1". With nothing after it, it brings the plan's State column up to date, shows the board, and offers a card for each row that could start now, three at a time. You click each card; ck never starts a session by itself. Runs only when you type /ck:start.
+description: Open the sessions a staged plan calls for, and keep its board. With a stage after the command, such as P2-S1 or A31-P2-S1, it offers a card that starts a new session for that one job, named from the row with the model and effort it runs at, for example "[R1-P2-S1] [Akira Opus high] Make the creature tables". With `fix`, a finished stage, and what is wrong, such as "fix R1-P1-S5 the scan fails on a natural 1", it offers a card for a session that fixes that one fault, named "[R1-P1-S5 fix] [Akira Opus high] Mend the scan's 1". With nothing after it, it brings the plan's State column up to date, republishes the plan's page and gives its link, and offers a card for each row that could start now, three at a time. You click each card; ck never starts a session by itself. Runs only when you type /ck:start.
 disable-model-invocation: true
 argument-hint: "[a stage, such as P2-S1 or A31-P2-S1; fix <stage> <what is wrong>; nothing for the board]"
 ---
@@ -35,11 +35,13 @@ Run `<plan.py> rows "<the plan>"` (a row per line, its full id first and its Sta
 
 After the first State you change in a `/ck:start`, here or in a file, say once "The board has changes that are not committed. Say `save` to commit the plan.", except in a message that has step 4's sentence about uncommitted changes.
 
+After the last State you change in a message, here or in a file, republish the plan's page: read the link `<plan.py> page "<the plan>"` prints with the Artifact tool (it refuses a publish to a link not read first), run `<plan.py> page "<the plan>" --render .ck/plan-page.html --was <the file the read saved>`, and publish that file to the link. With no link, or when the tool is missing or refuses, read `page.md`.
+
 With `fix` typed, go to `fix.md` and print no board. With a stage typed, go to step 4 for it and print no board. With none, go to step 3.
 
 ## 3. The board
 
-Run `<plan.py> ready "<the plan>"`, then print what `<plan.py> board "<the plan>"` prints, as it is; when a ready row is in a phase it does not show, print `<plan.py> board "<the plan>" --all` instead. When it prints `No stage was found`, say the file cannot be read as a plan, and stop.
+When `<plan.py> rows` printed nothing, say the file cannot be read as a plan, and stop. Run `<plan.py> ready "<the plan>"` and print the page's link, not the board table (`page.md` when there is none).
 
 Take the ready rows in order through step 4, three cards at most; a refused card is relayed and does not count. When more are ready, say how many and that `/ck:start` again offers the next ones. When no card was offered, say in one line what is running and what the next rows wait on, and stop.
 

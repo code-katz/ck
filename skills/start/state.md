@@ -7,4 +7,6 @@ With the session tools, list the sessions again before acting on any of these.
 - "back `<id>`", for a session that was abandoned: run `<plan.py> set "<the plan>" <id> not-started`. With the session tools, rename that stage's session to `[dropped] ` and the title it has, so it no longer counts.
 - "save": run `git add -- "<the plan>" && git commit -m "plan: <what changed>" -- "<the plan>"`, which commits that one file whatever else is staged. When the project's rules ask for a check before every commit, run it first; when it fails or cannot be run, say so in one line, ask "Commit anyway?", and commit only after "yes". Add to the message only a trailer this session's rules require, and push only when they say so.
 
+After "running", "done" or "back", republish the plan's page as step 2 of `SKILL.md` says.
+
 A change of State is an edit to the plan file; never commit it but on "save".
