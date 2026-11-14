@@ -38,7 +38,7 @@ A gallery review is the same loop. The reviewer's comments name a label (A, B, C
 
 ## 4. File-edit path (when the Artifact tool is unavailable)
 
-Say: "Your <document> is at `<path>`. Open it, change anything you like, save, and run `<command>` again. I'll fold your edits in." Set `status: review` in `run.json` and stop. On the next run, the skill sees `review` and continues from the edited file. For a gallery, ask for the label in one question and continue.
+Open the page built in step 1 in Chrome yourself, with `open -a "Google Chrome" <runDir>/review.html` (for a gallery, its page), and say: "Your <document> is open in Chrome. To change it, edit <the document's file name> in the project, save, and run `<command>` again. I'll fold your edits in." Give no `file:///` link, no link to the file, and no address to paste. When the author says "open it again", run the same command. Set `status: review` in `run.json` and stop. On the next run, the skill sees `review` and continues from the edited file. For a gallery, ask for the label in one question and continue.
 
 ## 5. Never
 
