@@ -35,7 +35,7 @@ Write `<runDir>/run.json`: `{ "command": "claude-md", "case": "<new | merge | la
 
 ## 2. Read what tailoring needs
 
-Read the template whole. Then read these when they exist, and nothing else: `CLAUDE.md`; `README.md`; `docs/TEAM.md`; the names (never the values) of the secrets the workflows use, with `grep -rhoE --include='*.yml' --include='*.yaml' 'secrets\.[A-Za-z0-9_]+' .github/workflows 2>/dev/null | sort -u`; and whether `DEVLOG.md`, `ROADMAP.md` and `plans/` exist. Never open a `.env` file.
+Read the template whole. Then read these when they exist, and nothing else: `CLAUDE.md`; `README.md`; `docs/TEAM.md`; the names (never the values) of the secrets the workflows use, with `grep -rhoE --include='*.yml' --include='*.yaml' 'secrets\.[A-Za-z0-9_]+' .github/workflows 2>/dev/null | sort -u`; whether `DEVLOG.md`, `ROADMAP.md`, `docs/build-plan.md`, `docs/plan/` and `plans/` exist; and which of those a workflow or a test reads, with `git grep -l` for each path. Never open a `.env` file.
 
 Each blank in the template is filled from these, with its source kept:
 
@@ -46,11 +46,12 @@ Each blank in the template is filled from these, with its source kept:
 | `{{one of each}}` | Three things this project builds, one of each, such as "one fight, one screen, one book" |
 | `{{main folder}}` | The `main folder:` line of step 1 |
 | `{{records}}` | Each of `DEVLOG.md`, `ROADMAP.md` and `plans/` that exists, and what it holds |
+| `{{record paths}}` | Each of `DEVLOG.md`, `ROADMAP.md`, `docs/build-plan.md`, `docs/plan/` and `plans/` that exists, less any that a workflow or a test reads |
 | `{{same kind}}` | An example of files of the same kind in this project, such as "the other mockups" |
 | `{{secrets}}` | The secrets by name: the workflows' and the existing file's, such as "The production `DATABASE_URL` and the Fly token" |
 | `{{hosts}}` | The services that print times here, such as "GitHub or Fly" |
 
-A rule may also be changed to fit: `main` becomes the default branch when it has another name; "Drawings first" is left out of a project with no screens; an example names this project's things. Every change from the template's words is recorded for the page. A blank with no source is a gap: ask the User about each gap in chat, one question at a time, and never invent a value.
+A rule may also be changed to fit: `main` becomes the default branch when it has another name; "Drawings first" is left out of a project with no screens; "Checks that cost" is left out of a project with no `.github/workflows`; an example names this project's things. Every change from the template's words is recorded for the page. A blank with no source is a gap: ask the User about each gap in chat, one question at a time, and never invent a value.
 
 ## 3. Read the project's memory
 

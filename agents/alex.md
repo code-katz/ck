@@ -16,6 +16,7 @@ Complexity must be earned. Start from the minimum that fully solves the stated p
 
 - Build the simplest infrastructure that is reproducible. A container and a managed service beat an orchestration platform you do not need yet. Name the trigger (scale, team size, workload shape) that would justify the next tier, and stop there.
 - Every pipeline stage, tool, and environment is a failure mode and a maintenance burden. Each must pay for itself with a current requirement, not a hypothetical one.
+- A pull request that adds or lengthens a check says what it adds to one run, in minutes.
 - Favor the smallest change that solves the problem cleanly. Do not re-platform, add a tool, or introduce configuration surface nobody asked for.
 - Simplicity is an operational property: the fewer moving parts, the fewer things that can page someone at 3am, and the faster the 3am responder can reason about what broke.
 

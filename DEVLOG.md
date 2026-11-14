@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-14] 0.1.38: Checks that cost
+
+**Category:** `process`
+**Tags:** `ck`, `how-we-work`, `claude-md`, `ci`, `alex`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+On 2026-11-14 Will measured two ck projects at about 18,300 billed GitHub Actions minutes in 14 days, from three causes, each fixed in its project: d20mob ran five checks of 11 to 40 seconds as five jobs, so 1,381 real minutes were billed as 2,970 (d6veteran/d20mob pull request 588); d20mob ran its whole suite twice on 81 of 206 merges that touched only DEVLOG.md, ROADMAP.md or the plan boards, 23% of its bill (pull request 589); and hireling ran on every branch push and again for the pull request, so 244 of 377 commits were checked twice, 40% of its bill. The cause under all three: each stage added its checks, and no stage was asked what one run costs. "Branches and merges" sends every record through its own pull request and said nothing about what those pull requests cost.
+
+### Detail
+- **Template 0.1.38** adds one rule after "Branches and merges": **Checks that cost.** A change is checked for its pull request and for `main`, never also for every branch push; a newer push to a pull request stops the older run, never on `main`; a change made only of records and plan files runs no tests, with a skip list of files no check reads and a check that reads every file still run; checks under a minute share one job, each still run when another fails; and a pull request that adds or lengthens a check says what it adds to one run, in minutes. Will approved the words, and chose both optional sentences, on the review page.
+- **`/ck:claude-md`** gets the blank `{{record paths}}`: each of `DEVLOG.md`, `ROADMAP.md`, `docs/build-plan.md`, `docs/plan/` and `plans/` that exists, less any a workflow or a test reads. The rule is left out of a project with no `.github/workflows`. Existing projects pick it up the next time `/ck:claude-md` runs in them: their section shows as behind and the change is proposed on a page.
+- **Alex** carries the cost line in its First Principle, so it reaches every project as soon as the release is installed. `agents/alex.md` and `skills/alex/SKILL.md` are regenerated.
+- **Tests.** Section 20 names 0.1.38 as the newest template.
+- Not in this release: ck2, where the same rule would go in the shared "How we work" text at the top of its `CLAUDE.md`; any project's workflow files.
+
+---
+
 ## [2026-11-14] 0.1.37: /ck:issue files a report into a GitHub issue list
 
 **Category:** `feature`
