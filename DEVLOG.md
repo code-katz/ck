@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-14] 0.1.37: /ck:issue files a report into a GitHub issue list
+
+**Category:** `feature`
+**Tags:** `ck`, `issues`, `d20mob`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+d20mob's bug sweep (stage K9-P1-S1) asked for a command that files a tester's report as one clean issue. Will had it made general: `/ck:issue <report>` works in any GitHub repository, under its own forms and labels.
+
+### Detail
+- **One file of instructions,** `skills/issue/SKILL.md`, typed only. No script: every step is a `gh` command or a judgment.
+- **Draft first.** The issue is written to `.ck/issues/<slug>.md` and shown in the chat. Nothing goes to GitHub until Will says `file`; a comment on an issue that already covers the report waits for `file` too.
+- **The repository's own shape.** The fitting form's headings and title prefix, or plain headings with none. Labels are matched from the repository's own by name and description, never made. A new issue goes through `gh api`, since `gh issue create` cannot set the issue type.
+- **No names.** No tester's name, email, phone or address in the search, the issue or the comment, checked once on the draft and again before filing.
+- **Tried** in d20mob (an email, a change before filing, a TestFlight line that joined the first issue, a wish) and in d20mob-web (no forms). The test issues were deleted.
+
+---
+
 ## [2026-11-13] 0.1.36: the release check
 
 **Category:** `process`
