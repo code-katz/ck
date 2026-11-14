@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-09.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-13.
 
 ---
 
@@ -29,16 +29,21 @@
 - The model back in the title, and phases that carry on (0.1.30): `/ck:start` names a stage `[R1-P9-S5] [Robin Opus medium] ...`, with the model and effort its job runs at, and How we work 0.1.30 says a stage's session is opened only by `/ck:start` from its card. `/ck:plan` files a plan under the current release and numbers its phases from where the release's earlier plans left off (`plan.py next`), and `plan.py check` refuses two plans of one release that share a phase. Until then a d20mob coordinator wrote its own stage titles, which lost the model and the `R1` prefix, and a plan for Phase 9 was drafted as Phase 1 and renumbered by hand.
 - One link for every page (0.1.31): How we work 0.1.31, Kai and the `/ck:do` draw step tell a session to publish every page it shows you with the Artifact tool, local pictures beside it, and give its `claude.ai` link, which opens in the browser; a page that cannot be published is opened in Chrome by the session. Until then How we work and Kai asked for a `file:///` link, which the Code tab opens in its file pane, and a d20mob Kai lane added addresses to paste.
 - Fable 5.2 (0.1.32): River, Akira, Morgan, Sage, Jordan and Reiner run on `claude-fable-5-2`, set once in `tiers.conf`, and a plan pin of "Fable" opens on it. Fable 5.2 costs $8 in and $40 out per million tokens against 5.1's $10 and $50, with the same context, output and effort range.
-- Main is at 0.1.32. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.32`: ck-next since 2026-11-09 and stable since 2026-11-10. On Will's Mac, the user-wide stable install, which every other project uses, went from 0.1.19 to 0.1.30 on 2026-11-09 and to 0.1.32 on 2026-11-10. Rollback in a project is two commands.
+- The install a session loads (0.1.33): `scripts/installs.py set` puts every install record of a channel on one version, and a session-start check says when the loaded ck is not the project's install. Chip names never fall back to the job word. Until then d20mob and hireling sessions ran ck 0.1.29 from 2026-11-07 to 2026-11-13: Claude Code reads the first install record of a repository, a worktree's included, and an old worktree's record on 0.1.29 came before the main folder's, which was set by hand each release. So 0.1.30's model in the title, and 0.1.31 and 0.1.32, never ran there, and chips read `[River write]`.
+- Model names may be written down (0.1.34): How we work 0.1.34 drops the rule that kept AI model names out of commits and files. It came from d20mob's own rules (2026-10-04), contradicted ck's records, and led a d20mob session to blank the models in a panel memo.
+- Iris welcomes AI art and credits the model (0.1.35): one Model Credit line per generated asset in `assets/MANIFEST.md`; her security and licensing section is gone.
+- The release check (0.1.36): `installs.py verify` starts a fresh session in ck, d20mob and hireling and fails unless each loads the release, and `RELEASING.md` writes the release steps down for the first time, with that check and the changed command run in a d20mob worktree before a release counts as done.
+- Main is at 0.1.36. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.36` since 2026-11-13. On Will's Mac every install record of both channels is on 0.1.36, and a fresh session in ck, d20mob, hireling and `~/development` loads it. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
-- 0.1.20 to 0.1.32 have not been checked in a real d20mob session, and stable serves them. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
+- 0.1.30 to 0.1.35 first reached d20mob and hireling on 2026-11-13, and only 0.1.33's chip names and 0.1.35's credit line have been seen working there. d20mob, hireling and ck have no team file yet, so each gets only the eight core seats, and d20mob's plan rows owned by Reiner, Tracy, Travolta or Piper get no card until they are invited.
 - How the desktop app shows the cost line after a merge has not been seen; a test hook did not fire.
-- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)). How we work 0.1.30 went in on 2026-11-09, with the open stage titles shortened to fit the new tag ([d6veteran/d20mob#457](https://github.com/d6veteran/d20mob/pull/457), [d6veteran/hireling#110](https://github.com/d6veteran/hireling/pull/110)). How we work 0.1.31 is not in either yet.
-- `claude plugin update` in a repository with worktree installs can update the wrong one; from 2026-11-03 to 2026-11-07 the d20mob and hireling main installs were set by hand, to 0.1.24, 0.1.25, 0.1.26, 0.1.27, 0.1.28, 0.1.29, 0.1.30, 0.1.31 and then 0.1.32. Each time it updated the main ck folder correctly, but moved an old worktree install in d20mob and in hireling instead of their main folders.
-- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28`, `v0.1.29`, `v0.1.30`, `v0.1.31` and `v0.1.32`.
+- A change to ck's "How we work" template reaches no project on its own. The question rule (0.1.14) and the finishing rule (0.1.24) were each copied into d20mob and hireling by hand. The stage's model rule (0.1.25) and the drawing's link rule (0.1.26) went in the same way on 2026-11-05 ([d6veteran/d20mob#400](https://github.com/d6veteran/d20mob/pull/400), [d6veteran/hireling#65](https://github.com/d6veteran/hireling/pull/65)), and How we work 0.1.28, with 0.1.27's model and effort, on 2026-11-06 ([d6veteran/d20mob#427](https://github.com/d6veteran/d20mob/pull/427), [d6veteran/hireling#104](https://github.com/d6veteran/hireling/pull/104)). How we work 0.1.30 went in on 2026-11-09, with the open stage titles shortened to fit the new tag ([d6veteran/d20mob#457](https://github.com/d6veteran/d20mob/pull/457), [d6veteran/hireling#110](https://github.com/d6veteran/hireling/pull/110)). How we work 0.1.31 is not in either yet, and both still carry the model-name sentence 0.1.34 removed.
+- A stage's chip cannot open above its coordinator: the app takes a chip's model only at or below the coordinator's, and its effort the same. A Sonnet coordinator opens Opus stages on Sonnet, and each stops to ask for Opus.
+- Asked for a raster image in d20mob on 0.1.36, Iris logs the credit line but still raises a commercial-use and originality check of her own; no ck text asks for it.
+- Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28` to `v0.1.36`.
 - ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
 
 ---
@@ -80,7 +85,11 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.29 | 2026-11-07 | Every page names its project: review pages, galleries and `/ck:do` mockups carry the project's name in their title and banner line, from the git repository's main checkout; `--project` overrides it | Tag `v0.1.29` |
 | 0.1.30 | 2026-11-09 | The model back in the title, and phases that carry on: stage titles name the model and effort, stages open only through `/ck:start`, and a release's phases carry on from plan to plan (`plan.py next`); How we work 0.1.30 | Tag `v0.1.30` |
 | 0.1.31 | 2026-11-09 | One link for every page: every page a session shows you is published and given as a `claude.ai` link, or opened in Chrome by the session when it cannot be; never a `file:///` link or an address to paste; How we work 0.1.31 | Tag `v0.1.31` |
-| 0.1.32 | 2026-11-09 | Fable 5.2: the six judgment seats and Fable pins move from Fable 5.1 to the cheaper Fable 5.2 | Tag `v0.1.32`; **stable** and **ck-next** |
+| 0.1.32 | 2026-11-09 | Fable 5.2: the six judgment seats and Fable pins move from Fable 5.1 to the cheaper Fable 5.2 | Tag `v0.1.32` |
+| 0.1.33 | 2026-11-13 | The install a session loads: `installs.py set` puts every install record on one version, a session-start check names a stale load, and chip names never fall back to the job word | Tag `v0.1.33` |
+| 0.1.34 | 2026-11-13 | Model names may be written down: How we work 0.1.34 drops the rule against them | Tag `v0.1.34` |
+| 0.1.35 | 2026-11-13 | Iris welcomes AI art and credits the model in `assets/MANIFEST.md` | Tag `v0.1.35` |
+| 0.1.36 | 2026-11-13 | The release check: `installs.py verify` and `RELEASING.md` | Tag `v0.1.36`; **stable** and **ck-next** |
 
 ---
 
@@ -118,7 +127,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 
 | # | Opportunity | Why Now | Success Signal |
 |---|---|---|---|
-| 1 | **Try 0.1.19 to 0.1.32 in d20mob** (in progress since 2026-11-07) | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), to `v0.1.29` on 2026-11-07 ([code-katz/claude-plugins#12](https://github.com/code-katz/claude-plugins/pull/12)), to `v0.1.30` on 2026-11-09 ([code-katz/claude-plugins#13](https://github.com/code-katz/claude-plugins/pull/13)), and to `v0.1.32` on 2026-11-10 ([code-katz/claude-plugins#14](https://github.com/code-katz/claude-plugins/pull/14)), at your word, before any of 0.1.19 to 0.1.32 was tried by hand in a d20mob session | In d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, no session says "nothing is needed" with work waiting, each page ck publishes names d20mob (0.1.29), and a stage opened by `/ck:start` shows its model and effort in its title (0.1.30); if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
+| 1 | **Try 0.1.19 to 0.1.36 in d20mob** (in progress since 2026-11-07; d20mob ran 0.1.29 until 2026-11-13) | Stable moved from `v0.1.19` to `v0.1.28` on 2026-11-06 ([code-katz/claude-plugins#11](https://github.com/code-katz/claude-plugins/pull/11)), to `v0.1.29` on 2026-11-07 ([#12](https://github.com/code-katz/claude-plugins/pull/12)), to `v0.1.30` on 2026-11-09 ([#13](https://github.com/code-katz/claude-plugins/pull/13)), to `v0.1.32` on 2026-11-10 ([#14](https://github.com/code-katz/claude-plugins/pull/14)), and to `v0.1.34`, `v0.1.35` and `v0.1.36` on 2026-11-13 ([#15](https://github.com/code-katz/claude-plugins/pull/15), [#16](https://github.com/code-katz/claude-plugins/pull/16), [#17](https://github.com/code-katz/claude-plugins/pull/17)), at your word. Only 0.1.36 went to stable after its release check | `installs.py verify` passes for each release, and in d20mob: a memory save shows the proposal and then the approval prompt, `/ck:do` runs, `/ck:cost` prints a real table, the four checks in [code-katz/ck#51](https://github.com/code-katz/ck/pull/51) pass, a merge prints one cost line for the right pull request, a lane that runs a gate skill ends with only its finished sentence, a phase's stages open on their job word's model and effort with no ruling in the row, with `/ck:cost history` showing the cost of each, no session says "nothing is needed" with work waiting, each page ck publishes names d20mob (0.1.29), and a stage opened by `/ck:start` shows its model and effort in its title (0.1.30); if one fails, it is fixed in the next release, or stable goes back to `v0.1.19` |
 | 2 | **Measure d20mob's 400K auto-compact test** (in progress since 2026-11-07) | The compaction evaluation chose this over a ck feature. The setting went into d20mob's local settings on 2026-10-30, and the baseline is saved | On 2026-11-06, a pass or fail against the baseline; the prediction is $116 to $154 a week saved, in API-equivalent dollars |
 
 ### Tier 2: High Value, Plan for Next Sprint
@@ -127,7 +136,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
-| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the installs), seven releases since 2026-10-28, and `claude plugin update` moving the wrong install three days running | One script can tag, release, pin ck-next and set each main install from the DEVLOG entry; it is next after the d20mob trial on the releases page, now as 0.1.33, with its own plan |
+| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the cache, the installs, the check), now written down in `RELEASING.md`; 0.1.35 skipped the installs and the check, and reached no project until 0.1.36 | One script can run `RELEASING.md` steps 4 to 7 from the DEVLOG entry; `installs.py set` and `verify` (0.1.33, 0.1.36) are two of its steps already; now as the next release, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
 ### Tier 3: Strategic / Longer Horizon
@@ -142,8 +151,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 ## Recommended Sequencing
 
 ```
-Now:   a d20mob phase on 0.1.32 (stable and ck-next), checking 0.1.19 to 0.1.32; measuring d20mob's 400K auto-compact test (both in progress)
-Next:  0.1.33, a release in one command, with its own plan; the code-quality review command's design
+Now:   d20mob's K7 phase on 0.1.36 (stable and ck-next), checking 0.1.19 to 0.1.36; measuring d20mob's 400K auto-compact test (both in progress)
+Next:  a release in one command, with its own plan; the model-name sentence out of d20mob's and hireling's How we work; the code-quality review command's design
 Later: the code-quality review command; template changes reach projects; the lean review's remaining recommendations
 ```
 
@@ -154,6 +163,8 @@ Later: the code-quality review command; template changes reach projects; the lea
 1. Is the install drill on Clare's machine still wanted?
 2. What happens to the ck2 repository: archive it on GitHub, or leave it as it is?
 3. Why does idle compaction never fire in the sessions the evaluation measured, and should it be reported to Anthropic?
+4. Should ck tell you to start a coordinator on the highest model and effort its plan's stages use (Opus, or Fable for a pinned stage), since a chip cannot open above its coordinator?
+5. Should Iris say outright that no licensing check applies to generated art, since without it she still raises one of her own?
 
 ---
 
@@ -163,12 +174,30 @@ Later: the code-quality review command; template changes reach projects; the lea
 
 | Key Result | Target | Current |
 |---|---|---|
-| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.28 went to stable untried (2026-11-06); 0.1.29 went to stable untried (2026-11-07); 0.1.30 went to stable untried (2026-11-09); 0.1.31 and 0.1.32 went to stable untried (2026-11-10) |
+| Releases tried in d20mob before they go stable | every release | 0.1.17 tried in hireling; 0.1.19 went to stable untried (2026-10-28); 0.1.20 to 0.1.28 went to stable untried (2026-11-06); 0.1.29 went to stable untried (2026-11-07); 0.1.30 went to stable untried (2026-11-09); 0.1.31 and 0.1.32 went to stable untried (2026-11-10); 0.1.34 and 0.1.35 went to stable before their release check (2026-11-13); 0.1.36 went to stable after it (2026-11-13), the first release to do so |
 | Releases rolled back after going stable | 0 | 0 |
 
 ---
 
 ## Revision History
+
+## [2026-11-13] 0.1.33 to 0.1.36 shipped; stable and ck-next on 0.1.36
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; What's missing or fragile; Releases; Tier 1 item 1; Tier 2 item 3; Recommended Sequencing; Open Questions; OKRs
+
+### What Changed
+Releases gains 0.1.33 (the install a session loads, [code-katz/ck#80](https://github.com/code-katz/ck/pull/80)), 0.1.34 (model names may be written down, [#81](https://github.com/code-katz/ck/pull/81)), 0.1.35 (Iris credits the model, [#83](https://github.com/code-katz/ck/pull/83)) and 0.1.36 (the release check, [#82](https://github.com/code-katz/ck/pull/82)), each tagged. Stable moved to `v0.1.34`, `v0.1.35` and `v0.1.36` on the same day, and ck-next serves 0.1.36. Every install record of both channels is on 0.1.36, and a fresh session in ck, d20mob, hireling and `~/development` loads it. The snapshot's line on `claude plugin update` moving the wrong install is replaced by its cause and fix. A release in one command moves to the next release, with `installs.py set` and `verify` as two of its steps.
+
+### Why
+A new d20mob coordinator named its chips `[River write]`, after you had been told three times the model was back in the title. d20mob and hireling had run 0.1.29 since 2026-11-07, because Claude Code reads a repository's first install record and an old worktree's came first; the releases were checked only in the ck folder. You then asked for model names to be allowed, for 0.1.34 and then 0.1.36 on stable, and, disappointed with the slop in ck, for a check that a release runs in d20mob before it counts as done.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: should ck tell you to start a coordinator on the highest model its stages use (question 4); should Iris say that no licensing check applies (question 5).
+
+---
 
 ## [2026-11-10] Stable on 0.1.32
 
