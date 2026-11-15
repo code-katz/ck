@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-14.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-15.
 
 ---
 
@@ -47,7 +47,7 @@
 - Asked for a raster image in d20mob on 0.1.36, Iris logs the credit line but still raises a commercial-use and originality check of her own; no ck text asks for it.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28` to `v0.1.38`.
 - `/ck:issue` has filed only test issues. In a repository whose `.git/info/exclude` has no `.ck/` line, adding it meets a permission prompt.
-- ck2 is abandoned. Anything from it is rebuilt from scratch, if at all.
+- ck2 is abandoned, and its repository is archived on GitHub (2026-11-15). Anything from it is rebuilt from scratch, if at all.
 
 ---
 
@@ -166,10 +166,9 @@ Later: the code-quality review command; template changes reach projects; the lea
 ## Open Questions
 
 1. Is the install drill on Clare's machine still wanted?
-2. What happens to the ck2 repository: archive it on GitHub, or leave it as it is?
-3. Why does idle compaction never fire in the sessions the evaluation measured, and should it be reported to Anthropic?
-4. Should ck tell you to start a coordinator on the highest model and effort its plan's stages use (Opus, or Fable for a pinned stage), since a chip cannot open above its coordinator?
-5. Should Iris say outright that no licensing check applies to generated art, since without it she still raises one of her own?
+2. Why does idle compaction never fire in the sessions the evaluation measured, and should it be reported to Anthropic?
+3. Should ck tell you to start a coordinator on the highest model and effort its plan's stages use (Opus, or Fable for a pinned stage), since a chip cannot open above its coordinator?
+4. Should Iris say outright that no licensing check applies to generated art, since without it she still raises one of her own?
 
 ---
 
@@ -185,6 +184,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-15] ck2 archived on GitHub
+
+**Change Type:** `decision`
+**Triggered by:** `user`
+**Items Affected:** What's missing or fragile; Open Questions
+
+### What Changed
+`code-katz/ck2` is archived on GitHub, so it is read-only. The ck2 line under what is missing says so, and Open Question 2 is answered and removed; the questions after it move up one.
+
+### Why
+You said "we are going to abandon ck2" and chose to archive it. It can be unarchived in its settings. The few files in the ck2 folder on the Mac that were never pushed are left as they are.
+
+### Open Questions Resolved / Added
+- Resolved: what happens to the ck2 repository (archived on GitHub).
+- Added: none.
+
+---
 
 ## [2026-11-14] 0.1.37 and 0.1.38 shipped; stable and ck-next on 0.1.38
 
