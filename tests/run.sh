@@ -762,7 +762,7 @@ CM="python3 scripts/claude-md.py"
 mkdir -p "$TMP/cm"
 state_of() { $CM status "$@" | sed -n 's/^state: //p'; }
 # A tailored draft: the current template with every blank filled.
-sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.39.md > "$TMP/cm/draft.md"
+sed 's/{{[^}]*}}/filled/g' templates/how-we-work/0.1.42.md > "$TMP/cm/draft.md"
 
 # The newest template is built on the one before it: none of its lines goes back to an older template's wording
 # that the one before it had already changed. Two templates built at once can copy a stale base (0.1.31's draft did).
@@ -791,12 +791,12 @@ fi
 # A new section: the file is made with the heading and the draft, stamped with the template's version.
 $CM write "$TMP/cm/new.md" --section "$TMP/cm/draft.md" >/dev/null; rc=$?
 if [[ $rc -eq 0 && "$(cat "$TMP/cm/new.md")" == "$(printf '## How we work\n\n'; cat "$TMP/cm/draft.md")" && "$(state_of "$TMP/cm/new.md")" == stamped ]] \
-   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.39' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
-  ok "a new section is written under the heading, stamped 0.1.39, not behind"
+   && $CM status "$TMP/cm/new.md" | grep -qx 'stamp: 0.1.42' && $CM status "$TMP/cm/new.md" | grep -qx 'behind: no'; then
+  ok "a new section is written under the heading, stamped 0.1.42, not behind"
 else
   fail "a new section: exit $rc, state $(state_of "$TMP/cm/new.md")"
 fi
-cp templates/how-we-work/0.1.39.md "$TMP/cm/blank.md"
+cp templates/how-we-work/0.1.42.md "$TMP/cm/blank.md"
 out=$($CM write "$TMP/cm/blank2.md" --section "$TMP/cm/blank.md"); rc=$?
 [[ $rc -eq 1 && "$out" == *'{{lanes}}'* && ! -e "$TMP/cm/blank2.md" ]] && ok "a draft with a blank left in it is refused, and the blank is named" || fail "a draft with a blank: exit $rc, '$out'"
 
