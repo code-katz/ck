@@ -10,7 +10,8 @@ Usage:
 
 The file holds one line per change to the core, `invite <persona> <why>` or `drop <persona> <why>`, and
 `#` comments. The last line about a persona wins. With no file the team is the core. The project is the
-nearest folder, from the current one up, that has .claude/ck-team.conf or .git. Standard library only;
+nearest folder, from the current one up, that has .claude/ck-team.conf or .git; a worktree with no team
+file of its own uses its main checkout's, so a project that keeps .claude/ out of git has one team. Standard library only;
 an error is one plain line, never a traceback.
 """
 import os
@@ -42,9 +43,22 @@ def project(start=None):
     """The project's folder, or None outside any repository with no team file."""
     here = Path(start or os.getcwd()).resolve()
     for d in [here, *here.parents]:
-        if (d / '.claude' / 'ck-team.conf').is_file() or (d / '.git').exists():
+        if (d / '.claude' / 'ck-team.conf').is_file():
             return d
+        if (d / '.git').exists():
+            return main_checkout(d) or d
     return None
+
+
+def main_checkout(d):
+    """For a linked worktree, the main checkout, whose team file it shares; else None."""
+    try:
+        m = re.match(r'gitdir:\s*(.+)', (d / '.git').read_text().strip())
+        gitdir = (d / m.group(1)).resolve()
+        common = (gitdir / (gitdir / 'commondir').read_text().strip()).resolve()
+    except (OSError, AttributeError):                        # a .git folder, a submodule, or no repository
+        return None
+    return common.parent if common.name == '.git' else None
 
 
 def team_file(start=None):

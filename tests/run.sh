@@ -988,6 +988,9 @@ card=$(cd "$tw/plan" && python3 "$REPO_DIR/scripts/plan.py" card docs/build-plan
 (cd "$tw/plan" && python3 "$TEAM" invite travolta >/dev/null)
 (cd "$tw/plan" && python3 "$REPO_DIR/scripts/plan.py" card docs/build-plan.md P2-S2 >/dev/null); rc2=$?
 [[ $note == 1 && $rc -eq 1 && "$card" == 'P2-S2: Travolta is not on'* && $rc2 -eq 0 ]] && ok "plan.py notes a row whose owner is off the team and refuses its card until they are invited" || fail "plan.py and the team: note $note, card exit $rc '$card', after invite exit $rc2"
+git init -q "$tw/wt"; printf '.claude/\n' > "$tw/wt/.gitignore"; git -C "$tw/wt" add .gitignore; git -C "$tw/wt" -c user.name=t -c user.email=t@t commit -qm init
+mkdir -p "$tw/wt/.claude"; printf 'invite noon cyberpunk\n' > "$tw/wt/.claude/ck-team.conf"; git -C "$tw/wt" worktree add -q "$tw/wt/.claude/worktrees/w"
+[[ "$(names "$tw/wt/.claude/worktrees/w")" == *', noon' ]] && ok "a worktree of a project that ignores .claude/ uses the main checkout's team" || fail "worktree team: '$(names "$tw/wt/.claude/worktrees/w")'"
 python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("team.py\" context" in x["command"] for e in h["SessionStart"] for x in e["hooks"])' \
   && ok "hooks.json prints the team at session start" || fail "hooks.json does not run team.py context"
 

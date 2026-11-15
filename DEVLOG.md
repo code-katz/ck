@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-14] 0.1.41: A worktree uses the project's team
+
+**Category:** `fix`
+**Tags:** `ck`, `team`, `worktree`, `akira`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+The regression review of 0.1.19 to 0.1.36 found that `scripts/team.py` stopped at a worktree's own folder, because a worktree's `.git` is a file there. A project that keeps `.claude/` out of git, as d20mob does, has its team file only in the main checkout, so every session in a worktree fell back to the core team. hireling worked only because it commits its team file.
+
+### Detail
+- **`project()`.** A worktree with no `.claude/ck-team.conf` of its own now uses its main checkout's, found from the `gitdir:` line of its `.git` file and the `commondir` file beside it (standard library, no `git` call, so the session start hook stays quick). A worktree with its own committed team file keeps it. A submodule is left as before.
+- **Writes.** `/ck:team invite` and `drop` from such a worktree change the main checkout's file, the only one that outlives the worktree.
+- **Callers.** `team_file()`, `plan.py`'s team check and the "ck team for this project" hook all go through `project()`, so all three see the main checkout's team.
+- **Fix it everywhere.** No other ck script walks up to `.git` to find a file under `.claude/`; the others already use `git rev-parse --git-common-dir`.
+- **Tests.** One case in `tests/run.sh` section 23: a repo that ignores `.claude/`, a team file in its main checkout, and `team.py show` in a worktree lists that team.
+
+---
+
 ## [2026-11-14] 0.1.40: The plan's page stays current
 
 **Category:** `feature`
