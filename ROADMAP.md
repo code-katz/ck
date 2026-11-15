@@ -35,8 +35,12 @@
 - The release check (0.1.36): `installs.py verify` starts a fresh session in ck, d20mob and hireling and fails unless each loads the release, and `RELEASING.md` writes the release steps down for the first time, with that check and the changed command run in a d20mob worktree before a release counts as done.
 - `/ck:issue` (0.1.37): files a tester's report into any repository's GitHub issue list, under its own form and labels, or as a comment on the issue that already covers it. The draft is shown in the chat and goes to GitHub only on `file`. Asked for by d20mob's bug sweep (stage K9-P1-S1); tried in d20mob and d20mob-web with test issues, since deleted.
 - Checks that cost (0.1.38): How we work 0.1.38 adds a rule that a project's CI checks a change for its pull request and `main` only, skips records-only changes, and shares one job among short checks; Alex carries the cost line. It came from about 18,300 billed Actions minutes in 14 days across d20mob and hireling. ck's own `CLAUDE.md`, new, carries How we work 0.1.38 ([code-katz/ck#87](https://github.com/code-katz/ck/pull/87)).
-- Main is at 0.1.38. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.38` since 2026-11-14. On Will's Mac every install record of both channels is on 0.1.38. A fresh session in ck, d20mob and hireling loads it from ck-next, and one in a folder without a project install loads it from stable. Rollback in a project is two commands.
+- The ck-only fixes from the regression review of 0.1.19 to 0.1.36 (0.1.39): lanes and stage cards end with what is left and the words for the first step, or "This session can be closed."; a review page that cannot be published opens in Chrome; a test stops the newest How we work template from bringing back older wording; How we work 0.1.39 names each step's model and effort ([code-katz/ck#89](https://github.com/code-katz/ck/pull/89)).
+- The plan's page stays current (0.1.40): `/ck:start` republishes a plan's review page to the same link each time it changes a State, and `plan.py page` keeps the link in the plan's `Page:` line ([#90](https://github.com/code-katz/ck/pull/90)).
+- A worktree uses the project's team (0.1.41): a session in a worktree with no team file of its own reads the main checkout's, so a project that keeps `.claude/` out of git, as d20mob does, has one team everywhere ([#91](https://github.com/code-katz/ck/pull/91)).
+- A controller is not done while its sessions run (0.1.42): How we work 0.1.42 counts a session this one started, still working or waiting on a merge or your word, as something left, so "This session can be closed." waits for it ([#92](https://github.com/code-katz/ck/pull/92)).
+- Main is at 0.1.42. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace), on `v0.1.38` since 2026-11-14, and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), on `v0.1.42` since 2026-11-15. A fresh session in ck, d20mob and hireling loads ck-next's release (0.1.39 and 0.1.41 each passed `installs.py verify`), and one in a folder without a project install loads stable's. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
@@ -46,6 +50,7 @@
 - A stage's chip cannot open above its coordinator: the app takes a chip's model only at or below the coordinator's, and its effort the same. A Sonnet coordinator opens Opus stages on Sonnet, and each stops to ask for Opus.
 - Asked for a raster image in d20mob on 0.1.36, Iris logs the credit line but still raises a commercial-use and originality check of her own; no ck text asks for it.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28` to `v0.1.38`.
+- Three faults from the regression review of 0.1.19 to 0.1.36 are not fixed yet: `plan.py approve` never runs `check`, so a plan approves with faults `check` would name; stage names run past the 59-character limit (d20mob K6 by 13, hireling by 23); and `plan.py next` ignores hireling's `docs/build-plan.md`, printing `R1 1`. The review is a draft page, not yet committed. d20mob still has no team file; 0.1.41 makes one, once set up with `/ck:team`, reach its worktrees.
 - `/ck:issue` has filed only test issues. In a repository whose `.git/info/exclude` has no `.ck/` line, adding it meets a permission prompt.
 - ck2 is abandoned, and its repository is archived on GitHub (2026-11-15). Anything from it is rebuilt from scratch, if at all.
 
@@ -94,7 +99,11 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.35 | 2026-11-13 | Iris welcomes AI art and credits the model in `assets/MANIFEST.md` | Tag `v0.1.35` |
 | 0.1.36 | 2026-11-13 | The release check: `installs.py verify` and `RELEASING.md` | Tag `v0.1.36` |
 | 0.1.37 | 2026-11-14 | `/ck:issue` files a tester's report into a GitHub issue list, drafted first and filed on your word | Tag `v0.1.37` |
-| 0.1.38 | 2026-11-14 | Checks that cost: How we work 0.1.38's CI rule, and Alex's cost line | Tag `v0.1.38`; **stable** and **ck-next** |
+| 0.1.38 | 2026-11-14 | Checks that cost: How we work 0.1.38's CI rule, and Alex's cost line | Tag `v0.1.38`; **stable** |
+| 0.1.39 | 2026-11-14 | The ck-only fixes from the regression review: endings for lanes and cards, Chrome for an unpublished review page, a guard on How we work's wording | Tag `v0.1.39` |
+| 0.1.40 | 2026-11-14 | The plan's page stays current: `/ck:start` republishes it on every State change | Tag `v0.1.40` |
+| 0.1.41 | 2026-11-14 | A worktree uses the main checkout's team file | Tag `v0.1.41` |
+| 0.1.42 | 2026-11-15 | How we work 0.1.42: a session that started others is not done while they run | Tag `v0.1.42`; **ck-next** |
 
 ---
 
@@ -184,6 +193,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-15] 0.1.39 to 0.1.42 shipped; ck-next on 0.1.42
+
+**Change Type:** `complete`
+**Triggered by:** `delivery`
+**Items Affected:** Snapshot; What's missing or fragile; Releases
+
+### What Changed
+Releases gains 0.1.39 (the ck-only fixes from the regression review, [code-katz/ck#89](https://github.com/code-katz/ck/pull/89)), 0.1.40 (the plan's page stays current, [#90](https://github.com/code-katz/ck/pull/90)), 0.1.41 (a worktree uses the project's team, [#91](https://github.com/code-katz/ck/pull/91)) and 0.1.42 (a controller is not done while its sessions run, [#92](https://github.com/code-katz/ck/pull/92)), each tagged. ck-next serves 0.1.42; stable stays on 0.1.38. What is missing names the three regression-review faults still open.
+
+### Why
+You asked for a review of 0.1.19 to 0.1.31 for regressions and conflicts, later widened to 0.1.36. It found 16, and you chose to fix the ck-only ones first (0.1.39), then d20mob's missing team in worktrees (0.1.41). A controller session then told you it could be closed while a session it started was still running, and you judged that a ck rule gap (0.1.42).
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-15] ck2 archived on GitHub
 
