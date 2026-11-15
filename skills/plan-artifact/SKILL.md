@@ -19,11 +19,12 @@ There are two kinds, with the same shape:
 # Staged plan: <the product, or the item's name>
 
 Date: <YYYY-MM-DD>. Status: draft, not approved.
+Page: <the review page's claude.ai link>
 Item: <ID>
 Reads: <the documents it was written from, by path>
 ```
 
-The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits: the release, `R` and its number, such as `R1`, or an id the author typed, such as `A31`. An item's phases carry on across its plans: a new plan of the item starts one past the highest phase in its earlier plans under `docs/plan/`, so a release's plans run Phase 1 to 8, then 9 to 11, and so on. `plan.py next` prints the item and the phase a new plan starts at. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`.
+The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits: the release, `R` and its number, such as `R1`, or an id the author typed, such as `A31`. An item's phases carry on across its plans: a new plan of the item starts one past the highest phase in its earlier plans under `docs/plan/`, so a release's plans run Phase 1 to 8, then 9 to 11, and so on. `plan.py next` prints the item and the phase a new plan starts at. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`. The `Page:` line is written by `plan.py page <file> --set <link>` once the plan's review page is first published, and every State change republishes that page to the same link; a plan without one is still a plan.
 
 ## Section order
 
@@ -106,7 +107,7 @@ Seats that are not filled and decisions the plan needs, each with the stage it h
 
 ## Checklist
 
-1. The four sections are present, in order, with these headings.
+1. The four sections are present, in order, with these headings, and a `Page:` line, when there is one, holds one `claude.ai` link.
 2. Every phase has its sentences, a stage table with the four columns, and an `Ends when:` line.
 3. Every row has one owner, written as the contract says, and every persona named is on the roster.
 4. Stage ids are `P<phase>-S<stage>`, numbered from 0 within each phase with no gaps, and every row has exactly one entry under Stage by stage with the same id. No two plans of one item share a phase number.

@@ -5,6 +5,25 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-14] 0.1.40: The plan's page stays current
+
+**Category:** `feature`
+**Tags:** `ck`, `plan`, `start`, `akira`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+A staged plan's review page was published once by `/ck:plan` and then went stale: `/ck:start` changed States in the plan file and printed one phase's board in the chat, and d20mob's K10 page was republished by hand after its board commits. On 2026-11-14 Will chose that the page refresh every time a coordinator changes a State (stage R39-S1).
+
+### Detail
+- **The Page line.** `/ck:plan` writes the page's `claude.ai` link as `Page: <link>` after the Date line, once the page is first published. The contract (`skills/plan-artifact/SKILL.md`) names it; `plan.py check` accepts it and reports one that is not a `claude.ai` link; `set` and `approve` leave it as it is; a plan without one still works.
+- **`plan.py page`.** Prints the link; `--set` writes the line; `--render OUT --was HTML` builds the page with `render-review.py`, meta line "Revision <n>, board as of <local date and time>", n one past the page as last published.
+- **`/ck:start`.** After the last State change in a message (its own refresh, and "running", "done", "back" and "merge"), it reads the page, rebuilds it and republishes it to the same link, and prints the link and the cards in place of the board table. The table is printed only when the page cannot be published; a plan with no Page line gets its page published once and the line written. Both rare cases are in `skills/start/page.md`, read only when needed. `/ck:start`'s `SKILL.md` grows from 1,327 to 1,387 words.
+- **Tests.** Seven cases in `tests/plan-cases.py` for the Page line and `page`.
+- Not changed: plan commits and "save"; a State change still needs no pull request of its own.
+
+---
+
 ## [2026-11-14] 0.1.39: the ck-only fixes from the regression review
 
 **Category:** `fix`

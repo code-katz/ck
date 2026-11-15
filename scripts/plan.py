@@ -12,6 +12,12 @@ Usage:
   plan.py approve FILE [--date YYYY-MM-DD]
   plan.py board FILE [--all]
   plan.py card FILE ID [--fix TEXT --title TITLE] [--plugin-root DIR] [--roster PATH]
+  plan.py page FILE [--set LINK | --render OUT [--was HTML]]
+
+page prints the link on the plan's Page line, the review page the plan is published on. With --set it
+writes that line, after the Date line or in place of the one there. With --render it builds the page
+with render-review.py into OUT, with the meta line "Revision <n>, board as of <local date and time>":
+n is one past the revision in HTML, the page as last published, or 1 with no --was.
 
 A Who cell is You, Open, or <Persona>, <job>: one of the job words in tiers.conf, each a model and an
 effort. <Persona>, <job>, <Model> <effort> pins another point. A cell in the older form, <Persona>,
@@ -40,6 +46,7 @@ import datetime
 import json
 import os
 import re
+import subprocess
 import sys
 
 try:
@@ -123,6 +130,7 @@ USAGE = {
     'approve': 'approve FILE [--date YYYY-MM-DD]',
     'board': 'board FILE [--all]',
     'card': 'card FILE ID [--fix TEXT --title TITLE] [--plugin-root DIR] [--roster PATH]',
+    'page': 'page FILE [--set LINK | --render OUT [--was HTML]]',
 }
 # Per command: fewest and most positional arguments, and its options (True when one takes a value).
 ARGS = {
@@ -136,7 +144,11 @@ ARGS = {
     'approve': (1, 1, {'--date': True}),
     'board': (1, 1, {'--all': False}),
     'card': (2, 2, {'--fix': True, '--title': True, '--plugin-root': True, '--roster': True}),
+    'page': (1, 1, {'--set': True, '--render': True, '--was': True}),
 }
+PAGE_RE = re.compile(r'https://claude\.ai/\S+')            # the link on a Page line
+REVISION_RE = re.compile(r'<p class="meta">Revision ([0-9]{1,6})\b')   # render-review.py's meta line
+RENDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'render-review.py')
 
 
 class Fail(Exception):
@@ -279,6 +291,7 @@ class Plan:
         first = self.lines[0]
         self.name = (first[15:].strip() if first.startswith('# Staged plan: ') else '') or None
         self.item = self.item_text = self.status = self.status_at = None
+        self.page = self.page_at = self.date_at = None       # the Page line's text and line number
         self.dated = False
         self.sections = [name for name in map(section_name, self.lines) if name is not None]
         self.phases, self.rows, self.entries = [], [], []
@@ -338,8 +351,10 @@ class Plan:
         if self.item_text is None and line.startswith('Item:'):
             self.item_text = line[5:].strip()
             self.item = self.item_text or None
+        if self.page_at is None and line.startswith('Page:'):
+            self.page, self.page_at = line[5:].strip(), i
         if not self.dated and line.startswith('Date: '):
-            self.dated = True
+            self.dated, self.date_at = True, i
             at = line.find('Status: ')
             if at >= 0:                                      # the text up to the full stop that ends it
                 a = at + len('Status: ')
@@ -581,6 +596,8 @@ def check_top(plan, say):
     status = plan.status or ''
     if status != 'draft, not approved' and not re.fullmatch('approved [0-9]{4}-[0-9]{2}-[0-9]{2}', status):
         say('The Date line has no valid Status: it must be "draft, not approved" or "approved YYYY-MM-DD".')
+    if plan.page is not None and not PAGE_RE.fullmatch(plan.page):
+        say('The Page line "%s" is not one claude.ai link.' % plan.page)
     if plan.item_text is not None and not re.fullmatch('[A-Z][A-Z0-9]{0,7}', plan.item_text):
         say('The Item id "%s" is not one capital letter followed by up to seven capitals or digits.' % plan.item_text)
     # 2. The four sections, in order.
@@ -1215,9 +1232,46 @@ def cmd_card(args, opts):
     return 0, ['{\n' + body + '\n}']
 
 
+def cmd_page(args, opts):
+    path = args[0]
+    if '--set' in opts and '--render' in opts or '--was' in opts and '--render' not in opts:
+        raise usage('page')
+    plan = load(path)
+    if '--set' in opts:
+        link = opts['--set'].strip()
+        if not PAGE_RE.fullmatch(link):
+            raise Refuse('"%s" is not one claude.ai link, so no Page line was written' % link)
+        if plan.page_at is not None:
+            plan.lines[plan.page_at] = 'Page: ' + link
+        elif plan.date_at is not None:
+            plan.lines.insert(plan.date_at + 1, 'Page: ' + link)
+            plan.cr.insert(plan.date_at + 1, plan.cr[plan.date_at])
+        else:
+            raise Refuse('%s has no line that starts "Date: ", so the Page line has nowhere to go' % path)
+        plan.save()
+        return 0, ['Page: ' + link]
+    if '--render' in opts:
+        revision = 1
+        if '--was' in opts:
+            m = REVISION_RE.search(read_text(opts['--was']))
+            revision = int(m.group(1)) + 1 if m else 1
+        meta = 'Revision %d, board as of %s' % (revision, datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))
+        done = subprocess.run([sys.executable, RENDER, '--in', path, '--out', opts['--render'],
+                               '--title', '%s: staged plan' % (plan.name or os.path.basename(path)), '--meta', meta],
+                              capture_output=True, text=True)
+        if done.returncode:
+            raise Fail('render-review.py could not build the page: %s'
+                       % ((done.stderr.strip().split('\n') or [''])[-1] or 'exit %d' % done.returncode))
+        return 0, [meta]
+    if plan.page is None:
+        return 1, ['%s has no Page line' % path]
+    return 0, [plan.page]
+
+
 COMMANDS = {
     'find': cmd_find, 'check': cmd_check, 'rows': cmd_rows, 'ready': cmd_ready, 'refresh': cmd_refresh,
     'set': cmd_set, 'approve': cmd_approve, 'board': cmd_board, 'card': cmd_card, 'next': cmd_next,
+    'page': cmd_page,
 }
 
 

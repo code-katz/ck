@@ -1902,6 +1902,97 @@ def _(t):
         file_is(t, path, text, res)
 
 
+# ---- page -----------------------------------------------------------------
+
+PAGE_LINK = "https://claude.ai/code/artifact/0b1c2d3e"
+PAGE_LINE = "Page: " + PAGE_LINK
+
+
+def with_page(text, link=PAGE_LINK):
+    return swap(text, DRAFT_LINE, DRAFT_LINE + "\nPage: " + link)
+
+
+@case("check: a Page line with a claude.ai link passes")
+def _(t):
+    text = with_page(item_text())
+    good(t, t.run("check", t.plan(text), "--roster", t.roster()), text)
+
+
+@case("check: a Page line that is not a claude.ai link")
+def _(t):
+    text = with_page(item_text(), "see the review")
+    res = t.run("check", t.plan(text), "--roster", t.roster())
+    exits(t, res, 1)
+    if not any("Page line" in line for line in problem_lines(t, res, text)):
+        t.bad("does not report the Page line", res)
+
+
+@case("page: set and approve leave the Page line as it is")
+def _(t):
+    text = with_page(item_text())
+    path = t.plan(text)
+    res = t.run("set", path, "P1-S0", "running")
+    exits(t, res, 0)
+    want = set_state(text, "P1-S0", "running in its session")
+    file_is(t, path, want, res)
+    res = t.run("approve", path, "--date", "2026-11-02")
+    exits(t, res, 0)
+    file_is(t, path, swap(want, DRAFT_LINE, "Date: 2026-10-11. Status: approved 2026-11-02."), res)
+
+
+@case("page: prints the link, or says there is none")
+def _(t):
+    ran_clean(t, t.run("page", t.plan(with_page(item_text()))), [PAGE_LINK])
+    res = t.run("page", t.plan(item_text()))
+    exits(t, res, 1)
+    quiet(t, res)
+
+
+@case("page: --set writes the line after the Date line, or in place of the one there")
+def _(t):
+    text = item_text()
+    path = t.plan(text)
+    ran_clean(t, t.run("page", path, "--set", PAGE_LINK), [PAGE_LINE])
+    file_is(t, path, with_page(text))
+    other = "https://claude.ai/code/artifact/ffff"
+    ran_clean(t, t.run("page", path, "--set", other), ["Page: " + other])
+    file_is(t, path, with_page(text, other))
+    t.at("line endings of CR LF")
+    crlf = text.replace("\n", "\r\n")
+    path = t.plan(crlf, "crlf.md")
+    exits(t, t.run("page", path, "--set", PAGE_LINK), 0)
+    file_is(t, path, with_page(text).replace("\n", "\r\n"))
+
+
+@case("page: --set refuses what is not a claude.ai link and changes nothing")
+def _(t):
+    text = item_text()
+    path = t.plan(text)
+    res = t.run("page", path, "--set", "https://example.com/page")
+    exits(t, res, 1)
+    file_is(t, path, text, res)
+
+
+@case("page: --render builds the page, one revision past the one it was")
+def _(t):
+    path = t.plan(item_text())
+    first, second = path + ".1.html", path + ".2.html"
+    res = t.run("page", path, "--render", first)
+    exits(t, res, 0)
+    quiet(t, res)
+    meta = re.compile(r"Revision (\d+), board as of \d{4}-\d{2}-\d{2} \d{2}:\d{2}")
+    got = res.lines()
+    if len(got) != 1 or not meta.fullmatch(got[0]) or meta.fullmatch(got[0]).group(1) != "1":
+        t.bad("should print 'Revision 1, board as of <date> <time>', got %r" % got, res)
+    if not os.path.isfile(first) or got and got[0] not in read_text(first):
+        t.bad("the page was not built with that meta line", res)
+        return
+    res = t.run("page", path, "--render", second, "--was", first)
+    got = res.lines()
+    if len(got) != 1 or not meta.fullmatch(got[0]) or meta.fullmatch(got[0]).group(1) != "2":
+        t.bad("with --was a page at revision 1, should print revision 2, got %r" % got, res)
+
+
 # ---- board ----------------------------------------------------------------
 
 def board(t, text, want, *flags):
