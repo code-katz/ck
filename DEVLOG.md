@@ -5,6 +5,24 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-15] 0.1.42: A session that started others is not done while they run
+
+**Category:** `fix`
+**Tags:** `ck`, `how-we-work`, `river`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+A controller session finished its own release and told Will "This session can be closed." while an Akira session it had just started was still running and would report back to it. How we work's ending rule counted only this session's pull request, records and branch, never the sessions it started.
+
+### Detail
+- **The User's rules.** "What is left" now includes a session this one started that is still working or waiting on a merge or the User's word, with "Wait for Akira's report" as the ending words when that is the first thing left. "This session can be closed." now also needs every session this one started to have merged or stopped.
+- **Finishing a session.** Unchanged: Will judged the lane wording already covers it.
+- **Template.** `templates/how-we-work/0.1.42.md`; ck's own `CLAUDE.md` is stamped 0.1.42 with the same lines.
+- **Fix it everywhere.** The same ending is in `scripts/plan.py`'s stage cards and `skills/next/SKILL.md`; both speak only to lanes, which start no sessions, so they stay as they are.
+
+---
+
 ## [2026-11-14] 0.1.41: A worktree uses the project's team
 
 **Category:** `fix`
