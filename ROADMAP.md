@@ -106,7 +106,7 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.41 | 2026-11-14 | A worktree uses the main checkout's team file | Tag `v0.1.41` |
 | 0.1.42 | 2026-11-15 | How we work 0.1.42: a session that started others is not done while they run | Tag `v0.1.42` |
 | 0.1.43 | 2026-11-15 | An item plan of the release carries on after the release plan, `docs/build-plan.md` | Tag `v0.1.43`; **stable** and **ck-next** |
-| 0.1.44 | 2026-11-16 | The devlog taken out of ck's rules, release steps and commands ([code-katz/ck#100](https://github.com/code-katz/ck/pull/100)) | Tag `v0.1.44` |
+| 0.1.44 | 2026-11-16 | ck no longer reads or writes a separate release log: its rules, release steps and commands drop it ([code-katz/ck#100](https://github.com/code-katz/ck/pull/100)) | Tag `v0.1.44` |
 
 ---
 
