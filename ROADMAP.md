@@ -106,6 +106,7 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.41 | 2026-11-14 | A worktree uses the main checkout's team file | Tag `v0.1.41` |
 | 0.1.42 | 2026-11-15 | How we work 0.1.42: a session that started others is not done while they run | Tag `v0.1.42` |
 | 0.1.43 | 2026-11-15 | An item plan of the release carries on after the release plan, `docs/build-plan.md` | Tag `v0.1.43`; **stable** and **ck-next** |
+| 0.1.44 | 2026-11-16 | ck no longer reads or writes a separate release log: its rules, release steps and commands drop it ([code-katz/ck#100](https://github.com/code-katz/ck/pull/100)) | Tag `v0.1.44` |
 
 ---
 
@@ -152,7 +153,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 |---|---|---|---|
 | 1 | **The lean review's remaining recommendations** ([ck: is it lean?](https://claude.ai/artifact/PKCgiGsjZroKmLVXXEjuuB)); R1 and R3 shipped in 0.1.21 | Fewer tokens per session and per command | Each one is weighed on its own, by tokens saved per week |
 | 2 | **Template changes reach projects** | A rule fixed in ck's "How we work" template is missing from every project until someone copies it by hand; d20mob's questions came as chips because of this | A changed sentence can go into a reviewed section as a one-line edit, with no redraft; `scripts/claude-md.py status` already reports "behind: yes" |
-| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the cache, the installs, the check), now written down in `RELEASING.md`; 0.1.35 skipped the installs and the check, and reached no project until 0.1.36 | One script can run `RELEASING.md` steps 4 to 7 from the DEVLOG entry; `installs.py set` and `verify` (0.1.33, 0.1.36) are two of its steps already; now as the next release, with its own plan |
+| 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the cache, the installs, the check), now written down in `RELEASING.md`; 0.1.35 skipped the installs and the check, and reached no project until 0.1.36 | One script can run `RELEASING.md` steps 4 to 7, taking a release's record from its commit title and the pull request's description; `installs.py set` and `verify` (0.1.33, 0.1.36) are two of its steps already; now as the next release, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
 ### Tier 3: Strategic / Longer Horizon
