@@ -4,7 +4,7 @@ Every merge to `main` is a release, `0.1.N`, and merges only on Will's typed "me
 
 ## Before the merge
 
-1. Branch from `origin/main`. Rebase on it again right before the pull request, and take the next version after main's: `.claude-plugin/plugin.json`, a DEVLOG entry, and a commit titled `0.1.N: <title>`, all in one commit.
+1. Branch from `origin/main`. Rebase on it again right before the pull request, and take the next version after main's: `.claude-plugin/plugin.json` and a commit titled `0.1.N: <title>`, all in one commit.
 2. `bash tests/run.sh` passes.
 3. Open the pull request. Wait for "merge N", fetch, and merge only when the branch sits on main's tip, so the merged tree is the tested one.
 

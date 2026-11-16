@@ -1,7 +1,7 @@
 # ck — Development Log
 
 A living record of architectural decisions, milestones, key insights, and strategic direction.
-Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-devlog-skill). Entries are reverse-chronological.
+Closed history: this log ends at 0.1.43 and is no longer kept up. Entries are reverse-chronological.
 
 ---
 

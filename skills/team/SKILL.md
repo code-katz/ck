@@ -77,4 +77,4 @@ Set `status` to `review`. Read `docs/TEAM.md`. Review it per `${CLAUDE_PLUGIN_RO
 
 ## 6. Finish
 
-Set `status` to `final` in `run.json`. For each persona in the Cast of `docs/TEAM.md` that `team.py show` does not list under `team:`, run `team.py invite <persona> <its role in the Cast>`, then offer to commit `.claude/ck-team.conf`. Say: "Your team document is finished: `docs/TEAM.md`." If the devlog skill is installed, add that `/devlog` can record the decision. Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.
+Set `status` to `final` in `run.json`. For each persona in the Cast of `docs/TEAM.md` that `team.py show` does not list under `team:`, run `team.py invite <persona> <its role in the Cast>`, then offer to commit `.claude/ck-team.conf`. Say: "Your team document is finished: `docs/TEAM.md`." Then close per `${CLAUDE_PLUGIN_ROOT}/skills/next/SKILL.md`: the pipeline table with this project's status, and the one next action under it.
