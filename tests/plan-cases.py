@@ -1367,6 +1367,14 @@ def _(t):
     t.at("an id that is not an item id")
     exits(t, t.run("next", "r1", "--root", project), 1)
 
+    t.at("only the release plan, docs/build-plan.md: an item plan of R1 carries on after its phases")
+    older = t.project()
+    shutil.rmtree(os.path.join(older, "docs", "plan"))
+    write_text(os.path.join(older, "docs", "build-plan.md"), shift_phases(release_text(), 4))
+    prints(t, t.run("next", "--root", older), ["R1\t8"])
+    t.at("a typed item other than R1 does not count it")
+    prints(t, t.run("next", "A31", "--root", older), ["A31\t1"])
+
 
 @case("check: a session name over 59 characters says how many over")
 def _(t):
