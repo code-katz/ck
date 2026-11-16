@@ -787,9 +787,19 @@ def tabbed(fields):
 
 
 def item_plans(folder, item, skip=None):
-    """(name, plan) for each staged plan in a folder whose Item is this one, in any case, but skip."""
-    return [(name, plan) for name, plan in item_plans_all(folder) if plan.item.upper() == item.upper()
-            and not (skip and os.path.abspath(plan.path) == os.path.abspath(skip))]
+    """(name, plan) for each staged plan in a folder whose Item is this one, in any case, but skip. For R1,
+    the release plan, docs/build-plan.md with no Item, counts too: its phases come first."""
+    found = [(name, plan) for name, plan in item_plans_all(folder) if plan.item.upper() == item.upper()]
+    if item.upper() == 'R1':
+        path = os.path.join(os.path.dirname(os.path.abspath(folder)), 'build-plan.md')
+        try:
+            plan = Plan(path, read_text(path)) if os.path.isfile(path) else None
+        except Fail:
+            plan = None
+        if plan and plan.staged and not plan.item:
+            found.append(('build-plan.md', plan))
+    return [(name, plan) for name, plan in found
+            if not (skip and os.path.abspath(plan.path) == os.path.abspath(skip))]
 
 
 def check_item_phases(plan, say):

@@ -24,7 +24,7 @@ Item: <ID>
 Reads: <the documents it was written from, by path>
 ```
 
-The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits: the release, `R` and its number, such as `R1`, or an id the author typed, such as `A31`. An item's phases carry on across its plans: a new plan of the item starts one past the highest phase in its earlier plans under `docs/plan/`, so a release's plans run Phase 1 to 8, then 9 to 11, and so on. `plan.py next` prints the item and the phase a new plan starts at. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`. The `Page:` line is written by `plan.py page <file> --set <link>` once the plan's review page is first published, and every State change republishes that page to the same link; a plan without one is still a plan.
+The `Item:` line is in an item plan only. Its id is one capital letter followed by up to seven capitals or digits: the release, `R` and its number, such as `R1`, or an id the author typed, such as `A31`. An item's phases carry on across its plans: a new plan of the item starts one past the highest phase in its earlier plans under `docs/plan/` (for `R1`, and in the release plan, `docs/build-plan.md`), so a release's plans run Phase 1 to 8, then 9 to 11, and so on. `plan.py next` prints the item and the phase a new plan starts at. `Status:` is `draft, not approved` until the author approves the plan in its review; then it is `approved <YYYY-MM-DD>`. The `Page:` line is written by `plan.py page <file> --set <link>` once the plan's review page is first published, and every State change republishes that page to the same link; a plan without one is still a plan.
 
 ## Section order
 

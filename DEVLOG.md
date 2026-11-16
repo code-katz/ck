@@ -5,6 +5,24 @@ Auto-maintained via [claude-devlog-skill](https://github.com/code-katz/claude-de
 
 ---
 
+## [2026-11-15] 0.1.43: An item plan of the release carries on after the release plan
+
+**Category:** `fix`
+**Tags:** `ck`, `plan`, `akira`
+**Risk Level:** `low`
+**Breaking Change:** `no`
+
+### Summary
+`plan.py next`, which `/ck:plan` uses to number a new item plan's phases, looked only in `docs/plan/`. It never read the release plan itself, `docs/build-plan.md`, which `/ck:plan` writes when no text follows it. hireling has only that plan (Phases 0 to 4), so `next` printed `R1 1`, and a new item plan of the release would have numbered its phases from 1 again. d20mob types its own items (K5 to K10), so it never met this. Found in the regression review of 0.1.19 to 0.1.36.
+
+### Detail
+- **The fix.** For release `R1`, the release plan, `docs/build-plan.md` with no `Item:` line, now counts as one of its plans, in `next` and in `check`'s rule that an item's plans share no phase. In hireling, `plan.py next` now prints `R1 5`. Typed items, and projects with no release plan, are unchanged.
+- **Contract.** `skills/plan-artifact/SKILL.md` says the same in one clause.
+- **Test.** A project with only `docs/build-plan.md` (Phases 5 to 7) gets `R1 8`, and a typed `A31` still gets Phase 1.
+- **Not done, by Will's choice.** The two other open review faults stay as they are: `plan.py approve` not running `check` (`/ck:plan` checks before approval), and older stage names past 59 characters (`check` flags them in new plans).
+
+---
+
 ## [2026-11-15] 0.1.42: A session that started others is not done while they run
 
 **Category:** `fix`
