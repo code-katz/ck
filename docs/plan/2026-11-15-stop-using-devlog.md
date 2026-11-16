@@ -35,8 +35,8 @@ ck's rules, release steps and commands stop naming the devlog. When this ends, a
 | Stage | What | Who | State |
 |---|---|---|---|
 | P1-S0 | Four choices about what the removal leaves behind | You | done |
-| P1-S1 | The devlog taken out of the rules, the release steps and the commands | River, edit | not started; could start now |
-| P1-S2 | The roadmap row that cites the devlog entry, reworded | River, edit | not started; follows S1 |
+| P1-S1 | The devlog taken out of the rules, the release steps and the commands | River, edit | done (100) |
+| P1-S2 | The roadmap row that cites the devlog entry, reworded | River, edit | done (101) |
 
 Ends when: you finish a ck command in a fresh session and it says nothing about `/devlog`, and the release that shipped the change has no devlog entry.
 
