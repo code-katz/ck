@@ -172,6 +172,35 @@ scripts/                     generate.sh, render-review.py, render-gallery.py, u
 tests/                       run.sh, workflows.mjs (the workflow scripts run with stub agents), two fixture projects, the gallery fixtures, and the drill logs
 ```
 
+## Roadmap at a glance
+
+✅ works today · 🔜 planned, not built · ⬜ not planned yet
+
+| | What | Team members | Version | Date |
+|---|---|---|---|---|
+| ✅ | Argue a hard question on three Claude models | River, Toni, Kai | 0.1.0 | 2026-09-09 |
+| ✅ | Check whether an idea is worth building, with market research | River, Toni | 0.1.0 | 2026-10-01 |
+| ✅ | Set the brand and draw the screens, then pick one | Toni, Iris, Kai | 0.1.0 | 2026-10-01 |
+| ✅ | A checklist for every journey through the product | Robin | 0.1.0 | 2026-10-01 |
+| ✅ | Write the brief | River, Toni | 0.1.3 | 2026-10-04 |
+| ✅ | Write the product requirements and the roadmap | River, Quinn | 0.1.6 | 2026-10-05 |
+| ✅ | Plan how the product will be built, with a security challenge on request | Akira, Morgan | 0.1.6 | 2026-10-05 |
+| ✅ | Show the whole path and the next step | | 0.1.9 | 2026-10-07 |
+| ✅ | Plan the build in steps and run each step with its owner | Quinn | 0.1.10 | 2026-10-12 |
+| ✅ | A quick path for small tasks | Any | 0.1.10 | 2026-10-12 |
+| ✅ | Read less on the busiest commands | | 0.1.16 to 0.1.21 | 2026-10-27 to 2026-10-30 |
+| ✅ | See what a session or a change cost | | 0.1.19 | 2026-10-28 |
+| ✅ | The right Claude model and effort for each job | | 0.1.27 | 2026-11-05 |
+| ✅ | File a tester's report as a GitHub issue | | 0.1.37 | 2026-11-14 |
+| 🔜 | Release a new version in one step | Alex | | |
+| 🔜 | Review a project's code quality | | | |
+| 🔜 | Read even less on every command | | | |
+| 🔜 | Rule changes in ck reach your projects on their own | | | |
+| ⬜ | Launch and go to market | Toni | | |
+| ⬜ | Fix bugs after launch | | | |
+
+Development is paused at version 0.1.44. The full detail is in the [roadmap](ROADMAP.md).
+
 ## License
 
 MIT. See `LICENSE`.
