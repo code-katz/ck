@@ -1,12 +1,73 @@
-# ck
+# Code Katz "ck" Plugin
 
-Code Katz personas and workflows for Claude Code. One plugin: the product-definition pipeline from an idea to a designed feature, a three-lens decision panel, and the full persona roster, a complete cross-domain team, as subagents and switch commands on three model tiers.
+### Your product team, inside Claude.
 
-Every document `ck` writes goes into the repository you opened Claude Code in, under `docs/` (or `ROADMAP.md` and `brand/`), and is committed with your product. Every document has a contract, so it has the same shape every time, on every project.
+| | |
+|---|---|
+| **👑 You are the CEO**<br>Build your vision on Claude in days. You decide; the team does the work. | **🧑‍💻 Direct technical team members**<br>A product manager, developers, a designer, a tester and a security lead, each with a name and a job. |
+| **🔁 Use established product lifecycle workflows**<br>Idea, research, requirements, roadmap, build plan, design, build: in the order real teams use. | **🎯 Improve Claude's accuracy, reduce Claude's costs**<br>One job per team member, checked work, and the right Claude model for each job. |
 
-## Status
+ck is an add-on for Claude Code for people with a product idea who are not developers. You don't need to know how code is written, tested or released.
 
-Phase one, first release in progress. What runs today:
+---
+
+## 👑 You are the CEO
+
+Every decision is yours. Each piece of work comes back as a private web page with one link. You comment on it as you would a shared document and say "done". Claude proposes a change for each comment, and you approve the ones you want. Finished work joins your product only when you say so.
+
+## 🧑‍💻 Direct technical team members
+
+- **River**, product manager: what the product must do, for whom, and in what order.
+- **Toni**, marketing: who else is in your market, with a source for every claim.
+- **Akira**, lead developer: how it will be built.
+- **Kai**, designer: three versions of each screen, for you to pick one.
+- **Robin**, tester: a checklist for every journey a person takes through your product, used to show each one works.
+- **Morgan**, security lead: a challenge to the build plan, when you ask for one.
+- **Quinn**, project manager: the build split into steps, each with one owner.
+
+## 🔁 Use established product lifecycle workflows
+
+Idea → market research → brief → product requirements → roadmap → build plan → design → build. Each step saves a document in your project, in the same shape every time. Type `/ck:next` and ck tells you the one step to take next.
+
+## 🎯 Improve Claude's accuracy, reduce Claude's costs
+
+- **Accuracy:** each team member does one job; a separate checker reviews every document before you see it; for hard questions, three team members on three Claude models argue it out.
+- **Costs:** big decisions go to Claude's strongest model, everyday building to a less expensive one. In a recorded test, a mid-priced model matched the strongest on coding for about a fifth of the cost per finished task.
+- **Less reading:** ck's busiest commands now read 60% to 80% fewer words each time they run. That is per command, not your whole bill, which has not been measured.
+
+---
+
+## What works today, and what is next
+
+- **Works today:** the full path from idea to chosen design, tried on real projects; planning and building in steps; a quick path for small tasks; cost reports; filing tester reports.
+- **Next, planned but not built:** releasing in one step, and a review of code quality.
+- **Not built:** commands for launch, marketing campaigns and fixing bugs after launch.
+- **Paused:** development is paused at version 0.1.44.
+
+The full plan, every release and what each one changed are in the [roadmap](ROADMAP.md).
+
+## How to start
+
+1. Have Claude Code (version 2.1.221 or later) and a paid Claude plan. To comment on your own pages, you need a Max plan. On a Pro plan, turn on dynamic workflows in `/config`.
+2. If you once installed the older `claude-team-cli` tool, remove it first.
+3. Type these two lines in Claude Code:
+
+```
+/plugin marketplace add code-katz/claude-plugins
+/plugin install ck@code-katz
+```
+
+4. Open your project's folder and type `/ck:next`.
+
+Type each command; don't paste it.
+
+---
+
+## Reference
+
+The rest of this page is the full detail: every command, where each document goes, which Claude model each team member uses, and how to work on ck itself.
+
+### Every command
 
 | Command | What it does | State |
 |---|---|---|
@@ -14,10 +75,10 @@ Phase one, first release in progress. What runs today:
 | `/ck:brief <idea>` | Toni runs a short market pass, River writes `docs/brief.md` (from your sentence, or from `docs/opportunity.md`), a checker validates it; you review on a page you can comment on | Built; drilled 2026-10-04 on a real project |
 | `/ck:plan [work]` | Quinn lays the work out as a staged plan: phases, then stages, one job and one owner per row, each with its state. With nothing after it, the whole release from the roadmap (`docs/build-plan.md`); with a piece of work after it, that one item (`docs/plan/`). You review it on a page you can comment on | Built; not yet run on a real project |
 | `/ck:start [stage]` | Opens the plan's sessions and keeps its board. For a stage it offers a card that starts a session for that one job, named from the row, such as `[R1-P2-S1] [Akira Opus high] Make the creature tables`; with nothing after it, it updates the State column from the sessions and their pull requests and offers every row that could start now. With `fix <stage> <what is wrong>` it offers a card for a session that fixes one fault in a stage that is done, named such as `[R1-P1-S5 fix] [Akira Opus high] Mend the scan's 1`; the stage stays done. The row's job word (design, build, edit, review, write) sets each session's model and effort, from `tiers.conf`, and every new session checks both before it works. You click each card | Built; not yet run on a real project |
-| `/ck:do <task>` | The quick path, all in the chat: a plan of a few lines (who does what), you say go, the right personas work in the background on their own tiers, a mockup comes back as a link when you ask for one first, and a build waits on its own branch until you say merge. No documents and no review pages | Built; tried in d20mob on 2026-10-27 |
-| `/ck:issue <report>` | Files a tester's report (pasted text, an email, a TestFlight line, a screenshot) into this repository's GitHub issue list, under its own form and labels, or as a comment on the issue that already covers it. The draft is shown in the chat first, with no tester's name or email in it, and goes to GitHub only when you say `file` | Built; tried in d20mob on 2026-11-14 |
+| `/ck:do <task>` | The quick path, all in the chat: a plan of a few lines (who does what), you say go, the right personas work in the background on their own tiers, a mockup comes back as a link when you ask for one first, and a build waits on its own branch until you say merge. No documents and no review pages | Built; tried on a real project on 2026-10-27 |
+| `/ck:issue <report>` | Files a tester's report (pasted text, an email, a TestFlight line, a screenshot) into this repository's GitHub issue list, under its own form and labels, or as a comment on the issue that already covers it. The draft is shown in the chat first, with no tester's name or email in it, and goes to GitHub only when you say `file` | Built; tried on a real project on 2026-11-14 |
 | `/ck:claude-md` | Writes or updates the "How we work" section of this project's `CLAUDE.md` from ck's template (`templates/how-we-work/`), tailored to the project: its lanes, main folder, records and secrets filled in, a rule that does not fit changed or left out. It sorts the project's memory into keep, retire, or move. You review the section on a page you can comment on; it is written on a branch with a draft pull request only when you approve. The rest of `CLAUDE.md` is left as it is, and nothing runs unless you type the command | Built; not yet run on a real project |
-| `/ck:cost [history \| <session id>]` | What this session has cost so far: a table with a row per lane (the main session, each persona, Claude Code's own background calls) and a column per kind of token (input, output, cache write, cache read), each cell in tokens and dollars, priced from Anthropic's pricing page and checked against Claude Code's own figure. Once the session has a pull request, a line after each answer shows the cost so far. At merge, the session gets one line with the pull request's cost, and the pull request gets a comment with the table and the numbers as hidden data. A pull request's cost is what the sessions that worked on its branch spent since their previous merge; a session that only merged it is shown apart. `history` lists each pull request's cost | Built; tried on d20mob sessions |
+| `/ck:cost [history \| <session id>]` | What this session has cost so far: a table with a row per lane (the main session, each persona, Claude Code's own background calls) and a column per kind of token (input, output, cache write, cache read), each cell in tokens and dollars, priced from Anthropic's pricing page and checked against Claude Code's own figure. Once the session has a pull request, a line after each answer shows the cost so far. At merge, the session gets one line with the pull request's cost, and the pull request gets a comment with the table and the numbers as hidden data. A pull request's cost is what the sessions that worked on its branch spent since their previous merge; a session that only merged it is shown apart. `history` lists each pull request's cost | Built; tried on real sessions |
 | The memory gate | Not a command: it runs on its own. Before a session saves anything to memory, it shows you the text, whether it belongs in memory or in the project's `CLAUDE.md` and why, and any memory or `CLAUDE.md` line that already says it or says the opposite. You pick save to memory, add to `CLAUDE.md` (written at once on a branch with a draft pull request), or don't save. A hook makes Claude Code ask you before every write to a memory folder, in auto mode too | Built; not yet run on a real project |
 | `/ck:panel <question>` | River, Toni, and Kai argue one question on three different models; a memo shows where they disagree | Built |
 | `/ck:prd [--panel]` | River drafts `docs/PRD.md` from the brief, a checker validates, River adds a premortem; with `--panel`, three specialists on three models challenge it first and River rewrites; you review on a page you can comment on | Built; drilled 2026-10-05 on a real project |
@@ -31,16 +92,7 @@ Phase one, first release in progress. What runs today:
 | `/ck:<persona>` | Switch this session to a persona, for example `/ck:river` | Built, every persona |
 | `ck:<persona>` | Delegate one task to a persona on its own model tier, for example the `ck:river` subagent | Built, every persona |
 
-The specification is the phase-one PRD in `code-katz/.github`, `plans/2026-09-05-ck-plugin-prd-phase-1.md`.
-
-## Prerequisites
-
-1. **Uninstall the old team tool** (`claude-team-cli`). Its persona commands, subagents, and session hook collide with `ck`'s. Steps are below. `ck` warns at the start of every session while any of it remains.
-2. **Claude Code 2.1.221 or later**, signed in with `/login` to a Claude account on a paid plan. Dynamic workflows must be available: on a Pro plan, turn them on in `/config`; an organization can disable them.
-3. For review pages with comments: the same version, and a Claude account that can publish artifacts. A page's owner can comment on it on a Max plan; sharing a page with other people needs a Team or Enterprise plan.
-4. For development only: Bash 4 or newer, `python3`, and Node 20 or newer, for `scripts/generate.sh` and `tests/run.sh`. The plugin itself needs none of them at run time.
-
-### Uninstalling the old team tool
+### Removing the old team tool
 
 Remove each of these if present:
 
@@ -51,24 +103,7 @@ rm -rf ~/.claude/team
 
 Then remove the persona files it installed under `~/.claude/commands/` and `~/.claude/agents/` (one `<persona>.md` per persona: `river.md`, `akira.md`, and so on), the block it wrote between its markers in `~/.claude/CLAUDE.md`, and its `SessionStart` entry in `~/.claude/settings.json`. Start a new session; the warning line is gone when everything is removed.
 
-## Install
-
-From the Code Katz marketplace:
-
-```
-/plugin marketplace add code-katz/claude-plugins
-/plugin install ck@code-katz
-```
-
-For development, load the checkout directly:
-
-```
-claude --plugin-dir /path/to/ck
-```
-
-After editing a workflow in a running session, run `/reload-skills`.
-
-## How a run works
+### How a run works
 
 1. You type a command. If it needs a document you do not have yet, it says which command writes it, and stops.
 2. The work runs in the background as a workflow; `/workflows` shows every agent, model, and token count if you want them. The command itself never prints them.
@@ -97,7 +132,7 @@ A staged plan for one piece of work, written by `/ck:plan <work>`, goes under `d
 
 `.ck/runs/` is a cache for in-progress runs. Nothing depends on it, and `ck` excludes it from git locally without touching your `.gitignore`.
 
-## Models
+### Models
 
 Three tiers, set once in `tiers.conf`:
 
@@ -109,7 +144,7 @@ Three tiers, set once in `tiers.conf`:
 
 Validators run on Haiku 5.5. The panel puts its three lenses on three different models: River on Fable 5.2, Toni on Opus 5.5, Kai moved down to Sonnet 5.5. A switch command (`/ck:river`) runs on your session's model; delegation (`ck:river`) runs on the tier.
 
-## Development
+### Development
 
 Personas live in `profiles/<name>.md` and `tiers.conf`. Everything else about a persona is generated:
 
