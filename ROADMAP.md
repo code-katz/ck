@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-15.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-17.
 
 ---
 
@@ -40,6 +40,7 @@
 - A worktree uses the project's team (0.1.41): a session in a worktree with no team file of its own reads the main checkout's, so a project that keeps `.claude/` out of git, as d20mob does, has one team everywhere ([#91](https://github.com/code-katz/ck/pull/91)).
 - A controller is not done while its sessions run (0.1.42): How we work 0.1.42 counts a session this one started, still working or waiting on a merge or your word, as something left, so "This session can be closed." waits for it ([#92](https://github.com/code-katz/ck/pull/92)).
 - An item plan of the release carries on after the release plan (0.1.43): `plan.py next`, which `/ck:plan` uses to number a new item plan's phases, now counts the release plan, `docs/build-plan.md`, for `R1`; in hireling it prints `R1 5` where it printed `R1 1` ([code-katz/ck#96](https://github.com/code-katz/ck/pull/96)).
+- A README that sells ck (2026-11-17, no version change): the front page speaks to Claude users with a product idea who are not developers. Four selling points lead (you are the CEO; direct technical team members; established product lifecycle workflows; better accuracy and lower costs), then a short section for each, what you can do today and what is coming, and how to start. A roadmap table with check marks, versions and dates closes the page, and the full command reference sits below. It shows ck as actively developed and cites only recorded numbers ([code-katz/ck#103](https://github.com/code-katz/ck/pull/103), [#104](https://github.com/code-katz/ck/pull/104)).
 - Main is at 0.1.43. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
 - Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.43` since 2026-11-15. On Will's Mac every install record of both channels is on 0.1.43. A fresh session in ck, d20mob and hireling loads it from ck-next, and one in a folder without a project install loads it from stable. Rollback in a project is two commands.
 
@@ -196,6 +197,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-17] A README that sells ck
+
+**Change Type:** `complete`
+**Triggered by:** `user`
+**Items Affected:** What works well
+
+### What Changed
+README.md is rewritten for Claude users who are not developers, in two merges (#103, #104). It leads with four selling points in a grid, sells each in plain words, adds three lessons from running Claude like a team lead (you set the pace of review, each role is written down once, a fresh pair of eyes checks the work), and ends with a roadmap table of check marks, versions and dates. The full command table, document paths, models and development notes move under Reference. No version change: only the README changed.
+
+### Why
+You want to share ck with people who build products on Claude, and the old README was written for developers. ck is active, so the README presents it that way and errs on the side of its value, citing only numbers in these records: 60% to 80% fewer words read per run on the busiest commands, and a mid-priced model matching the strongest on coding at about a fifth of the cost.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-15] Tier 1, sequencing and OKR brought up to 0.1.43
 
