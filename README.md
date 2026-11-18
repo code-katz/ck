@@ -13,9 +13,11 @@ ck is an add-on for Claude Code for people with a product idea who are not devel
 
 ## 👑 You are the CEO
 
-Every decision is yours. Each piece of work comes back as a private web page with one link. You comment on it as you would a shared document and say "done". Claude proposes a change for each comment, and you approve the ones you want. Finished work joins your product only when you say so.
+Running a team of AI helpers has a catch: they can produce work faster than you can check it, and work nobody checked is how mistakes get in. ck keeps you in charge of the pace. Every decision is yours. Each piece of work comes back as a private web page with one link. You comment on it as you would a shared document and say "done". Claude proposes a change for each comment, and you approve the ones you want. Finished work joins your product only when you say so.
 
 ## 🧑‍💻 Direct technical team members
+
+Each team member's role is written down once, so you never explain the job again. You just hand them the work.
 
 - **River**, product manager: what the product must do, for whom, and in what order.
 - **Toni**, marketing: who else is in your market, with a source for every claim.
@@ -31,7 +33,7 @@ Idea → market research → brief → product requirements → roadmap → buil
 
 ## 🎯 Improve Claude's accuracy, reduce Claude's costs
 
-- **Accuracy:** each team member does one job; a separate checker reviews every document before you see it; for hard questions, three team members on three Claude models argue it out.
+- **Accuracy:** the one who builds something is the worst person to check it, so ck gives the checking to someone else. Robin tests and Morgan challenges work they did not write. Each team member does one job; a separate checker reviews every document before you see it; for hard questions, three team members on three Claude models argue it out.
 - **Costs:** big decisions go to Claude's strongest model, everyday building to a less expensive one. In a recorded test, a mid-priced model matched the strongest on coding for about a fifth of the cost per finished task.
 - **Less reading:** ck's busiest commands now read 60% to 80% fewer words each time they run. That is per command, not your whole bill, which has not been measured.
 
