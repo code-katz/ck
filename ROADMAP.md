@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-17.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-19.
 
 ---
 
@@ -157,6 +157,8 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the cache, the installs, the check), now written down in `RELEASING.md`; 0.1.35 skipped the installs and the check, and reached no project until 0.1.36 | One script can run `RELEASING.md` steps 4 to 7, taking a release's record from its commit title and the pull request's description; `installs.py set` and `verify` (0.1.33, 0.1.36) are two of its steps already; now as the next release, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
+| 5 | **Robin's card loop, `/ck:cards`** (design approved 2026-11-19, [the proposal](https://claude.ai/artifact/44exM7SXQhukzHi5RKQj9D)) | A bug a journey card catches names its rows (`Caught by: 09-D4`); its fix's merge labels it `to verify`; `/ck:cards verify` re-runs only those cards and labels it `verified` or re-opens it with what Robin saw. Today you ask for each re-run and each re-open by hand, as in hireling on 2026-11-18 | Robin on Sonnet 5.5 at medium handles d20mob's simulator cards (only Opus has run them); stopping a card at its last named row cuts a verify run below hireling's $13.00 for 4 cards |
+
 ### Tier 3: Strategic / Longer Horizon
 
 | # | Opportunity | Strategic Value | Why Not Now |
@@ -197,6 +199,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-19] Robin's card loop: the design approved
+
+**Change Type:** `add`
+**Triggered by:** `user`
+**Items Affected:** Tier 2
+
+### What Changed
+Tier 2 gains Robin's card loop as row 5, from the approved proposal of stage R46-S1 ([the page](https://claude.ai/artifact/44exM7SXQhukzHi5RKQj9D)). Your five choices: a bug's state is kept in two labels, `to verify` and `verified`, with open meaning to fix; a new command, `/ck:cards`, runs all cards, the cards named, or `verify`; a run's draft issues are shown on one ck review page and filed on one `file`; Robin runs on Sonnet 5.5 at medium; the first build has a card stopped at its last named row, a regression re-opening its old bug, and a bug list page in the style of d20mob's triage page of 2026-11-19, while known bugs read from GitHub waits for each project's own lane. The build order: Kai draws the page's four new pills (Opus 5.5, high), River writes the command (Opus 5.5, medium), Akira builds `scripts/cards.py` and one new step after a merge (Opus 5.5, medium), Robin tests the script (Opus 5.5, medium), Alex releases it and tries it in d20mob (Opus 5.5, medium). No version change: records only.
+
+### Why
+You run this loop by hand today: in hireling on 2026-11-18 you asked for the cards behind closed bugs to be re-run and for the ones not fixed to be re-opened, about six messages and a hand-written brief. Past runs cost $13.00 (hireling, 4 cards, Sonnet) to $53.94 (d20mob, 15 cards, Opus), and none uses hosted-check minutes; the loop keeps it that way, since its labels and comments start no workflow and the label after a merge is set on your Mac.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-17] A README that sells ck
 
