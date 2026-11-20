@@ -41,8 +41,9 @@
 - A controller is not done while its sessions run (0.1.42): How we work 0.1.42 counts a session this one started, still working or waiting on a merge or your word, as something left, so "This session can be closed." waits for it ([#92](https://github.com/code-katz/ck/pull/92)).
 - An item plan of the release carries on after the release plan (0.1.43): `plan.py next`, which `/ck:plan` uses to number a new item plan's phases, now counts the release plan, `docs/build-plan.md`, for `R1`; in hireling it prints `R1 5` where it printed `R1 1` ([code-katz/ck#96](https://github.com/code-katz/ck/pull/96)).
 - A README that sells ck (2026-11-17, no version change): the front page speaks to Claude users with a product idea who are not developers. Four selling points lead (you are the CEO; direct technical team members; established product lifecycle workflows; better accuracy and lower costs), then a short section for each, what you can do today and what is coming, and how to start. A roadmap table with check marks, versions and dates closes the page, and the full command reference sits below. It shows ck as actively developed and cites only recorded numbers ([code-katz/ck#103](https://github.com/code-katz/ck/pull/103), [#104](https://github.com/code-katz/ck/pull/104)).
-- Main is at 0.1.43. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.43` since 2026-11-15. On Will's Mac every install record of both channels is on 0.1.43. A fresh session in ck, d20mob and hireling loads it from ck-next, and one in a folder without a project install loads it from stable. Rollback in a project is two commands.
+- Robin's card loop, `/ck:cards` (0.1.45): when a bug is fixed, Robin re-tests just the steps that caught it and marks it verified or re-opens it. A bug a journey card catches starts with a `Test case:` line naming its rows (`09-D4`), as d20mob's bugs already do; the merge of its fix labels it `to verify`; `/ck:cards verify` lists those bugs and offers one card for a Robin session that re-runs only their cards, stops each at its last named row, and labels each bug `verified` or re-opens it with what Robin saw. Each run rebuilds the project's bug list page from GitHub, with its new pills. d20mob and hireling have both labels; in d20mob the list finds 15 bugs on 9 cards, all closed on 2026-11-19 ([code-katz/ck#109](https://github.com/code-katz/ck/pull/109) to [#113](https://github.com/code-katz/ck/pull/113)).
+- Main is at 0.1.45. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), stable on `v0.1.44` and ck-next on `v0.1.45` since 2026-11-19. On Will's Mac every ck-next install record is on 0.1.45. A fresh session in ck, d20mob and hireling loads it from ck-next, and one in a folder without a project install loads it from stable. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
@@ -53,6 +54,7 @@
 - Asked for a raster image in d20mob on 0.1.36, Iris logs the credit line but still raises a commercial-use and originality check of her own; no ck text asks for it.
 - Auto mode sometimes refuses to push a tag or create a GitHub release; then you run that step by hand, as for `v0.1.27`. It allowed both for `v0.1.28` to `v0.1.43`.
 - Two faults from the regression review of 0.1.19 to 0.1.36 are left as they are, by your choice: `plan.py approve` does not run `check`, but `/ck:plan` checks a plan before it asks for approval, so only a hand edit in between gets past; and older stage names in d20mob (K6, by 13) and hireling (by 23) run past the 59-character limit, while `check` flags a long name in any new plan. The review is a draft page, not yet committed. d20mob still has no team file; 0.1.41 makes one, once set up with `/ck:team`, reach its worktrees.
+- `/ck:cards verify` has not yet run a card: the first verify in d20mob, stage P3-S1 of its plan, is yours to start. Robin on Sonnet 5.5 has not yet run d20mob's simulator cards.
 - `/ck:issue` has filed only test issues. In a repository whose `.git/info/exclude` has no `.ck/` line, adding it meets a permission prompt.
 - ck2 is abandoned, and its repository is archived on GitHub (2026-11-15). Anything from it is rebuilt from scratch, if at all.
 
@@ -108,6 +110,7 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.42 | 2026-11-15 | How we work 0.1.42: a session that started others is not done while they run | Tag `v0.1.42` |
 | 0.1.43 | 2026-11-15 | An item plan of the release carries on after the release plan, `docs/build-plan.md` | Tag `v0.1.43`; **stable** and **ck-next** |
 | 0.1.44 | 2026-11-16 | ck no longer reads or writes a separate release log: its rules, release steps and commands drop it ([code-katz/ck#100](https://github.com/code-katz/ck/pull/100)) | Tag `v0.1.44` |
+| 0.1.45 | 2026-11-19 | Robin's card loop, `/ck:cards`: re-run only the cards behind fixed bugs, and mark each one verified or re-open it ([code-katz/ck#113](https://github.com/code-katz/ck/pull/113)) | Tag `v0.1.45`; **ck-next** |
 
 ---
 
@@ -157,7 +160,7 @@ Dropped with ck2: its 0.2.0 release plan, which would have replaced ck in the `c
 | 3 | **A release in one command** | About eight hand steps per release (tag, GitHub release, ck-next's four fields, the cache, the installs, the check), now written down in `RELEASING.md`; 0.1.35 skipped the installs and the check, and reached no project until 0.1.36 | One script can run `RELEASING.md` steps 4 to 7, taking a release's record from its commit title and the pull request's description; `installs.py set` and `verify` (0.1.33, 0.1.36) are two of its steps already; now as the next release, with its own plan |
 | 4 | **A code-quality review command** | One ck command reviews a project's code, or one area of it, for quality: patterns and practices, duplication, complexity to simplify, dead code, dependency versions, and overall maintainability, and ends in a page of findings you comment on. Today nothing covers dead code, dependency versions or a whole project; ck2's `/ck:lean` and the outcome loop were not planned | It can reuse Claude Code's own `/simplify` (reuse, simplification, efficiency) and `/code-review` (bugs) instead of rebuilding them; findings ranked by upkeep saved are worth the tokens a run costs. A design session investigates first, then you choose |
 
-| 5 | **Robin's card loop, `/ck:cards`** (design approved 2026-11-19, [the proposal](https://claude.ai/artifact/44exM7SXQhukzHi5RKQj9D)) | A bug a journey card catches names its rows (`Caught by: 09-D4`); its fix's merge labels it `to verify`; `/ck:cards verify` re-runs only those cards and labels it `verified` or re-opens it with what Robin saw. Today you ask for each re-run and each re-open by hand, as in hireling on 2026-11-18 | Robin on Sonnet 5.5 at medium handles d20mob's simulator cards (only Opus has run them); stopping a card at its last named row cuts a verify run below hireling's $13.00 for 4 cards |
+| 5 | **Robin's card loop, `/ck:cards`** (design approved 2026-11-19, [the proposal](https://claude.ai/artifact/44exM7SXQhukzHi5RKQj9D); built in 0.1.45, first verify in d20mob next) | A bug a journey card catches names its rows (`Test case: 09-D4`); its fix's merge labels it `to verify`; `/ck:cards verify` re-runs only those cards and labels it `verified` or re-opens it with what Robin saw. Today you ask for each re-run and each re-open by hand, as in hireling on 2026-11-18 | Robin on Sonnet 5.5 at medium handles d20mob's simulator cards (only Opus has run them); stopping a card at its last named row cuts a verify run below hireling's $13.00 for 4 cards |
 
 ### Tier 3: Strategic / Longer Horizon
 
@@ -199,6 +202,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-19] 0.1.45 shipped: Robin's card loop
+
+**Change Type:** `update`
+**Triggered by:** `user`
+**Items Affected:** Current State Snapshot, Releases, Tier 2
+
+### What Changed
+0.1.45 is added to Releases ([code-katz/ck#113](https://github.com/code-katz/ck/pull/113)), on ck-next, with stable on `v0.1.44`. What works gains `/ck:cards`, built in four stages on one item branch ([#109](https://github.com/code-katz/ck/pull/109) the command's words, [#110](https://github.com/code-katz/ck/pull/110) the script and the label after a merge, [#111](https://github.com/code-katz/ck/pull/111) the bug list page, [#112](https://github.com/code-katz/ck/pull/112) 12 tests) and released as one. The design kept d20mob's own `Test case:` line, so no issue was rewritten, and dropped the drawing stage, since the triage page's pills were already HTML. Tier 2 row 5 is marked built. The release check passed: a fresh session in ck, d20mob and hireling loads 0.1.45, and in a d20mob worktree the verify list finds 15 bugs on 9 cards, one more than the plan's 14, all closed on 2026-11-19 with a test case. The plan's board marks every stage done but the first verify, P3-S1.
+
+### Why
+You asked for each re-run and each re-open by hand before this release. The first verify in d20mob will show whether Robin on Sonnet 5.5 can run its simulator cards, and what a verify run costs against hireling's $13.00 for 4 cards.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-19] Robin's card loop: the design approved
 

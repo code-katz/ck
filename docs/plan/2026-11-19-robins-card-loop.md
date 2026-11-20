@@ -52,8 +52,8 @@ ck ships the command, d20mob gets its two labels, and you run the first verify. 
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P3-S0 | The release, and d20mob made ready for its first verify | Alex, build | not started; could start now |
-| P3-S1 | The first verify run in d20mob, started by you | You | not started; follows S0 |
+| P3-S0 | The release, and d20mob made ready for its first verify | Alex, build | done (113) |
+| P3-S1 | The first verify run in d20mob, started by you | You | not started; could start now |
 
 Ends when: a closed d20mob bug carries `verified` and Robin's comment, or is open again with what Robin saw, and the bug list page shows its new pill.
 
