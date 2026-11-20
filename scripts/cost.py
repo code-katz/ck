@@ -8,7 +8,8 @@ Usage:
   cost.py history                      one row per merged pull request, from ~/.claude/ck-cost.jsonl
   cost.py stop                         Stop hook: once the session has a pull request, one cost line
   cost.py merge                        PostToolUse hook: after gh pr merge, one line in the session, the
-                                       table on the pull request, and a row per session in ~/.claude/ck-cost.jsonl
+                                       table on the pull request, and a row per session in ~/.claude/ck-cost.jsonl;
+                                       then cards.py labels `to verify` each bug the pull request closed
 
 Lanes are the main session, each subagent by its type (ck:<name> for a persona), and background: what
 Claude Code's own record (the transcript's last cost-state) counts beyond the transcripts. Prices come
@@ -378,6 +379,8 @@ def merge(hook, prices, source):
     if info.get("state") != "MERGED" or time.time() - stamp(info.get("mergedAt")) > FRESH \
             or any(e.get("url") == info["url"] for e in log):
         return
+    import cards  # beside this file: the bugs this merge closed get `to verify`
+    notes = cards.after_merge(info["url"])
     me = Path(hook["transcript_path"])
     built = [charge(p, prices, log) for p in builders(info.get("headRefName"), info.get("createdAt"), me)]
     merged = None if any(b["session"] == me.stem for b in built) else charge(me, prices, log)
@@ -416,7 +419,7 @@ def merge(hook, prices, source):
         line = f"ck cost for {name}: {money(cost)} (session total {money(built[0]['dollars'] if len(built) == 1 else None)})"
         if len(built) > 1:
             line = f"ck cost for {name}: {money(cost)}, built by {', '.join(b['title'] for b in built)}."
-    print(json.dumps({"systemMessage": line}))
+    print(json.dumps({"systemMessage": "\n".join([line] + notes)}))
 
 
 def history():
