@@ -994,6 +994,82 @@ mkdir -p "$tw/wt/.claude"; printf 'invite noon cyberpunk\n' > "$tw/wt/.claude/ck
 python3 -c 'import json; h=json.load(open("hooks/hooks.json"))["hooks"]; assert any("team.py\" context" in x["command"] for e in h["SessionStart"] for x in e["hooks"])' \
   && ok "hooks.json prints the team at session start" || fail "hooks.json does not run team.py context"
 
+# ─── 24. The cards script ────────────────────────────────────────────────────
+section "24. /ck:cards: scripts/cards.py"
+# A stand-in gh answers from the saved issue lists in tests/fixtures/cards/ and logs each call; nothing reaches GitHub.
+KF=tests/fixtures/cards
+mkdir -p "$TMP/cardsbin" "$TMP/cardsrepo"; ln -s "$REPO_DIR/$KF/gh" "$TMP/cardsbin/gh"
+git init -q "$TMP/cardsrepo"
+export CARDS_LOG="$TMP/cardscalls"
+# A gh that is not the stand-in would be pointed at a host that does not exist, with a token that is not one.
+cards() { (cd "$TMP/cardsrepo" && GH_HOST=stand-in.invalid GH_TOKEN=none PATH="$TMP/cardsbin:$PATH" python3 "$REPO_DIR/scripts/cards.py" "$@"); }
+calls() { python3 -c 'import json,sys; [print(" ".join(json.loads(l))) for l in open(sys.argv[1])]' "$CARDS_LOG"; }
+changes() { calls | grep -E '^issue (edit|comment|reopen) ' ; }
+: > "$CARDS_LOG"
+out=$(cards list)
+want=$(printf '%s\n' $'bug\t#12\t09-D4,02-C3\tShield breaks on reload' $'bug\t#15\t09-D10\tTorch count resets' \
+  $'bug\t#17\t09-B2\tMap pin lands wrong' $'card\t02\t02-C3\t#12' $'card\t09\t09-D10\t#12 #15 #17')
+[[ "$out" == "$want" ]] && ok "list: closed bugs with a Test case: line and no verified label, rows from that line only, a link's address skipped" \
+  || fail "list printed: $out"
+[[ "$(grep -c $'^card\t09\t09-D10\t' <<<"$out")" == 1 ]] && ok "list: each card's last named row is the highest row number, 09-D10 after 09-D4" || fail "last named row: $out"
+[[ -z "$(changes)" ]] && ok "list changes nothing on GitHub" || fail "list changed GitHub: $(changes)"
+: > "$CARDS_LOG"
+out=$(cards verified 12 abc1234 09-D4,02-C3)
+c=$(changes)
+[[ "$(sed -n 1p <<<"$c")" == 'issue edit 12 --add-label verified --remove-label to verify' \
+  && "$(sed -n 2p <<<"$c")" == 'issue comment 12 --body '*abc1234*09-D4*02-C3* && $(wc -l <<<"$c") -eq 2 ]] \
+  && ok "verified: adds verified and removes to verify in one call, then one comment naming the commit and rows" || fail "verified calls: $c"
+printf 'Row 09-D4 showed the shield gone again.\n' > "$TMP/seen.txt"
+: > "$CARDS_LOG"
+cards reopen 12 "$TMP/seen.txt" >/dev/null
+c=$(changes)
+[[ "$c" == $'issue edit 12 --remove-label to verify,verified\nissue reopen 12 --comment Row 09-D4 showed the shield gone again.' ]] \
+  && ok "reopen: removes both labels, then re-opens with the file's text as the comment" || fail "reopen calls: $c"
+out=$(cards match 09-D4)
+[[ "$out" == $'#25\tVerified on 09-D4' ]] && ok "match: only a closed verified bug naming that exact row, not 09-D40 and not one still to verify" \
+  || fail "match 09-D4 printed: $out"
+[[ -z "$(cards match 03-A1)" ]] && ok "match: a row no verified bug names prints nothing" || fail "match 03-A1 printed something"
+: > "$CARDS_LOG"
+out=$(cards merged 7)
+c=$(changes)
+[[ "$out" == '#12 to verify' && "$c" == 'issue edit 12 --repo o/d20 --add-label to verify --remove-label verified' ]] \
+  && calls | grep -qx 'pr view 7 --json closingIssuesReferences' \
+  && ok "after a merge: each issue the pull request closed with a Test case: line gets to verify, in its own repository; one without is left alone" \
+  || fail "merged: printed '$out', calls $c"
+out=$(CARDS_FAIL=1 cards merged 7 2>"$TMP/cardserr"); rc=$?
+[[ $rc -eq 1 && $(wc -l <<<"$out") -eq 1 && ! -s "$TMP/cardserr" ]] && ok "a failed gh call prints one line and exits 1, with no traceback" \
+  || fail "failed gh: exit $rc, '$out', stderr $(cat "$TMP/cardserr")"
+out=$(cd "$TMP/cardsrepo" && CARDS_FAIL=1 GH_HOST=stand-in.invalid GH_TOKEN=none PATH="$TMP/cardsbin:$PATH" python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import cards; r = cards.after_merge("7"); print(len(r), all(isinstance(x, str) for x in r))' "$REPO_DIR/scripts" 2>&1)
+[[ "$out" == '1 True' ]] && ok "the merge step's call to cards returns one line on a gh failure and never raises, so the merge and cost line stand" \
+  || fail "after_merge on failure: $out"
+# The page's pills, per issue: each pill's class, a linked pill's pull request, and the rows a test case pill names.
+pills() { python3 - "$1" <<'EOF'
+import re, sys
+page = open(sys.argv[1]).read()
+for n, ps in sorted(re.findall(r'<li class="row[^"]*"><a class="num" href="[^"]*">(\d+)</a>.*?<p class="pills">(.*?)</p></div></li>', page), key=lambda r: int(r[0])):
+    out = []
+    for cls, pr, text in re.findall(r'<(?:a|span) class="pill (\w+)"(?: href="[^"]*/pull/(\d+)")?>([^<]*)<', ps):
+        out.append(cls + (f"(#{pr})" if pr else "") + (f"[{text.removeprefix('test case ')}]" if cls == "case" else ""))
+    print(n, " ".join(out))
+EOF
+}
+out=$(cards page --out "$TMP/cards/page.html")
+want='12 closed(#40) verify blocks case[09-D4, 02-C3]
+15 closed verify rough case[09-D10]
+22 closed task
+25 verified(#41) unrated case[09-D4]
+31 reopened work(#42) hurts case[09-D4]
+33 wish
+34 blocks blocks
+35 unrated'
+got=$(pills "$TMP/cards/page.html")
+[[ "$got" == "$want" ]] && ok "page: each issue shows the pills for its state, the merged fix linked, and the four new ones (test case, to verify, verified, re-opened)" \
+  || fail "page pills: $got"
+[[ "$out" == new && "$(cards page --link https://claude.ai/artifact/abc)" == saved && "$(cards page --out "$TMP/cards/page.html")" == https://claude.ai/artifact/abc ]] \
+  && ! cards page --link https://example.com/x >/dev/null \
+  && ok "page: prints new until a claude.ai link is saved, then that link; any other link is refused" || fail "page link: first '$out'"
+unset CARDS_LOG
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 printf "\n%d passed, %d failed\n" "$PASS" "$FAIL"
 if (( FAIL > 0 )); then
