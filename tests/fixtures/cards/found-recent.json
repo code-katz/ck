@@ -1,0 +1,70 @@
+{
+ "data": {
+  "search": {
+   "pageInfo": {
+    "hasNextPage": false,
+    "endCursor": null
+   },
+   "nodes": [
+    {
+     "number": 25,
+     "title": "Verified on 09-D4",
+     "url": "https://github.com/o/d20/issues/25",
+     "state": "CLOSED",
+     "body": "Test case: 09-D4",
+     "createdAt": "2026-11-01T00:00:00Z",
+     "closedAt": "2026-11-18T00:00:00Z",
+     "issueType": null,
+     "labels": {
+      "nodes": [
+       {
+        "name": "verified"
+       }
+      ]
+     },
+     "parent": null,
+     "subIssues": {
+      "totalCount": 0
+     },
+     "closedByPullRequestsReferences": {
+      "nodes": [
+       {
+        "number": 41,
+        "url": "https://github.com/o/d20/pull/41",
+        "state": "MERGED"
+       }
+      ]
+     },
+     "timelineItems": {
+      "totalCount": 0
+     }
+    },
+    {
+     "number": 22,
+     "title": "Reported by a person",
+     "url": "https://github.com/o/d20/issues/22",
+     "state": "CLOSED",
+     "body": "",
+     "createdAt": "2026-11-01T00:00:00Z",
+     "closedAt": "2026-11-18T00:00:00Z",
+     "issueType": {
+      "name": "Task"
+     },
+     "labels": {
+      "nodes": []
+     },
+     "parent": null,
+     "subIssues": {
+      "totalCount": 0
+     },
+     "closedByPullRequestsReferences": {
+      "nodes": []
+     },
+     "timelineItems": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ }
+}

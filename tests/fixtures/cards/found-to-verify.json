@@ -1,0 +1,85 @@
+{
+ "data": {
+  "search": {
+   "pageInfo": {
+    "hasNextPage": false,
+    "endCursor": null
+   },
+   "nodes": [
+    {
+     "number": 12,
+     "title": "(bug) Shield breaks on reload",
+     "url": "https://github.com/o/d20/issues/12",
+     "state": "CLOSED",
+     "body": "Test case: 09-D4, 02-C3",
+     "createdAt": "2026-11-01T00:00:00Z",
+     "closedAt": "2026-11-18T00:00:00Z",
+     "issueType": {
+      "name": "Bug"
+     },
+     "labels": {
+      "nodes": [
+       {
+        "name": "to verify"
+       },
+       {
+        "name": "blocks play"
+       }
+      ]
+     },
+     "parent": null,
+     "subIssues": {
+      "totalCount": 0
+     },
+     "closedByPullRequestsReferences": {
+      "nodes": [
+       {
+        "number": 39,
+        "url": "https://github.com/o/d20/pull/39",
+        "state": "CLOSED"
+       },
+       {
+        "number": 40,
+        "url": "https://github.com/o/d20/pull/40",
+        "state": "MERGED"
+       }
+      ]
+     },
+     "timelineItems": {
+      "totalCount": 0
+     }
+    },
+    {
+     "number": 15,
+     "title": "Torch count resets",
+     "url": "https://github.com/o/d20/issues/15",
+     "state": "CLOSED",
+     "body": "**Test case:** 09-D10",
+     "createdAt": "2026-11-01T00:00:00Z",
+     "closedAt": "2026-11-18T00:00:00Z",
+     "issueType": null,
+     "labels": {
+      "nodes": [
+       {
+        "name": "to verify"
+       },
+       {
+        "name": "rough edge"
+       }
+      ]
+     },
+     "parent": null,
+     "subIssues": {
+      "totalCount": 0
+     },
+     "closedByPullRequestsReferences": {
+      "nodes": []
+     },
+     "timelineItems": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ }
+}

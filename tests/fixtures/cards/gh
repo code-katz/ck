@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""A stand-in for gh, for the cards tests: answers from the saved issue lists beside it and logs each call.
+
+CARDS_LOG is the file each call is written to, one JSON list of arguments a line. CARDS_FAIL, when set,
+makes every call that changes an issue (edit, comment, reopen) fail as gh does, with one line on stderr.
+Nothing here reaches GitHub.
+"""
+
+import json
+import os
+import sys
+
+HERE = os.path.dirname(os.path.realpath(__file__))
+a = sys.argv[1:]
+with open(os.environ["CARDS_LOG"], "a") as f:
+    f.write(json.dumps(a) + "\n")
+
+
+def load(name):
+    with open(os.path.join(HERE, name)) as f:
+        return json.load(f)
+
+
+def flag(name):
+    return a[a.index(name) + 1] if name in a else None
+
+
+cmd = " ".join(a[:2])
+if cmd in ("issue edit", "issue comment", "issue reopen"):
+    if os.environ.get("CARDS_FAIL"):
+        print("HTTP 502: stand-in failure", file=sys.stderr)
+        sys.exit(1)
+elif cmd == "issue list":
+    print(json.dumps(load("closed.json")))
+elif cmd == "issue view":
+    n = int(a[2])
+    print(json.dumps(next({"body": i["body"]} for i in load("closed.json") if i["number"] == n)))
+elif cmd == "pr view":
+    print(json.dumps(load("pr.json")))
+elif cmd == "repo view":
+    print("o/d20")
+elif cmd == "api graphql":
+    fields = dict(x.split("=", 1) for x in a[2:] if "=" in x)
+    if "repository(owner" in fields["query"]:
+        name = "open.json"
+    elif 'label:"to verify"' in fields["q"]:
+        name = "found-to-verify.json"
+    else:
+        name = "found-recent.json"
+    print(json.dumps(load(name)))
+else:
+    print(f"stand-in gh: no answer for {cmd}", file=sys.stderr)
+    sys.exit(1)

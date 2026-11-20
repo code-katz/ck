@@ -1,0 +1,22 @@
+{
+ "closingIssuesReferences": [
+  {
+   "number": 12,
+   "repository": {
+    "owner": {
+     "login": "o"
+    },
+    "name": "d20"
+   }
+  },
+  {
+   "number": 22,
+   "repository": {
+    "owner": {
+     "login": "o"
+    },
+    "name": "d20"
+   }
+  }
+ ]
+}

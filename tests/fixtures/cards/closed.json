@@ -1,0 +1,64 @@
+[
+ {
+  "number": 12,
+  "title": "Shield breaks on reload",
+  "body": "Test case: 09-D4, 02-C3\n\n## What happened\nThe same fault shows at 09-D9 later.",
+  "labels": [
+   {
+    "name": "to verify"
+   }
+  ]
+ },
+ {
+  "number": 15,
+  "title": "Torch count resets",
+  "body": "**Test case:** 09-D10\n\nBody.",
+  "labels": [
+   {
+    "name": "to verify"
+   }
+  ]
+ },
+ {
+  "number": 17,
+  "title": "Map pin lands wrong",
+  "body": "Test case: [09-B2](https://example.com/cards/09-Z9.md)",
+  "labels": []
+ },
+ {
+  "number": 20,
+  "title": "Old verified bug",
+  "body": "Test case: 02-C5",
+  "labels": [
+   {
+    "name": "verified"
+   }
+  ]
+ },
+ {
+  "number": 22,
+  "title": "Reported by a person",
+  "body": "No card named here, though 09-D4 is in the prose.",
+  "labels": []
+ },
+ {
+  "number": 25,
+  "title": "Verified on 09-D4",
+  "body": "Test case: 09-D4",
+  "labels": [
+   {
+    "name": "verified"
+   }
+  ]
+ },
+ {
+  "number": 26,
+  "title": "Verified on 09-D40",
+  "body": "Test case: 09-D40",
+  "labels": [
+   {
+    "name": "verified"
+   }
+  ]
+ }
+]

@@ -60,6 +60,7 @@ Labels: blocks play, phone, fight
 - **Type:** the form's `type:`, when the repository has that type; with plain headings, its Bug or Feature type. None otherwise.
 - **Labels:** only labels that exist; never make one. The form's `labels:` line; the label each dropdown answer matches (the answer starts with the label's name, or the label's description says the same thing); and any label whose description plainly fits the report, such as where it happened. None for a join.
 - **After `---`:** the body under the form's headings, or for a join, the comment.
+- **Test case:** when the report comes from a journey card, the body's first line, above the form's headings, is `**Test case:** <rows>`, each row as `NN-Xn` (the card's two digits, a dash, the row: `09-D4`), several joined by `, `; the next line links each card's file at the commit that was run. `/ck:cards` reads this line, so write no other words on it.
 
 Then check the file: `grep -nE '[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}' .ck/issues/<slug>.md`, and read it for any name from the report's From line or signature. Remove what you find and tell the author in one line.
 
