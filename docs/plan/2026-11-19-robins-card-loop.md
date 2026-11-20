@@ -39,10 +39,10 @@ The command's words, the script behind it, the label step after a merge, the bug
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P2-S0 | The words of the new command, and the "Test case" rule for filing | River, write | not started; could start now |
-| P2-S1 | The script: the verify list, the labels, the regression match, and the label after a merge | Akira, build | not started; follows S0 |
-| P2-S2 | The bug list page, built from GitHub in the style of d20mob's triage page | Akira, build | not started; follows S1 |
-| P2-S3 | Tests of the script | Robin, review | not started; follows S1 and S2 |
+| P2-S0 | The words of the new command, and the "Test case" rule for filing | River, write | done (109) |
+| P2-S1 | The script: the verify list, the labels, the regression match, and the label after a merge | Akira, build | done (110) |
+| P2-S2 | The bug list page, built from GitHub in the style of d20mob's triage page | Akira, build | done (111) |
+| P2-S3 | Tests of the script | Robin, review | done (112) |
 
 Ends when: you open the link to d20mob's bug list page, built by the script from GitHub, and the suite passes on the item's pull requests.
 
@@ -52,8 +52,8 @@ ck ships the command, d20mob gets its two labels, and you run the first verify. 
 
 | Stage | What | Who | State |
 |---|---|---|---|
-| P3-S0 | The release, and d20mob made ready for its first verify | Alex, build | not started; follows P2-S3 |
-| P3-S1 | The first verify run in d20mob, started by you | You | not started; follows S0 |
+| P3-S0 | The release, and d20mob made ready for its first verify | Alex, build | done (113) |
+| P3-S1 | The first verify run in d20mob, started by you | You | not started; could start now |
 
 Ends when: a closed d20mob bug carries `verified` and Robin's comment, or is open again with what Robin saw, and the bug list page shows its new pill.
 
