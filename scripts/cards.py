@@ -2,8 +2,11 @@
 """cards.py: the GitHub side of /ck:cards, Robin's journey-card loop.
 
 Usage, from the repository's top folder:
-  cards.py list                  closed bugs with a Test case: line and no `verified` label, then a line per card;
-                                 changes nothing on GitHub
+  cards.py list [GROUP...]       closed bugs with a row and no `verified` label, then a line per card;
+                                 changes nothing on GitHub. A group is issue numbers, epics (an issue with
+                                 sub-issues stands for them) or files (the #N numbers written in them), mixed;
+                                 with one, only its bugs, and a `no card` line for each one with no row
+  cards.py field N ROWS          sets issue N's Test Case field to ROWS when the repository has that field
   cards.py verified N COMMIT ROWS   adds `verified`, removes `to verify`, comments the rows that passed
   cards.py reopen N FILE         re-opens N, removes both labels, comments the file's text
   cards.py match ROW             closed `verified` bugs whose Test case: line names ROW
@@ -12,7 +15,8 @@ Usage, from the repository's top folder:
   cards.py page --link URL       saves the page's link, kept beside the repository's .git for every worktree
 
 The page shows every open issue, the closed ones of each open epic, and closed ones labelled `to verify`
-or closed in the last 14 days. Elsewhere, from an issue it reads only its Test case: line (bold or not), its state and its labels (and prints its title).
+or closed in the last 14 days. An issue's rows come from its Test Case field first, then its Test case: line
+(bold or not), and nothing else; besides them it reads only its state, its labels and its sub-issues (and prints its title).
 A row is NN-Xn, as 09-D4. Every value goes to gh as an argument. Standard library only; a failed gh call prints
 one line and exits 1, never a traceback.
 """
@@ -51,28 +55,98 @@ def rows(body):
     return list(dict.fromkeys(m.group(0) for m in ROW.finditer(text)))
 
 
+FIELD = "Test Case"
+FIELD_VALUES = """issueFieldValues(first: 20) { nodes { ... on IssueFieldTextValue { value field { ... on IssueFieldText { name } } } } }"""
+
+
+def case(i):
+    """The issue's rows: its Test Case field when that names a row, else its Test case: line; None when neither."""
+    for v in ((i.get("issueFieldValues") or {}).get("nodes") or []):
+        if v and (v.get("field") or {}).get("name") == FIELD:
+            rs = list(dict.fromkeys(m.group(0) for m in ROW.finditer(v.get("value") or "")))
+            if rs:
+                return rs
+    return rows(i.get("body"))
+
+
 def key(row):
     nn, letter, n = ROW.fullmatch(row).groups()
     return nn, letter, int(n)
 
 
+ISSUE = "number title state body labels(first: 30) { nodes { name } } " + FIELD_VALUES
+Q_CLOSED = """query($q: String!, $after: String) { search(query: $q, type: ISSUE, first: 50, after: $after) {
+pageInfo { hasNextPage endCursor } nodes { ... on Issue { %s } } } }""" % ISSUE
+Q_ONE = """query($owner: String!, $name: String!, $n: Int!) { repository(owner: $owner, name: $name) {
+issue(number: $n) { id %s subIssues(first: 100) { totalCount nodes { %s subIssues { totalCount } } } } } }""" % (ISSUE, ISSUE)
+
+
+def this_repo():
+    return gh("repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner").strip()
+
+
 def closed(*search):
-    return json.loads(gh("issue", "list", "--state", "closed", "--limit", "1000",
-                         "--search", " ".join(('in:body "Test case"',) + search),
-                         "--json", "number,title,body,labels"))
+    return [i for i in graphql(Q_CLOSED, "search", q=" ".join((f"repo:{this_repo()} is:issue is:closed",) + search)) if i]
+
+
+def one(repo, n):
+    owner, name = repo.split("/")
+    i = json.loads(gh("api", "graphql", "-f", f"query={Q_ONE}", "-f", f"owner={owner}", "-f", f"name={name}",
+                      "-F", f"n={n}"))["data"]["repository"]["issue"]
+    if not i:
+        raise Failed(f"there is no issue #{n}")
+    return i
 
 
 def labels(issue):
-    return {label["name"] for label in issue.get("labels") or []}
+    ls = issue.get("labels") or []
+    return {label["name"] for label in (ls.get("nodes") or [] if isinstance(ls, dict) else ls)}
 
 
-def list_():
-    bugs = [(i["number"], rows(i["body"]), i["title"]) for i in closed("-label:verified")
-            if VERIFIED not in labels(i)]
-    bugs = sorted((b for b in bugs if b[1]), key=lambda b: b[0])
+def numbers(arg):
+    """The issue numbers a group word stands for: itself, or the #N numbers written in the file it names."""
+    if re.fullmatch(r"#?\d+", arg):
+        return [int(arg.lstrip("#"))]
+    if os.path.isfile(arg):
+        found = [int(n) for n in re.findall(r"(?<![\w/])#(\d+)\b", open(arg, encoding="utf-8").read())]
+        if not found:
+            raise Failed(f"{arg} names no issue as #N")
+        return found
+    raise Failed(f"{arg} is not an issue number or a file")
+
+
+def group(args):
+    """Every issue in the group, epics opened into their sub-issues, by number, once each."""
+    repo, seen, todo = this_repo(), {}, [n for a in args for n in numbers(a)]
+    while todo:
+        n = todo.pop(0)
+        if n in seen:
+            continue
+        i = one(repo, n)
+        subs = i.pop("subIssues")
+        if not subs["totalCount"]:
+            seen[n] = i
+            continue
+        seen[n] = None  # an epic stands for its sub-issues, not itself
+        for s in subs["nodes"]:
+            if s.pop("subIssues")["totalCount"]:
+                todo.append(s["number"])
+            else:
+                seen.setdefault(s["number"], s)
+    return [seen[n] for n in sorted(seen) if seen[n]]
+
+
+def list_(args=()):
+    if args:
+        items = group(args)
+        bugs = [i for i in items if i["state"] == "CLOSED" and VERIFIED not in labels(i) and case(i)]
+        nocard = [i for i in items if not case(i)]
+    else:
+        bugs = [i for i in closed('in:body "Test case"', "-label:verified") if VERIFIED not in labels(i) and case(i)]
+        nocard = []
+    bugs = sorted(((i["number"], case(i), i["title"]) for i in bugs), key=lambda b: b[0])
     if not bugs:
         print("none")
-        return
     cards = {}
     for n, rs, title in bugs:
         print(f"bug\t#{n}\t{','.join(rs)}\t{title}")
@@ -83,6 +157,33 @@ def list_():
                 nums.append(f"#{n}")
     for nn in sorted(cards):
         print(f"card\t{nn}\t{cards[nn][0]}\t{' '.join(cards[nn][1])}")
+    for i in nocard:
+        print(f"no card\t#{i['number']}\t{i['title']}")
+
+
+Q_FIELD = """query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {
+issueFields(first: 50) { nodes { ... on IssueFieldText { id name } } } } }"""
+M_FIELD = """mutation($issue: ID!, $field: ID!, $value: String!) { setIssueFieldValue(input: {issueId: $issue,
+issueFields: [{fieldId: $field, textValue: $value}]}) { clientMutationId } }"""
+
+
+def field(n, rs):
+    """Sets issue N's Test Case field to the rows, when the repository has that text field."""
+    rs = [r.strip() for r in rs.split(",") if r.strip()]
+    if not rs or not all(ROW.fullmatch(r) for r in rs):
+        raise Failed("rows are NN-Xn, comma-separated, as 09-D4,02-C3")
+    repo = this_repo()
+    owner, name = repo.split("/")
+    nodes = json.loads(gh("api", "graphql", "-f", f"query={Q_FIELD}", "-f", f"owner={owner}", "-f", f"name={name}")
+                       )["data"]["repository"]["issueFields"]["nodes"]
+    f = next((x for x in nodes if x and x.get("name") == FIELD), None)
+    if not f:
+        print("no field")
+        return
+    issue = one(repo, n)["id"]
+    gh("api", "graphql", "-f", f"query={M_FIELD}", "-f", f"issue={issue}", "-f", f"field={f['id']}",
+       "-f", f"value={', '.join(rs)}")
+    print(f"#{n} field {', '.join(rs)}")
 
 
 def verified(n, commit, rs):
@@ -100,7 +201,7 @@ def reopen(n, path):
 
 def match(row):
     for i in closed(f"label:{VERIFIED}"):
-        if VERIFIED in labels(i) and row in (rows(i["body"]) or []):
+        if VERIFIED in labels(i) and row in (case(i) or []):
             print(f"#{i['number']}\t{i['title']}")
 
 
@@ -110,8 +211,7 @@ def merged(pr):
     out = []
     for ref in refs:
         n, repo = str(ref["number"]), ref["repository"]["owner"]["login"] + "/" + ref["repository"]["name"]
-        issue = json.loads(gh("issue", "view", n, "--repo", repo, "--json", "body"))
-        if rows(issue["body"]) is not None:
+        if case(one(repo, n)) is not None:
             gh("issue", "edit", n, "--repo", repo, "--add-label", TO_VERIFY, "--remove-label", VERIFIED)
             out.append(f"#{n} to verify")
     return out
@@ -131,7 +231,7 @@ SEVERITY = ("blocks play", "hurts play", "rough edge")
 FIELDS = """number title url state body createdAt closedAt issueType { name } labels(first: 30) { nodes { name } }
 parent { number title url state } subIssues { totalCount }
 closedByPullRequestsReferences(first: 5, includeClosedPrs: true) { nodes { number url state } }
-timelineItems(itemTypes: [REOPENED_EVENT]) { totalCount }"""
+timelineItems(itemTypes: [REOPENED_EVENT]) { totalCount } """ + FIELD_VALUES
 Q_OPEN = """query($owner: String!, $name: String!, $after: String) { repository(owner: $owner, name: $name) {
 issues(states: OPEN, first: 25, after: $after) { pageInfo { hasNextPage endCursor }
 nodes { %s subIssues(first: 100) { totalCount nodes { %s } } } } } }""" % (FIELDS.replace("subIssues { totalCount }", ""), FIELDS)
@@ -217,7 +317,7 @@ def pills(i):
         out.append(f'<span class="pill {k}">{k}</span>')
     if "launch blocker" in ls:
         out.append('<span class="pill blocks">launch blocker</span>')
-    rs = rows(i.get("body"))
+    rs = case(i)
     if rs:
         out.append(f'<span class="pill case">test case {e(", ".join(rs))}</span>')
     return "".join(out)
@@ -309,7 +409,7 @@ def page(flag, value):
             f.write(value + "\n")
         print("saved")
         return
-    repo = gh("repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner").strip()
+    repo = this_repo()
     text = render(repo, issues(repo))
     os.makedirs(os.path.dirname(os.path.abspath(value)), exist_ok=True)
     with open(value, "w", encoding="utf-8") as f:
@@ -319,8 +419,10 @@ def page(flag, value):
 
 def main():
     a = sys.argv[1:]
-    if a == ["list"]:
-        list_()
+    if a[:1] == ["list"]:
+        list_(a[1:])
+    elif len(a) == 3 and a[0] == "field":
+        field(*a[1:])
     elif len(a) == 4 and a[0] == "verified":
         verified(*a[1:])
     elif len(a) == 3 and a[0] == "reopen":
@@ -333,7 +435,7 @@ def main():
     elif len(a) == 3 and a[0] == "page" and a[1] in ("--out", "--link"):
         page(a[1], a[2])
     else:
-        print("usage: cards.py list | verified N COMMIT ROWS | reopen N FILE | match NN-Xn | merged PR"
+        print("usage: cards.py list [GROUP...] | field N ROWS | verified N COMMIT ROWS | reopen N FILE | match NN-Xn | merged PR"
               " | page --out FILE | page --link URL", file=sys.stderr)
         return 2
     return 0

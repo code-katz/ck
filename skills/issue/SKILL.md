@@ -60,7 +60,7 @@ Labels: blocks play, phone, fight
 - **Type:** the form's `type:`, when the repository has that type; with plain headings, its Bug or Feature type. None otherwise.
 - **Labels:** only labels that exist; never make one. The form's `labels:` line; the label each dropdown answer matches (the answer starts with the label's name, or the label's description says the same thing); and any label whose description plainly fits the report, such as where it happened. None for a join.
 - **After `---`:** the body under the form's headings, or for a join, the comment.
-- **Test case:** when the report comes from a journey card, the body's first line, above the form's headings, is `**Test case:** <rows>`, each row as `NN-Xn` (the card's two digits, a dash, the row: `09-D4`), several joined by `, `; the next line links each card's file at the commit that was run. `/ck:cards` reads this line, so write no other words on it.
+- **Test case:** when the report comes from a journey card, the body's first line, above the form's headings, is `**Test case:** <rows>`, each row as `NN-Xn` (the card's two digits, a dash, the row: `09-D4`), several joined by `, `; the next line links each card's file at the commit that was run. `/ck:cards` reads this line, so write no other words on it. The title stays as the form makes it, with no row in it.
 
 Then check the file: `grep -nE '[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}' .ck/issues/<slug>.md`, and read it for any name from the report's From line or signature. Remove what you find and tell the author in one line.
 
@@ -76,7 +76,7 @@ Run the check from step 6 on the file once more. Then, for a new issue, with one
 sed '1,/^---$/d' .ck/issues/<slug>.md | gh api repos/<owner>/<repo>/issues -f title='<title>' -F body=@- -f type=<type> -f 'labels[]=<label>' --jq '.number, .html_url, .type.name'
 ```
 
-If the type it prints is not the one asked for, run `gh api -X PATCH repos/<owner>/<repo>/issues/<N> -f type=<type>`. For a join:
+If the type it prints is not the one asked for, run `gh api -X PATCH repos/<owner>/<repo>/issues/<N> -f type=<type>`. When the draft has a `Test case:` line, run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/cards.py" field <N> <its rows, comma-separated>`: it sets the issue's Test Case field to them when the repository has one, and prints `no field` otherwise, which is fine. For a join:
 
 ```bash
 sed '1,/^---$/d' .ck/issues/<slug>.md | gh issue comment <N> --body-file -

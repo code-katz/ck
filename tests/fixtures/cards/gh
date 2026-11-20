@@ -3,6 +3,8 @@
 
 CARDS_LOG is the file each call is written to, one JSON list of arguments a line. CARDS_FAIL, when set,
 makes every call that changes an issue (edit, comment, reopen) fail as gh does, with one line on stderr.
+CARDS_NOFIELD, when set, makes the repository have no Test Case field. An issue's "field" is its Test Case
+field's value, and its "subs" are its sub-issues' numbers.
 Nothing here reaches GitHub.
 """
 
@@ -25,25 +27,51 @@ def flag(name):
     return a[a.index(name) + 1] if name in a else None
 
 
+def node(i, deep=True):
+    out = {"id": f"I_{i['number']}", "number": i["number"], "title": i["title"], "state": i.get("state", "CLOSED"),
+           "body": i["body"], "labels": {"nodes": i["labels"]},
+           "issueFieldValues": {"nodes": [{"value": i["field"], "field": {"name": "Test Case"}}] if "field" in i else []}}
+    subs = [issue(n) for n in i.get("subs", [])]
+    out["subIssues"] = {"totalCount": len(subs)}
+    if deep:
+        out["subIssues"]["nodes"] = [node(x, False) for x in subs]
+    return out
+
+
+def issue(n):
+    return next((i for i in load("closed.json") + load("group.json") if i["number"] == n), None)
+
+
 cmd = " ".join(a[:2])
 if cmd in ("issue edit", "issue comment", "issue reopen"):
     if os.environ.get("CARDS_FAIL"):
         print("HTTP 502: stand-in failure", file=sys.stderr)
         sys.exit(1)
-elif cmd == "issue list":
-    print(json.dumps(load("closed.json")))
-elif cmd == "issue view":
-    n = int(a[2])
-    print(json.dumps(next({"body": i["body"]} for i in load("closed.json") if i["number"] == n)))
 elif cmd == "pr view":
     print(json.dumps(load("pr.json")))
 elif cmd == "repo view":
     print("o/d20")
 elif cmd == "api graphql":
     fields = dict(x.split("=", 1) for x in a[2:] if "=" in x)
+    q = fields.get("q", "")
+    if fields["query"].startswith("mutation"):
+        print(json.dumps({"data": {"setIssueFieldValue": {"clientMutationId": None}}}))
+        sys.exit(0)
+    if "issueFields(" in fields["query"]:
+        nodes = [] if os.environ.get("CARDS_NOFIELD") else [{}, {"id": "IFT_case", "name": "Test Case"}]
+        print(json.dumps({"data": {"repository": {"issueFields": {"nodes": nodes}}}}))
+        sys.exit(0)
+    if "issue(number" in fields["query"]:
+        i = issue(int(fields["n"]))
+        print(json.dumps({"data": {"repository": {"issue": node(i) if i else None}}}))
+        sys.exit(0)
+    if 'in:body "Test case"' in q or "label:verified" in q:
+        nodes = [node(i, False) for i in load("closed.json")]
+        print(json.dumps({"data": {"search": {"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": nodes}}}))
+        sys.exit(0)
     if "repository(owner" in fields["query"]:
         name = "open.json"
-    elif 'label:"to verify"' in fields["q"]:
+    elif 'label:"to verify"' in q:
         name = "found-to-verify.json"
     else:
         name = "found-recent.json"

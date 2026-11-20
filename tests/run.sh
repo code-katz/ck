@@ -1042,6 +1042,36 @@ out=$(CARDS_FAIL=1 cards merged 7 2>"$TMP/cardserr"); rc=$?
 out=$(cd "$TMP/cardsrepo" && CARDS_FAIL=1 GH_HOST=stand-in.invalid GH_TOKEN=none PATH="$TMP/cardsbin:$PATH" python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import cards; r = cards.after_merge("7"); print(len(r), all(isinstance(x, str) for x in r))' "$REPO_DIR/scripts" 2>&1)
 [[ "$out" == '1 True' ]] && ok "the merge step's call to cards returns one line on a gh failure and never raises, so the merge and cost line stand" \
   || fail "after_merge on failure: $out"
+# A group after list: numbers, an epic (its sub-issues, an inner epic opened too), a file, or a mix.
+: > "$CARDS_LOG"
+out=$(cards list 17 12)
+[[ "$out" == $'bug\t#12\t09-D4,02-C3\tShield breaks on reload\nbug\t#17\t09-B2\tMap pin lands wrong\ncard\t02\t02-C3\t#12\ncard\t09\t09-D4\t#12 #17' ]] \
+  && ok "list with numbers: only those bugs, and each card's last row among them" || fail "list 17 12: $out"
+out=$(cards list 30)
+want=$(printf '%s\n' $'bug\t#12\t09-D4,02-C3\tShield breaks on reload' $'bug\t#32\t09-A1\tField only' $'bug\t#33\t02-C7\tField and line' \
+  $'bug\t#35\t03-A2\tUnder the inner epic' $'card\t02\t02-C7\t#12 #33' $'card\t03\t03-A2\t#35' $'card\t09\t09-D4\t#12 #32' \
+  $'no card\t#31\tNo line, a row only in the prose')
+[[ "$out" == "$want" ]] && ok "list with an epic: its closed unverified bugs with a row, the field read before the line, the rest as no card" \
+  || fail "list 30: $out"
+printf 'Re-check #32 and #31, not issues/99 or 09-D4.\n' > "$TMP/group.txt"
+out=$(cards list "$TMP/group.txt")
+[[ "$out" == $'bug\t#32\t09-A1\tField only\ncard\t09\t09-A1\t#32\nno card\t#31\tNo line, a row only in the prose' ]] \
+  && ok "list with a file: the #N numbers written in it" || fail "list file: $out"
+out=$(cards list 31 "$TMP/group.txt" 32)
+[[ "$out" == $'bug\t#32\t09-A1\tField only\ncard\t09\t09-A1\t#32\nno card\t#31\tNo line, a row only in the prose' ]] \
+  && [[ "$(cards list 31)" == $'none\nno card\t#31\tNo line, a row only in the prose' ]] \
+  && ok "list with a mix: each issue once; with no bug to run it prints none, then the no card lines" || fail "list mix: $out"
+out=$(cards list nope 2>&1); rc=$?
+[[ $rc -eq 1 && "$out" == 'cards.py: nope is not an issue number or a file' ]] && ok "list refuses a group word that is neither a number nor a file" || fail "list nope: exit $rc, $out"
+[[ -z "$(changes)" ]] && ! calls | grep -q mutation && ok "list with a group changes nothing on GitHub" || fail "list with a group changed GitHub"
+# /ck:issue sets the Test Case field when the repository has it.
+: > "$CARDS_LOG"
+out=$(cards field 17 09-B2,02-C3)
+[[ "$out" == '#17 field 09-B2, 02-C3' ]] && calls | grep -q 'setIssueFieldValue' && calls | grep -q ' -f issue=I_17 -f field=IFT_case -f value=09-B2, 02-C3$' \
+  && ok "field: sets the Test Case field on the issue to its rows" || fail "field: '$out', $(calls)"
+: > "$CARDS_LOG"
+out=$(CARDS_NOFIELD=1 cards field 17 09-B2)
+[[ "$out" == 'no field' ]] && ! calls | grep -q mutation && ok "field: with no Test Case field it sets nothing and says so" || fail "field without one: '$out'"
 # The page's pills, per issue: each pill's class, a linked pill's pull request, and the rows a test case pill names.
 pills() { python3 - "$1" <<'EOF'
 import re, sys
