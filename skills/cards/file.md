@@ -4,7 +4,7 @@ All of a run's drafts go on one review page and are filed on one word, `file`. N
 
 ## 1. A regression first
 
-For each App wrong row, run `<cards> match <row>`. It prints `#<N><TAB><title>`, one line per closed issue labelled `verified` whose `Test case:` line names that row, and nothing when there is none. When one is the same fault, the row re-opens it instead of a new issue: write `.ck/issues/reopen-<N>.md` with first line `Re-opens #<N> <title>`, then `---`, then what you saw, in the words of a re-open in `verify.md`. A different fault, or no line, goes on to step 2.
+For each App wrong row, run `<cards> match <row>`. It prints `#<N><TAB><title>`, one line per closed issue labelled `verified` whose rows (its Test Case field, else its `Test case:` line) name that row, and nothing when there is none. When one is the same fault, the row re-opens it instead of a new issue: write `.ck/issues/reopen-<N>.md` with first line `Re-opens #<N> <title>`, then `---`, then what you saw, in the words of a re-open in `verify.md`. A different fault, or no line, goes on to step 2.
 
 ## 2. Draft each new fault
 

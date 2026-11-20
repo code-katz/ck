@@ -1,0 +1,10 @@
+[
+ {"number": 30, "title": "Epic of the shield", "state": "CLOSED", "body": "", "labels": [], "subs": [12, 31, 32, 33, 34, 36, 37]},
+ {"number": 31, "title": "No line, a row only in the prose", "state": "CLOSED", "body": "Seen at 09-D4 on the card.", "labels": []},
+ {"number": 32, "title": "Field only", "state": "CLOSED", "body": "No line here.", "labels": [], "field": "09-A1 "},
+ {"number": 33, "title": "Field and line", "state": "CLOSED", "body": "Test case: 09-D4", "labels": [], "field": "02-C7"},
+ {"number": 34, "title": "An epic inside the epic", "state": "CLOSED", "body": "", "labels": [], "subs": [35]},
+ {"number": 35, "title": "Under the inner epic", "state": "CLOSED", "body": "**Test case:** 03-A2", "labels": []},
+ {"number": 36, "title": "Still open", "state": "OPEN", "body": "Test case: 03-A1", "labels": []},
+ {"number": 37, "title": "Already verified", "state": "CLOSED", "body": "", "labels": [{"name": "verified"}], "field": "03-A3"}
+]

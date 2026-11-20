@@ -1,8 +1,8 @@
 ---
 name: cards
-description: Robin's journey-card loop. With nothing after it, or with card numbers such as `01 03`, it puts up a card for a Robin session that runs those cards and drafts an issue for each fault on one review page, filed on your one word `file`. With `verify`, it lists the closed bugs whose fix has not been checked yet, and puts up a card for a Robin session that re-runs exactly the cards behind them and marks each bug verified or re-opens it with what it saw. You click each card; ck never starts a session by itself. Runs only when typed.
+description: Robin's journey-card loop. With nothing after it, or with card numbers such as `01 03`, it puts up a card for a Robin session that runs those cards and drafts an issue for each fault on one review page, filed on your one word `file`. With `verify`, it lists the closed bugs whose fix has not been checked yet, or only those in a group you name after it (issue numbers, epics, or a file of issue numbers), and puts up a card for a Robin session that re-runs exactly the cards behind them and marks each bug verified or re-opens it with what it saw. You click each card; ck never starts a session by itself. Runs only when typed.
 disable-model-invocation: true
-argument-hint: "[card numbers such as 01 03; verify; nothing for every card]"
+argument-hint: "[card numbers such as 01 03; verify, or verify then issue numbers, epics or a file; nothing for every card]"
 ---
 
 You coordinate: Robin's session runs the cards, and you do none of it here. Speak plainly, never print a stack trace, and answer in one message of eight lines or fewer, not counting a table and the card line.
@@ -21,14 +21,15 @@ Run `git fetch -q origin` and take `<commit>` as `git rev-parse --short origin/H
 
 - **Nothing after the command:** every card.
 - **Card numbers** (`01 03`, or `1 3`, written back as two digits): those cards. A number with no card: say "There is no card `<NN>`." and stop.
-- **`verify`:** run `<cards> list`. It changes nothing on GitHub and prints, in this order:
-  - `bug<TAB>#<N><TAB><rows, comma-separated><TAB><title>`, one line per closed issue that has a `Test case:` line and no `verified` label;
+- **`verify`, with or without a group after it:** a group is issue numbers (`700 717`), epics (an issue with sub-issues stands for them), or a file (the `#N` numbers written in it), mixed freely. Run `<cards> list`, adding the group's words as they were typed. It changes nothing on GitHub and prints, in this order:
+  - `bug<TAB>#<N><TAB><rows, comma-separated><TAB><title>`, one line per closed issue that has a row and no `verified` label (with a group, only those in it);
   - `card<TAB><NN><TAB><the last row any of those bugs names on it><TAB><the bugs, space-separated>`, one line per card, in card order;
-  - only `none` when there are no such bugs;
+  - `none` when there are no such bugs;
+  - with a group, `no card<TAB>#<N><TAB><title>`, one line per issue in it that names no row;
   - on a failed `gh` call, one line saying what failed, and a non-zero exit: relay the line and stop.
 
-  With `none`, say "No closed bug is waiting to be verified." and stop. Otherwise show the bugs as a table (Bug, Rows, Title) and keep the `card` lines.
-- **Anything else:** reply only "Type `/ck:cards`, `/ck:cards <card numbers>`, or `/ck:cards verify`."
+  With `none`, say "No closed bug is waiting to be verified." (with a group, "No bug in that group has a card to run."), list the `no card` bugs in one line, and stop. Otherwise show the bugs as a table (Bug, Rows, Title), then the `no card` bugs in one line as "No card: #628, #630.", and keep the `card` lines.
+- **Anything else:** reply only "Type `/ck:cards`, `/ck:cards <card numbers>`, or `/ck:cards verify [issue numbers, epics or a file]`."
 
 ## 3. Put up the card
 
@@ -52,11 +53,11 @@ Say in one line which cards, the commit, and the cost: about $4 a card for a run
 
 ## 4. The step after a merge
 
-Not part of this command, and listed here so its call is in one place. ck's merge step, the one that writes the cost line after `gh pr merge`, runs `<cards> merged <the pull request's number>`. For each issue the pull request closed that has a `Test case:` line, it adds `to verify` and removes `verified`, and prints `#<N> to verify`; it prints nothing when there is none. A failed `gh` call prints one line and leaves the merge and the cost line as they are.
+Not part of this command, and listed here so its call is in one place. ck's merge step, the one that writes the cost line after `gh pr merge`, runs `<cards> merged <the pull request's number>`. For each issue the pull request closed that has a row, it adds `to verify` and removes `verified`, and prints `#<N> to verify`; it prints nothing when there is none. A failed `gh` call prints one line and leaves the merge and the cost line as they are.
 
 ## 5. The script's calls
 
-Each call is named once, where it is used: `list` (section 2) and `merged` (section 4) here; `match` in `file.md`; `verified` and `reopen` in `verify.md`; `page` in `page.md`. The script reads nothing from an issue but its `Test case:` line (bold or not), its state and its labels. A row is named `NN-Xn`: the card's two digits, a dash, the checkpoint's letter and the row's number, as `09-D4`. A bug never holds both labels after a call.
+Each call is named once, where it is used: `list` (section 2) and `merged` (section 4) here; `match` in `file.md`; `verified` and `reopen` in `verify.md`; `page` in `page.md`; `field` in the issue command's step 8. An issue's rows come from its Test Case field first, then its `Test case:` line (bold or not), and nothing else; besides them the script reads only its state, its labels and its sub-issues. A row is named `NN-Xn`: the card's two digits, a dash, the checkpoint's letter and the row's number, as `09-D4`. A bug never holds both labels after a call.
 
 ## 6. Never
 
