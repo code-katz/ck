@@ -1,0 +1,197 @@
+{
+ "data": {
+  "repository": {
+   "issues": {
+    "pageInfo": {
+     "hasNextPage": false,
+     "endCursor": null
+    },
+    "nodes": [
+     {
+      "number": 5,
+      "title": "(epic) Combat",
+      "url": "https://github.com/o/d20/issues/5",
+      "state": "OPEN",
+      "body": "",
+      "createdAt": "2026-11-01T00:00:00Z",
+      "closedAt": null,
+      "issueType": {
+       "name": "Feature"
+      },
+      "labels": {
+       "nodes": []
+      },
+      "parent": null,
+      "subIssues": {
+       "totalCount": 2,
+       "nodes": [
+        {
+         "number": 31,
+         "title": "(bug) Parry skips a turn",
+         "url": "https://github.com/o/d20/issues/31",
+         "state": "OPEN",
+         "body": "Test case: 09-D4",
+         "createdAt": "2026-11-01T00:00:00Z",
+         "closedAt": null,
+         "issueType": {
+          "name": "Bug"
+         },
+         "labels": {
+          "nodes": [
+           {
+            "name": "hurts play"
+           }
+          ]
+         },
+         "parent": null,
+         "subIssues": {
+          "totalCount": 0
+         },
+         "closedByPullRequestsReferences": {
+          "nodes": [
+           {
+            "number": 42,
+            "url": "https://github.com/o/d20/pull/42",
+            "state": "OPEN"
+           }
+          ]
+         },
+         "timelineItems": {
+          "totalCount": 1
+         }
+        },
+        {
+         "number": 12,
+         "title": "(bug) Shield breaks on reload",
+         "url": "https://github.com/o/d20/issues/12",
+         "state": "CLOSED",
+         "body": "Test case: 09-D4, 02-C3",
+         "createdAt": "2026-11-01T00:00:00Z",
+         "closedAt": "2026-11-18T00:00:00Z",
+         "issueType": {
+          "name": "Bug"
+         },
+         "labels": {
+          "nodes": [
+           {
+            "name": "to verify"
+           },
+           {
+            "name": "blocks play"
+           }
+          ]
+         },
+         "parent": null,
+         "subIssues": {
+          "totalCount": 0
+         },
+         "closedByPullRequestsReferences": {
+          "nodes": [
+           {
+            "number": 39,
+            "url": "https://github.com/o/d20/pull/39",
+            "state": "CLOSED"
+           },
+           {
+            "number": 40,
+            "url": "https://github.com/o/d20/pull/40",
+            "state": "MERGED"
+           }
+          ]
+         },
+         "timelineItems": {
+          "totalCount": 0
+         }
+        }
+       ]
+      },
+      "closedByPullRequestsReferences": {
+       "nodes": []
+      },
+      "timelineItems": {
+       "totalCount": 0
+      }
+     },
+     {
+      "number": 33,
+      "title": "(wish) A dark theme",
+      "url": "https://github.com/o/d20/issues/33",
+      "state": "OPEN",
+      "body": "",
+      "createdAt": "2026-11-01T00:00:00Z",
+      "closedAt": null,
+      "issueType": {
+       "name": "Feature"
+      },
+      "labels": {
+       "nodes": []
+      },
+      "parent": null,
+      "subIssues": {
+       "totalCount": 0
+      },
+      "closedByPullRequestsReferences": {
+       "nodes": []
+      },
+      "timelineItems": {
+       "totalCount": 0
+      }
+     },
+     {
+      "number": 34,
+      "title": "Save file lost",
+      "url": "https://github.com/o/d20/issues/34",
+      "state": "OPEN",
+      "body": "",
+      "createdAt": "2026-11-01T00:00:00Z",
+      "closedAt": null,
+      "issueType": null,
+      "labels": {
+       "nodes": [
+        {
+         "name": "blocks play"
+        },
+        {
+         "name": "launch blocker"
+        }
+       ]
+      },
+      "parent": null,
+      "subIssues": {
+       "totalCount": 0
+      },
+      "closedByPullRequestsReferences": {
+       "nodes": []
+      },
+      "timelineItems": {
+       "totalCount": 0
+      }
+     },
+     {
+      "number": 35,
+      "title": "Odd spacing",
+      "url": "https://github.com/o/d20/issues/35",
+      "state": "OPEN",
+      "body": "",
+      "createdAt": "2026-11-01T00:00:00Z",
+      "closedAt": null,
+      "issueType": null,
+      "labels": {
+       "nodes": []
+      },
+      "parent": null,
+      "subIssues": {
+       "totalCount": 0
+      },
+      "closedByPullRequestsReferences": {
+       "nodes": []
+      },
+      "timelineItems": {
+       "totalCount": 0
+      }
+     }
+    ]
+   }
+  }
+ }
+}
