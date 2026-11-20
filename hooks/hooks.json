@@ -1,5 +1,5 @@
 {
-  "description": "ck: persona usage log, a check that the old team tool is gone, a check that the loaded ck is the project's install, the memory gate, the project's team, and the session cost (a line after each answer once there is a pull request, and at merge, a line in the session and the table on the pull request)",
+  "description": "ck: persona usage log, a check that the old team tool is gone, a check that the loaded ck is the project's install, the memory gate, the project's team, and the session cost (a line after each answer once there is a pull request, and at merge, a line in the session and the table on the pull request, and `to verify` on each bug the merge closed that has a Test case: line)",
   "hooks": {
     "SubagentStart": [
       {
