@@ -7,7 +7,7 @@ export const meta = {
     { title: 'Assemble', detail: 'ck:river writes docs/TEAM.md: cast, roles and responsibilities matrix, hand-off order, needs, missing seats, declined nominations' },
     { title: 'Validate', detail: 'one neutral Haiku agent checks the team contract; ck:river revises at most twice' },
   ],
-  personas: ['river', 'akira', 'alex', 'casey', 'cornelius', 'ernie', 'iris', 'jordan', 'kai', 'morgan', 'noon', 'piper', 'quinn', 'reiner', 'rez', 'robin', 'sage', 'sasha', 'toni', 'tracy', 'travolta'],
+  personas: ['river', 'akira', 'alex', 'casey', 'cornelius', 'ernie', 'iris', 'jordan', 'kai', 'morgan', 'noon', 'piper', 'quinn', 'reiner', 'rez', 'robin', 'sable', 'sage', 'sasha', 'toni', 'tracy', 'travolta'],
 }
 
 // Team selection and roles and responsibilities. River reads the product documents and the roster and

@@ -110,7 +110,7 @@ fable=$(grep -c ' claude-fable-5-2$' tiers.conf)
 opus=$(grep -c ' claude-opus-5-5$' tiers.conf)
 sonnet=$(grep -c ' claude-sonnet-5-5$' tiers.conf)
 if [[ "$tier_lines" == "${#personas[@]}" ]]; then ok "one tier line per persona ($tier_lines)"; else fail "tiers.conf has $tier_lines persona lines, expected ${#personas[@]}"; fi
-if [[ "$fable" == 6 && "$opus" == 11 && "$sonnet" == 4 ]]; then ok "six Fable 5.2, eleven Opus 5.5, four Sonnet 5.5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
+if [[ "$fable" == 6 && "$opus" == 12 && "$sonnet" == 4 ]]; then ok "six Fable 5.2, twelve Opus 5.5, four Sonnet 5.5"; else fail "tier counts: $fable Fable, $opus Opus, $sonnet Sonnet"; fi
 unknown=$(grep -E '^[a-z]+ claude-' tiers.conf | awk '{print $1}' | while read -r n; do [[ -f "profiles/$n.md" ]] || echo "$n"; done)
 if [[ -z "$unknown" ]]; then ok "every tier line names a profile"; else fail "tier lines without a profile: $unknown"; fi
 other=$(grep -E '^[a-z]+ ' tiers.conf | grep -v '^job ' | grep -vE ' claude-(fable-5-2|opus-5-5|sonnet-5-5)$' || true)

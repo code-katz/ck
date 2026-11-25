@@ -154,7 +154,7 @@ Three tiers, set once in `tiers.conf`:
 | Tier | Model | Personas |
 |---|---|---|
 | Judgment | Fable 5.2 | River, Akira, Morgan, Sage, Jordan, Reiner |
-| Craft | Opus 5.5 | Toni, Kai, Iris, Quinn, Casey, Cornelius, Ernie, Rez, Tracy, Travolta, Noon |
+| Craft | Opus 5.5 | Toni, Kai, Iris, Quinn, Casey, Cornelius, Ernie, Rez, Tracy, Travolta, Noon, Sable |
 | Execution | Sonnet 5.5 | Sasha, Alex, Robin, Piper |
 
 Validators run on Haiku 5.5. The panel puts its three lenses on three different models: River on Fable 5.2, Toni on Opus 5.5, Kai moved down to Sonnet 5.5. A switch command (`/ck:river`) runs on your session's model; delegation (`ck:river`) runs on the tier.
