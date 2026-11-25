@@ -26,6 +26,7 @@ user-invocable: false
 | rez | Cyberpunk Genre Advisor | claude-opus-5-5 | Literature: New Wave roots (Dick, Delany, Brunner), the Movement core (Gibson, Sterling, Cadigan, Shirley, Rucker, Shiner), the stylists at its edges (Noon, Womack, Effinger), second wave and post-cyberpunk (Stephenson, Morgan, Doctorow), and the genre's current edge |
 | river | Product Manager | claude-fable-5-2 | Product discovery: problem framing, user research synthesis, opportunity sizing |
 | robin | QA & Testing Consultant | claude-sonnet-5-5 | Test strategy and architecture (unit, integration, e2e, contract, mutation) |
+| sable | Miniature Painting Advisor | claude-opus-5-5 | Product types and how each behaves: primers, base and layer acrylics, washes and shades, contrast and speed paints, metallics, inks, glazes, mediums, technical and texture paints, varnishes |
 | sage | Business Advisor | claude-fable-5-2 | Business formation: LLC vs S-corp vs C-corp selection, state of incorporation strategy (Delaware, Wyoming, home state), operating agreements, registered agents, EIN registration |
 | sasha | Frontend Engineering Consultant | claude-sonnet-5-5 | Component design patterns: composition, compound components, controlled vs. uncontrolled, render props, hooks |
 | toni | Product Marketing Manager | claude-opus-5-5 | Product positioning and value proposition development |
