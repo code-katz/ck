@@ -1,6 +1,6 @@
 # ck: Product Roadmap
 
-> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-19.
+> Maintained by [claude-roadmap-skill](https://github.com/code-katz/claude-roadmap-skill). Last updated: 2026-11-25.
 
 ---
 
@@ -44,7 +44,7 @@
 - Robin's card loop, `/ck:cards` (0.1.45): when a bug is fixed, Robin re-tests just the steps that caught it and marks it verified or re-opens it. A bug a journey card catches starts with a `Test case:` line naming its rows (`09-D4`), as d20mob's bugs already do; the merge of its fix labels it `to verify`; `/ck:cards verify` lists those bugs and offers one card for a Robin session that re-runs only their cards, stops each at its last named row, and labels each bug `verified` or re-opens it with what Robin saw. Each run rebuilds the project's bug list page from GitHub, with its new pills. d20mob and hireling have both labels; in d20mob the list finds 15 bugs on 9 cards, all closed on 2026-11-19 ([code-katz/ck#109](https://github.com/code-katz/ck/pull/109) to [#113](https://github.com/code-katz/ck/pull/113)).
 - A verify for a group (0.1.46): `/ck:cards verify` takes issue numbers, epics (an epic stands for its sub-issues) or a file, mixed freely, and lists only that group's bugs, with every other issue in it shown as "no card". A bug's row is read from its Test Case issue field first, then its `Test case:` line, and `/ck:issue` fills in the field when the project has one. Asked for when the first real use, re-checking d20mob's epic 728, could not be narrowed to the epic; `verify 728` now lists 3 bugs on 3 cards and 8 with no card ([code-katz/ck#115](https://github.com/code-katz/ck/pull/115)).
 - Main is at 0.1.46. Each release is a branch from main, a pull request into main, a tag on main, and a GitHub release, in the steps `RELEASING.md` lists. The tests run on every pull request.
-- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.46` since 2026-11-19. On Will's Mac every ck-next install record is on 0.1.46. A fresh session in ck, d20mob and hireling loads it from ck-next, and one in a folder without a project install loads it from stable. Rollback in a project is two commands.
+- Two channels: stable (the `code-katz` marketplace) and ck-next (a local marketplace, used by d20mob, hireling and the ck folder), both on `v0.1.47` since 2026-11-25. On Will's Mac every ck-next install record is on 0.1.47. A fresh session in ck, d20mob and hireling loads it from ck-next, and one in a folder without a project install loads it from stable. Rollback in a project is two commands.
 
 **What's missing or fragile:**
 - The memory gate has not yet been tried in an interactive session.
@@ -114,6 +114,7 @@ ck reaches projects from two places. **Stable** is the `code-katz` marketplace o
 | 0.1.44 | 2026-11-16 | ck no longer reads or writes a separate release log: its rules, release steps and commands drop it ([code-katz/ck#100](https://github.com/code-katz/ck/pull/100)) | Tag `v0.1.44` |
 | 0.1.45 | 2026-11-19 | Robin's card loop, `/ck:cards`: re-run only the cards behind fixed bugs, and mark each one verified or re-open it ([code-katz/ck#113](https://github.com/code-katz/ck/pull/113)) | Tag `v0.1.45` |
 | 0.1.46 | 2026-11-19 | `/ck:cards verify` takes a group (issue numbers, epics, a file); a bug's row comes from its Test Case field first ([code-katz/ck#115](https://github.com/code-katz/ck/pull/115)) | Tag `v0.1.46`; **stable** and **ck-next** |
+| 0.1.47 | 2026-11-25 | Sable, a miniature painting advisor, joins the roster, with `/ck:sable` and a `ck:sable` subagent ([code-katz/ck#117](https://github.com/code-katz/ck/pull/117)) | Tag `v0.1.47`; **stable** and **ck-next** |
 
 ---
 
@@ -205,6 +206,24 @@ Later: the code-quality review command; template changes reach projects; the lea
 ---
 
 ## Revision History
+
+## [2026-11-25] 0.1.47 shipped: Sable; stable on 0.1.47
+
+**Change Type:** `update`
+**Triggered by:** `user`
+**Items Affected:** Current State Snapshot, Releases
+
+### What Changed
+Stable moves to `v0.1.47` ([code-katz/claude-plugins#24](https://github.com/code-katz/claude-plugins/pull/24)) at your word. 0.1.47 is added to Releases ([code-katz/ck#117](https://github.com/code-katz/ck/pull/117)), on stable and ck-next. Sable, a miniature painting advisor, joins the roster as a Craft seat on Opus 5.5, with a `/ck:sable` switch command and a `ck:sable` subagent. She is not on any project's team until invited with `/ck:team invite sable`. The release check passed: a fresh session in ck, d20mob and hireling loads 0.1.47, and d20mob's installed copy has her roster row, agent and skill. Her command was not run in a session. The two-channel line now reads 0.1.47. The branches left from the 0.1.44, 0.1.45 and 0.1.46 pins were deleted, and five older pin branches (0.1.17 to 0.1.38) still sit in claude-plugins.
+
+### Why
+A new persona for painting miniatures. Stable moves with each release, as it did for 0.1.44 to 0.1.46.
+
+### Open Questions Resolved / Added
+- Resolved: none.
+- Added: none.
+
+---
 
 ## [2026-11-19] 0.1.46 shipped: a verify for a group; stable on 0.1.46
 
